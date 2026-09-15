@@ -10,27 +10,49 @@ sendLoadingState: true
 includeAliasesInList: false
 
 macros:
-  "bin": "/mise/shims/llama-server"
+  "bin": "llama-server"
   "root": "/Users/pedroamaral/models"
   "cloud": "/Users/pedroamaral/Documents"
-  "basic": "--tools all --ui-mcp-proxy"
+  "basic": "--tools all --ui-mcp-proxy --context-shift"
   "image": "--image-min-tokens 1024"
-  "config": "--ui-config-file ${cloud}/AI-Config/ui-config.json"
-  "cache": "--cache-type-k q8_0 --cache-type-v q8_0"
-  "agent": "${basic} --mcp-servers-config ${cloud}/AI-Config/mcp-local.json"
-  "preset": "--jinja -ngl 99 --flash-attn on --parallel 1 --reasoning-preserve"
-  "dflash": "-md ${root}/.muse_dflash-kquant.gguf -ngl-draft 99"
+  "config": "--ui-config-file ${cloud}/AI-Files/AI-Brain/ui-config.json"
+  "cache-max": "--cache-type-k q8_0 --cache-type-v q4_0"
+  "cache-stb": "--cache-type-k q5_1 --cache-type-v q5_1"
+  "cache-alt": "--cache-type-k q8_0 --cache-type-v q5_1"
+  "agent": "${basic} --mcp-servers-config ${cloud}/AI-Files/AI-Brain/mcp.json"
+  "preset": "--jinja -ngl 99 --flash-attn on --parallel 1 --reasoning-preserve -t 4 -tb 4 -b 2048 -ub 1024"
 
 models:
 
-  qwen-3.5-4b:
-    name: "Qwen 3.5 4B (Agent)"
-    aliases: ["Qwen 4B Agent"]
-    description: "Agentic Tiny Text-image model"
+  minicpm:
+    name: "MiniCPM5 2B"
+    aliases: ["MiniCPM5 2B"]
+    description: "Tiny Dense Text model / 65k ctx, Cache v q5.1"
+    capabilities:
+      in: [text]
+      out: [text]
+      context: 65000
+      tools: true
+    filters:
+      setParams:
+        temperature: 0.60
+        top_p: 0.95
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/miniCPM5-2B-heretic.gguf ${agent} 
+      ${preset} -c 65000 ${cache-alt}
+    ttl: 900
+    unloadTimeout: 30
+
+  qwen-4b:
+    name: "Qwen 3.5 4B"
+    aliases: ["Qwen 4B"]
+    description: "Tiny Dense Multimodal / 70k ctx, Cache v q5.1"
     capabilities:
       in: [text, image]
       out: [text]
-      context: 98304
+      context: 70500
       tools: true
     filters:
       setParams:
@@ -43,93 +65,41 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/qwen-3.5-4B-Uncensored-Q6K.gguf ${agent}
       --mmproj ${root}/.mmproj-qwen-4b.gguf ${image}
-      ${preset} ${cache} --ctx-size 98304
+      ${preset} ${cache-alt} -c 70500
     ttl: 900
     unloadTimeout: 30
 
-  ling-9B:
+  ling-9b:
     name: "Ling Tiny 9B"
     aliases: ["Ling Tiny 9B"]
-    description: "Text model / 98k ctx"
+    description: "Tiny MoE Text Model / 70k ctx, Cache q5.1"
     capabilities:
       in: [text]
       out: [text]
       tools: true
-      context: 98304
+      context: 70500
     filters:
       setParams:
-        temperature: 1.0
+        temperature: 0.7
         top_p: 0.95
         top_k: 20
         reasoning_budget: 20000
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/ling-3-tiny.gguf ${agent}
-      ${preset} ${cache} --ctx-size 98304 
-    ttl: 1000
-    unloadTimeout: 35
-
-  ornith-1.5-9b:
-    name: "Ornith 1.5 9B (Release)"
-    aliases: ["Ornith 9b Release"]
-    description: "Text-image model / 98k ctx"
-    capabilities:
-      in: [text, image]
-      out: [text]
-      tools: true
-      context: 98304
-    filters:
-      setParams:
-        temperature: 0.60
-        top_p: 0.95
-        top_k: 20
-        min_p: 0.0
-        reasoning_budget: 20000
-        presence_penalty: 0.0
-        repeat_penalty: 1.00
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/ornith-1.5-9b.gguf ${agent}
-      --mmproj ${root}/.mmproj-ornith-1.5-9b.gguf ${image}
-      ${preset} ${cache} --ctx-size 70800 
-    ttl: 1000
-    unloadTimeout: 25
-
-  ornith-1.5-9B:
-    name: "Ornith 1.5 9B (Update)"
-    aliases: ["Ornith 9B Update"]
-    description: "Text-image model / 98k ctx"
-    capabilities:
-      in: [text, image]
-      out: [text]
-      tools: true
-      context: 98304
-    filters:
-      setParams:
-        temperature: 0.60
-        top_p: 0.95
-        top_k: 20
-        min_p: 0.0
-        reasoning_budget: 20000
-        presence_penalty: 1.5
-        repeat_penalty: 1.00
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/ornith-1.5-9B-Q8.gguf ${agent}
-      --mmproj ${root}/.mmproj-Ornith-1.5-9B-update ${image}
-      ${preset} ${cache} --ctx-size 98304 
+      -m ${root}/ling-3-tiny-heretic.gguf ${agent}
+      ${preset} ${cache-alt} -c 70500 
     ttl: 1000
     unloadTimeout: 35
 
   laguna:
-    name: "Laguna MoE (Agent)"
+    name: "Laguna MoE"
     aliases: ["Laguna Agent"]
-    description: "Agentic MoE text model (temp 0.7 - 70k ctx)"
+    description: "MoE Text model / 70k ctx, Cache v q5.1"
     capabilities:
       in: [text]
       out: [text]
       tools: true
-      context: 98304
+      context: 70500
     filters:
       setParams:
         temperature: 0.70
@@ -138,13 +108,61 @@ models:
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT}
       -m ${root}/laguna-XS-2.1-IQ3M.gguf ${config}
-      ${preset} ${cache} --ctx-size 98304 ${agent}
+      ${preset} ${cache-stb} -c 70500 ${agent}
     unloadTimeout: 40
 
-  ornith-1.5-a3b:
-    name: "Ornith 1.5 A3B (Basic)"
-    aliases: ["Ornith A3B"]
-    description: "Image-text MoE / 70k cxt"
+  ornith-9b:
+    name: "Ornith 1.5 9B"
+    aliases: ["Ornith 9b"]
+    description: "Dense Multimodal Model / 70k ctx, Cache v q5.1"
+    capabilities:
+      in: [text, image]
+      out: [text]
+      tools: true
+      context: 70500
+    filters:
+      setParams:
+        temperature: 0.60
+        top_p: 0.95
+        top_k: 20
+        min_p: 0.0
+        reasoning_budget: 15000
+        presence_penalty: 0.0
+        repeat_penalty: 1.00
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/ornith-1.5-9B-heretic.gguf ${agent}
+      --mmproj ${root}/.mmproj-ornith-1.5-9B.gguf ${image}
+      ${preset} ${cache-alt} -c 70500 
+    ttl: 1000
+    unloadTimeout: 25
+
+  ornith-a3b:
+    name: "Ornith 1.5 A3B"
+    aliases: ["Ornith A3B Agent"]
+    description: "MoE Multimodal Model / 705k ctx, Cache v q5.1"
+    capabilities:
+      in: [text, image]
+      out: [text]
+      tools: true
+      context: 75800
+    filters:
+      setParams:
+        temperature: 0.7
+        top_p: 0.95
+        top_k: 20
+        reasoning_budget: 20400
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/ornith-1.5-35B-A3B-Uncensored-IQ3M.gguf
+      --mmproj ${root}/.mmproj-ornith-1.5-35B-A3B.gguf ${image}
+      ${preset} ${cache-alt} -c 75800 ${agent}
+    unloadTimeout: 60
+
+  qwen-3.6:
+    name: "Qwen 3.6"
+    aliases: ["Qwen 3.6"]
+    description: "MoE Multimodel Model / 70k ctx, Cache q5.1"
     capabilities:
       in: [text, image]
       out: [text]
@@ -155,45 +173,52 @@ models:
         temperature: 0.6
         top_p: 0.95
         top_k: 20
-        reasoning_budget: 16300
+        min_p: 0.0
+        repeat_penalty: 1.0
+        presence_penalty: 0
+        reasoning_budget: 20000
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/ornith-1.5-35B-A3B-Uncensored-IQ3M.gguf
-      --mmproj ${root}/.mmproj-ornith-1.5-35B-A3B.gguf ${image}
-      ${cache} --ctx-size 70800 ${basic}
-    unloadTimeout: 55
+      -m ${root}/qwen-3.6-35B-A3B-heretic-IQ3M.gguf ${agent}
+      --mmproj ${root}/.mmproj-qwen-3.6-f16.gguf ${image}
+      ${preset} -c 70800 ${cache-alt}
+    unloadTimeout: 70
 
-  ornith-1.5-A3B:
-    name: "Ornith 1.5 A3B (Agent)"
-    aliases: ["Ornith A3B Agent"]
-    description: "Image-text MoE / 98k cxt"
+  qwen-3.8-swf:
+    name: "Qwen 3.8 - Cache q5"
+    aliases: ["Qwen 3.8 Swift"]
+    description: "Multimodal Medium Reasoning / 60k ctx, Cache q5.1"
     capabilities:
-      in: [text, image]
+      in: [text]
       out: [text]
       tools: true
-      context: 98304
+      context: 60000
     filters:
       setParams:
         temperature: 0.6
         top_p: 0.95
         top_k: 20
-        reasoning_budget: 20400
+        min_p: 0.0
+        repeat_penalty: 1.0
+        presence_penalty: 0
+        reasoning_budget: 15000
+        chat_template_kwargs:
+          reasoning_effort: medium
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/ornith-1.5-35B-A3B-Uncensored-IQ3M.gguf
-      --mmproj ${root}/.mmproj-ornith-1.5-35B-A3B.gguf ${image}
-      ${preset} ${cache} --ctx-size 98304 ${agent}
-    unloadTimeout: 60
+      -m ${root}/qwen-3.8-swift-27B.gguf ${agent}
+      ${preset} -c 60000 ${cache-stb}
+    unloadTimeout: 70
 
-  qwen-3.8-27b:
-    name: "Qwen 3.8 (Agent - Low)"
-    aliases: ["Qwen 3.8 Low"]
-    description: "Text-image model / temp 0.6"
+  qwen-3.8-hrt:
+    name: "Qwen 3.8 - Cache q4"
+    aliases: ["Qwen 3.8 Medium"]
+    description: "Multimodal Medium Reasoning / 70k ctx, Cache q4.0"
     capabilities:
-      in: [text]
+      in: [text, image]
       out: [text]
       tools: true
-      context: 45500
+      context: 70800
     filters:
       setParams:
         temperature: 0.6
@@ -202,46 +227,20 @@ models:
         min_p: 0.0
         repeat_penalty: 1.0
         presence_penalty: 0.1
-        reasoning_budget: 20400
-        chat_template_kwargs:
-          reasoning_effort: low
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/qwen-3.8-27B-heretic-IQ3M.gguf
-      ${preset} ${cache} ${agent} --ctx-size 45500
-    unloadTimeout: 70
-
-  qwen-3.8-27B:
-    name: "Qwen 3.8 (Agent - Medium)"
-    aliases: ["Qwen 3.8 Medium"]
-    description: "Text-image model / temp 0.4, kv q5_1"
-    capabilities:
-      in: [text, image]
-      out: [text]
-      tools: true
-      context: 70800
-    filters:
-      setParams:
-        temperature: 0.4
-        top_p: 0.90
-        top_k: 15
-        min_p: 0.02
         reasoning_budget: 20000
-        presence_penalty: 0.0
-        repeat_penalty: 1.0
         chat_template_kwargs:
           reasoning_effort: medium
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/qwen-3.8-27B-heretic-IQ3M.gguf ${agent}
+      -m ${root}/qwen-3.8-27B-heretic-IQ3M.gguf
       --mmproj ${root}/.mmproj-qwen-3.8-27b.gguf ${image}
-      ${preset} --ctx-size 70800 --cache-type-k q5_1 --cache-type-v q5_1
-    unloadTimeout: 80
+      ${preset} -c 70800 ${cache-max} ${agent}
+    unloadTimeout: 70
 
-  qwen-3.8-27B-high:
-    name: "Qwen 3.8 (Agent - High)"
-    aliases: ["Qwen 3.8 High"]
-    description: "Text-image model / temp 0.4, kv q5_1"
+  qwen-3.8-gsq:
+    name: "Qwen 3.8 GSQ"
+    aliases: ["Qwen 3.8 GSQ"]
+    description: "Quantisation GSQ-RCO / 70k ctx, Cache q5.1"
     capabilities:
       in: [text, image]
       out: [text]
@@ -249,99 +248,34 @@ models:
       context: 70800
     filters:
       setParams:
-        temperature: 0.4
-        top_p: 0.90
-        top_k: 15
-        min_p: 0.02
+        temperature: 0.6
+        top_p: 0.95
+        top_k: 20
+        min_p: 0.05
+        repeat_penalty: 1.05
         reasoning_budget: 20000
-        presence_penalty: 0.0
-        repeat_penalty: 1.0
         chat_template_kwargs:
-          reasoning_effort: high
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/qwen-3.8-27B-heretic-IQ3M.gguf ${agent}
-      --mmproj ${root}/.mmproj-qwen-3.8-27b.gguf ${image}
-      ${preset} --ctx-size 70800 --cache-type-k q5_1 --cache-type-v q5_1
-    unloadTimeout: 80
-
-  meta-glimmer-30b:
-    name: "Meta Muse Glimmer (Agent)"
-    aliases: ["Glimmer Agent"]
-    description: "Text model / 32k ctx, reason. high"
-    capabilities:
-      in: [text]
-      out: [text]
-      tools: true
-      context: 32600
-    filters:
-      setParams:
-        temperature: 0.65
-        top_p: 0.95
-        top_k: 64
-        reasoning_budget: 8400
-        chat_template_kwargs:
-          reasoning_strength: high
+          reasoning_effort: medium
     cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/muse-glimmer-30B-heretic-Q4KL.gguf ${dflash}
-      ${cache} --ctx-size 32600 ${agent} 
-    ttl: 900
-    unloadTimeout: 85
-
-  meta-glimmer-30B:
-    name: "Meta Muse Glimmer (Basic)"
-    aliases: ["Glimmer Chat"]
-    description: "Text model / 45k ctx, reason. xhigh"
-    capabilities:
-      in: [text]
-      out: [text]
-      tools: true
-      context: 45500
-    filters:
-      setParams:
-        temperature: 1.0
-        top_p: 0.95
-        top_k: 64
-        reasoning_budget: 20400
-        chat_template_kwargs:
-          reasoning_strength: xhigh
-    cmd: |
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/muse-glimmer-30B-heretic-Q4KL.gguf ${dflash} 
-      ${cache} --ctx-size 45500 ${basic}
-    ttl: 900
-    unloadTimeout: 80
+      -m ${root}/qwen-3.8-27B-GSQ-RCO.gguf ${agent}
+      --mmproj ${root}/.mmproj-Qwen3.8-27B-BF16.gguf ${image}
+      ${preset} -c 70800 ${cache-stb}
+    ttl: 1000
+    unloadTimeout: 70
 
 matrix:
   vars:
-    q4b: qwen-3.5-4b
-    o9a: ornith-1.5-9b
-    o9c: ornith-1.5-9B
-    l3t: ling-9B
+    mpm: minicpm
+    ltg: ling-9b
     lxs: laguna
-    o3c: ornith-1.5-a3b
-    o3a: ornith-1.5-A3B
-    q8a: qwen-3.8-27b
-    q8b: qwen-3.8-27B
-    q8c: qwen-3.8-27B-high
-    mga: meta-glimmer-30b
-    mgc: meta-glimmer-30B
+    or3: ornith-a3b
+    or9: ornith-9b
+    q4b: qwen-4b
+    qw6: qwen-3.6
+    qsw: qwen-3.8-swf
+    qht: qwen-3.8-hrt
+    qgs: qwen-3.8-gsq
 
   sets:
-    main: "(q4b | l3t | o3a | o3c)"
-    mix: "(lxs | o3c | o3a | o9c | o9a)"
-    max: "(q8a | q8b | q8c | mga | mgc)"
-  evict_costs:
-    q4b: 1
-    l3t: 3
-    o9a: 3
-    o9c: 3
-    o3c: 7
-    o3a: 7
-    lxs: 3
-    q8a: 9
-    q8b: 9
-    q8c: 9
-    mga: 9
-    mgc: 9
+    agent: (mpm | ltg | lxs | or9 | or3 | q4b | qw6 | qsw | qht | qgs)

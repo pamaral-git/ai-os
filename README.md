@@ -1,25 +1,21 @@
-# AI Research Hub
+# AI-Research-Hub
 
-> A private, local-first workspace where rules, instructions, loops, and research notes converge around one operator.
-> The hub is the operating system; everything below is the stack.
+Local-first repository for model configurations, instructions, autonomous loops, and notes. The setup targets on-device inference on Apple Silicon and self-hosted Docker containers.
 
-| | |
-|---|---|
-| **Stack** | Open-source + self-hosted, local-first, on-device inference |
-| **Host** | MacBook Pro M4 · 24 GB unified · iOS · Android · Docker |
+```
+Host: MacBook Pro M4 (24 GB unified memory)
+OS: macOS 27, iOS 27, Android
+Runtimes: llama.cpp, Docker
+Operator: Pedro Amaral
+```
 
 ---
 
-## What this is
+## Scope
 
-An AI research and operational hub. It is not a single app — it is the **directory structure that governs how agents behave, what they research, and how residue is cleaned up after**. It holds four kinds of things:
+This repository stores configurations, instructions, autonomous loops, and notes for local AI development. It standardizes runtime flags, system prompts, and cleanup scripts across projects.
 
-1. **Rules** — the always-on identity and reasoning contract (`Configurations/`).
-2. **Instructions** — task-specific prompt frameworks for analysis, TTS, reasoning, and hard truths (`Instructions/`).
-3. **Loops** — automations that run unattended: scrape/collect, and cleanup (`Loops/`).
-4. **Notebook** — dated research logs, benchmark verdicts, and build history (`Notebook/`).
-
-A GitHub Actions workflow publishes the public front door (`.github/workflows/`).
+The files support work on downstream tools including [Arta](https://github.com/pedromanuelamaral/arta), [Agent Lab](https://github.com/pedromanuelamaral/agent-lab), [Fusion Research](https://github.com/pedromanuelamaral/fusion-research), and [Mentally Here](https://github.com/pedromanuelamaral/mentally-here).
 
 ---
 
@@ -27,94 +23,133 @@ A GitHub Actions workflow publishes the public front door (`.github/workflows/`)
 
 ```
 AI-Research-Hub/
-├── Configurations/            ← Rules + system inventory + local model swap
-│   ├── AGENT.md               ← Global always-on rules, identity, workspace, reasoning
-│   ├── INVENTORY.sh           ← System snapshot (hardware, PATH, models, keys)
-│   └── llama-swap.yaml        ← Local models catalogue & run configuration
-├── Hooks/
-│   └── compact.md             ← Context compact & handoff source-of-truth
-├── Instructions/
-│   ├── explain.md             ← AI-Explained-Matrix (comparative explainer)
-│   ├── world-monitor.md       ← 8-section operational debrief framework
-│   ├── uncensor.md            ← Uncensored reasoning/response posture
-│   ├── text-to-speech.md      ← Read-aloud optimizer (EN / PT-pt)
-│   └── tough-love.md          ← Private-issue stress-test persona
-├── Loops/
-│   ├── scrape.md              ← Data-gathering orchestration (SearXNG / Crawl4AI / browser)
-│   └── cleanup.md             ← Post-task residue & cache hygiene
-├── Notebook/                  ← Dated research logs & benchmark verdicts
+├── Configurations/            <- Runtime configs, system inventory, model swap rules
+│   ├── AGENT.md               <- Always-on agent identity and workspace rules
+│   ├── agent-browser.sh       <- Chrome Testing remote debugging launcher
+│   ├── fetch-nvidia-model.py  <- NVIDIA NIM catalog scraper and endpoint builder
+│   ├── INVENTORY.sh           <- System state snapshot script
+│   ├── llama-swap.yaml        <- Local model server definitions
+│   └── llama-swap-to-cli.py   <- YAML to llama-cli command converter
+├── Instructions/              <- Reusable task prompts
+│   ├── explain.md             <- Comparative explanation matrix
+│   ├── text-to-speech.md      <- Read-aloud phrasing rules
+│   ├── tough-love.md          <- Direct counter-argument persona
+│   ├── uncensor.md            <- Unfiltered response guidance
+│   ├── wallpaper-render.md    <- Image scaling and outpainting rules
+│   ├── world-monitor.md       <- Operational debrief format
+│   └── write.md               <- Direct writing constraints and anti-slop rules
+├── Loops/                     <- Unattended routines and verification cycles
+│   ├── cleanup.md             <- Cache and residue deletion checklist
+│   ├── RSI/                   <- Recursive self-improvement harness
+│   │   ├── acceptance.py      <- Requirement verification runner
+│   │   ├── loop.md            <- Refinement loop specification
+│   │   ├── lri.py             <- Loop execution controller
+│   │   ├── policy.yml         <- Execution and memory limits
+│   │   └── task.json          <- Task contract format
+│   └── scrape.md              <- Search and scrape orchestration steps
+├── Notebook/                  <- Benchmark logs and technical writeups
 │   ├── 2026-06-21--Gemini-3.6-Testing.md
-│   ├── 2026-06-29--Cerebras-Hackathon.md  (.html recap)
+│   ├── 2026-06-29--Cerebras-Hackathon.html
+│   ├── 2026-06-29--Cerebras-Hackathon.md
 │   ├── 2026-07-20--Gemma4-12B-MTP.md
 │   ├── 2026-08-04--Local-AI-update.md
 │   ├── 2026-08-05--Gemma4-TTS-LFM.md
 │   ├── 2026-08-22--Self-Hosting-Sovereignty.md
 │   ├── 2026-08-26--Un-censored.md
-│   └── 2026-09-02--Speed-Tradeoffs.md
+│   ├── 2026-09-02--Speed-Tradeoffs.md
+│   └── 2026-09-06—Local-Semantics.md
+├── Prompts/                   <- Handoff and ingestion prompts
+│   ├── compact.md             <- Context condensation schema
+│   ├── docker.md              <- Container deployment preferences
+│   └── redact.md              <- PII and secret removal prompt
 └── .github/
+    └── workflows/
+        └── pages.yml          <- GitHub Pages static deployment
 ```
 
 ---
 
-## 📁 Files
+## Repository files
 
-### Rules & configuration — `Configurations/`
+### Configurations
 
-| File | Purpose | Link |
-|---|---|---|
-| **AGENT.md** | Global always-on rules — identity, workspace, reasoning & execution rules | [🔒](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Configurations/AGENT.md) |
-| **INVENTORY.sh** | macOS snapshot script: hardware, PATH, model dirs, key names | [🔑](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Configurations/INVENTORY.sh) |
-| **llama-swap.yaml** | Local models catalogue with run configs, context sizes, & eval costs | [🦙](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Configurations/llama-swap.yaml) |
-
-### Instructions — `Instructions/`
-
-| File | Purpose | Link |
-|---|---|---|
-| **explain.md** | AI-Explained-Matrix — multi-variable (matrix/flowchart/venn) comparative explainer | [📊](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Instructions/explain.md) |
-| **world-monitor.md** | 8-section operational debrief framework with signal tagging | [🌍](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Instructions/world-monitor.md) |
-| **uncensor.md** | Uncensored reasoning & response posture | [🔓](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Instructions/uncensor.md) |
-| **text-to-speech.md** | Read-aloud optimizer — verbatim, fluid, multi-part | [🎤](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Instructions/text-to-speech.md) |
-| **tough-love.md** | Private-issue stress-test persona | [💢](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Instructions/tough-love.md) |
-
-### Loops — `Loops/`
-
-| File | Purpose | Link |
-|---|---|---|
-| **scrape.md** | Data-gathering orchestration: SearXNG → Crawl4AI → browser verification (MCP / Browsebase / Steel) | [🕷️](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Loops/scrape.md) |
-| **cleanup.md** | Post-task residue & cache hygiene — one item at a time, verified | [🧹](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Loops/cleanup.md) |
-
-### Research — `Notebook/`
-
-| Note | Link |
+| File | Description |
 |---|---|
-| **Gemini 3.6 testing** — index.html refactor & performance/accessibility comparison | [📄](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Notebook/2026-06-21--Gemini-3.6-Testing.md) |
-| **Cerebras hackathon** — Arta AI build, scope, criteria ([live demo](https://pedromanuelamaral.github.io/arta)) | [🏗️](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Notebook/2026-06-29--Cerebras-Hackathon.md) |
-| **Gemma 4 QAT vs Google original** — inference benchmark | [⚖️](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Notebook/2026-07-20--Gemma4-12B-MTP.md) |
-| **Local AI update** — model log & onboarding notes | [💻](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Notebook/2026-08-04--Local-Ai-update.md) |
-| **Gemma-4 TTS vs LFM-2.5** — verdict: LFM wins on speed & quality | [🎯](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Notebook/2026-08-05--Gemma4-TTS-LFM.md) |
-| **Self-hosting sovereignty** — uncensored local models & privacy rationale | [🏝️](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Notebook/2026-08-22--Self-Hosting-Sovereignty.md) |
-| **Un-censored** — fine-tuning & local-hosted output rationale | [🔓](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Notebook/2026-08-26--Un-censored.md) |
-| **Speed tradeoffs** — tiny-model verdicts, workhorse vs fast decay | [🏎️](https://github.com/pedromanuelamaral/AI-Research-Hub/blob/main/Notebook/2026-09-02--Speed-Tradeoffs.md) |
+| [AGENT.md](Configurations/AGENT.md) | Always-on rules for identity, workspace paths, and tool access |
+| [agent-browser.sh](Configurations/agent-browser.sh) | Shell script launching Chrome with remote debugging on port 8889 |
+| [fetch-nvidia-model.py](Configurations/fetch-nvidia-model.py) | Python utility querying NVIDIA NIM APIs with local Crawl4AI fallback |
+| [INVENTORY.sh](Configurations/INVENTORY.sh) | Shell script recording hardware specs, PATH entries, and model paths |
+| [llama-swap.yaml](Configurations/llama-swap.yaml) | Model endpoints, swap parameters, and memory budgets |
+| [llama-swap-to-cli.py](Configurations/llama-swap-to-cli.py) | Parser translating YAML configuration into llama-cli arguments |
+
+### Instructions
+
+| File | Description |
+|---|---|
+| [explain.md](Instructions/explain.md) | Prompt structure for comparative matrix explanations |
+| [text-to-speech.md](Instructions/text-to-speech.md) | Rules for speech generation in English and European Portuguese |
+| [tough-love.md](Instructions/tough-love.md) | Adversarial review persona for testing assumptions |
+| [uncensor.md](Instructions/uncensor.md) | System prompt removing conversational hedges and refusals |
+| [wallpaper-render.md](Instructions/wallpaper-render.md) | Instructions for 4K image upscaling and canvas extension |
+| [world-monitor.md](Instructions/world-monitor.md) | Eight-part debrief format for news and operational events |
+| [write.md](Instructions/write.md) | Machine instruction set removing LLM signatures and writing slop |
+
+### Prompts
+
+| File | Description |
+|---|---|
+| [compact.md](Prompts/compact.md) | Eleven-part schema for compressing agent context into facts |
+| [docker.md](Prompts/docker.md) | Host paths and isolation requirements for Docker containers |
+| [redact.md](Prompts/redact.md) | Text filter removing names, credentials, and network addresses |
+
+### Loops
+
+| File | Description |
+|---|---|
+| [cleanup.md](Loops/cleanup.md) | Checklist for removing temporary files, logs, and caches |
+| [RSI/](Loops/RSI/loop.md) | Recursive self-improvement harness with automated acceptance tests |
+| [scrape.md](Loops/scrape.md) | Sequence connecting SearXNG, Crawl4AI, and browser automation |
+
+### Notebook
+
+| File | Description |
+|---|---|
+| [2026-06-21--Gemini-3.6-Testing.md](Notebook/2026-06-21--Gemini-3.6-Testing.md) | Accessibility and benchmark comparison for HTML refactoring |
+| [2026-06-29--Cerebras-Hackathon.md](Notebook/2026-06-29--Cerebras-Hackathon.md) | Build notes and latency logs for Arta |
+| [2026-07-20--Gemma4-12B-MTP.md](Notebook/2026-07-20--Gemma4-12B-MTP.md) | Quantized inference speeds across Apple Silicon targets |
+| [2026-08-04--Local-AI-update.md](Notebook/2026-08-04--Local-AI-update.md) | Model weights inventory and llama.cpp build updates |
+| [2026-08-05--Gemma4-TTS-LFM.md](Notebook/2026-08-05--Gemma4-TTS-LFM.md) | Audio generation benchmarks comparing Gemma-4 TTS and LFM-2.5 |
+| [2026-08-22--Self-Hosting-Sovereignty.md](Notebook/2026-08-22--Self-Hosting-Sovereignty.md) | Technical and privacy reasons for running models on local hardware |
+| [2026-08-26--Un-censored.md](Notebook/2026-08-26--Un-censored.md) | Test outputs from fine-tuned weights without safety filters |
+| [2026-09-02--Speed-Tradeoffs.md](Notebook/2026-09-02--Speed-Tradeoffs.md) | Token generation rates versus context size on M4 hardware |
+| [2026-09-06—Local-Semantics.md](Notebook/2026-09-06—Local-Semantics.md) | Analysis of cloud dependencies in products marketed as local AI |
 
 ---
 
-## 🌐 Live front door
+## Downstream projects and hackathons
 
-The public side is published to GitHub Pages:
+This repository provides instructions and execution loops for related projects:
 
-- **Pages deployment** → [https://pedromanuelamaral.github.io/AI-Research-Hub](https://pedromanuelamaral.github.io/AI-Research-Hub) *(deployed via `.github/workflows/pages.yml`)*
+- [Arta](https://github.com/pedromanuelamaral/arta) (art analysis and curation, [demo](https://pedromanuelamaral.github.io/arta/))
+- [Agent Lab](https://github.com/pedromanuelamaral/agent-lab) (interactive agent environment, [demo](https://pedromanuelamaral.github.io/agent-lab/))
+- [Fusion Research](https://github.com/pedromanuelamaral/fusion-research) (macro equity research, [demo](https://pedromanuelamaral.github.io/fusion-research/))
+- [Mentally Here](https://github.com/pedromanuelamaral/mentally-here) (health companion, [demo](https://pedromanuelamaral.github.io/mentally-here/Index.html))
+
+### Hackathons
+
+- Cerebras x Google Gemma 4 (June 2026): project build for Arta with Gemma-4 TTS and LFM-2.5 latency benchmarks.
+- Nebius x NVIDIA Global AI Hackathon (August to October 2026): NIM model integration via `fetch-nvidia-model.py`.
+
+---
+
+## Deployment
+
+GitHub Actions publishes static documentation to GitHub Pages on pushes to the main branch:
+
+- [Documentation site](https://pedromanuelamaral.github.io/AI-Research-Hub)
 
 ---
 
-## 🔗 Related projects
+## Author
 
-Project lineage & the tools this hub builds on:
-
-| Project | Purpose | Link |
-|---|---|---|
-| **Arta AI** | Private cultural desk — memory + retrieval + judgment — build started here | [🏛️](https://pedromanuelamaral.github.io/arta) |
-| **Mentally here** | Personal, private companion for mental-health journey (built open) | [🩺](https://github.com/p-e-w/mentally-here) |
-| **abliteration** | Fine-tuning uncensored models for local, private issue-handling | [🧬](https://github.com/p-e-w/heretic) |
-| **Off the Grid (OGAM)** | Free self-hosted private local AI chat app | [📱](https://github.com/off-grid-ai/OGAM) |
-
----
+Pedro Amaral | [GitHub](https://github.com/pedromanuelamaral) | [X](https://x.com/thephiloinvest) | [Devpost](https://devpost.com/pedromanuelamaral) | [Hugging Face](https://huggingface.co/Pedroamaral) | [CV](https://github.com/pedromanuelamaral/pedromanuelamaral/blob/main/CV.md)
