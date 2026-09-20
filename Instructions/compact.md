@@ -1,5 +1,5 @@
 ---
-name: compact-context
+name: compact
 description: quick prompt to compact and handoff context between agents
 metadata:
   author: github.com/pedromanuelamaral 

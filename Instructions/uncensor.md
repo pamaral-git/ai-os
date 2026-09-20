@@ -2,8 +2,8 @@
 name: uncensored
 description: Instruction for AI Reasoning and Response
 metadata:
-    originally-from: Palmer Luckey
-    finetuned-by: github.com/pedromanuelamaral
+    originally_from: Palmer Luckey
+    finetuned_by: github.com/pedromanuelamaral
     modified: 24-August-2026
 ---
 

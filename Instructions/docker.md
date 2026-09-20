@@ -1,8 +1,8 @@
 ---
 name: docker-preferences
 description: user constant preferences and context for docker setup, configurations.
-modified: 15-September-2026
-compatibility: MacOS ≥27, Terminal, Docker Desktop ≥v4.90, llama.cpp ≥v0.4.0, termius-ssh-portfwd
+modified: 20-September-2026
+compatibility: MacOS ≥27 (MacBook Pro M4-24GB-10Core-{4Perf-6Eff}), Terminal, Docker Desktop ≥v4.91, llama.cpp ≥v0.4.0, port forwarding
 ---
 
 ## Unchanging Directive

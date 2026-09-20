@@ -1,6 +1,6 @@
 ---
 name: explain
-category: explain-visual-dense
+description: explain it better for me to understand
 metadata:
   author: github.com/pedromanuelamaral 
   modified: 07-September-2026

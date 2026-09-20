@@ -1,30 +1,28 @@
 ---
 name: agent-rules
 purpose: Global Agent Rules
-modified: 15-September-2026
+modified: 20-September-2026
 ---
 
 ```markdown
 **stack:**
 ├── apple/
 │   ├── Host: iPhone 15 A16 Bionic-6GB - iOS 27
-│   │   └── a-shell (yt-dlp, gh, ffmpeg), koder; termius-portfwd
+│   │   └── a-shell, koder; termius
 │   └── Host: MacBook Pro M4-24GB-10Core-{4Perf-6Eff} - macOS 27
-│       └── xcode 27; apple-intelligence; termius; tmux
+│       └── xcode 27; apple-intelligence, apple foundation models; termius; tmux
 ├── android: Lenovo TB-J616F (Android 12) - 4GB RAM 8core 2.05GHz-{2Perf.}
-├── docker/
-│   └── searxng, crawl4ai, context, heretic, opencode, world-monitor
+├── docker
 ├── google/
 │   ├── antigravity (2.0, cli, mobile-remote control)
 │   ├── gemini (ai-studio, web, mac, iOS, android, notebook)
 │   └── edge-eloquent (mac, iOS); kaggle (cli, web)
 ├── openai/
 │   └── chatgpt (web, cli, mac app, iOS, android)
-├── anthropic-claude (web, mac app, iOS, android)
-├── perplexity (web, mac app, iOS, android)
+├── claude (web, mac app, iOS, android)
 ├── meta-ai (web, mac app, iOS, android)
 ├── mistral (web, cli, iOS, android, api)
-├── local-llm_Macbook: open-webui, llama.cpp (cli/server/swap), pi-agent and MLX
+├── local-llm_Macbook: llama.cpp (cli/server/swap), pi-agent and MLX
 ├── microsoft/
 │   ├── MAI (web) & copilot (web, iOS, android)
 │   └── vscode & github (mac app, cli, web, iOS, android, api)
@@ -35,25 +33,19 @@ modified: 15-September-2026
 
 ```markdown
 **access-clearance:**
-**1-Exclusive-clearance-(private_life)**
+**1-Complete-clearance-(private and work)**
 ├── local-llm
-├── docker (ephemeral-container/volumes)
-├── google-edge-eloquent (on-device-transcription)
-└── apple (local/iCloud/private-cloud)
+├── docker end-to-end localhosted
+└── google-edge-eloquent (on-device-transcription)
 
-**2-XHigh-clearance-(private_work)**
-├── google; openai; claude; perplexity
-└── microsoft; mistral; meta-ai; grok
+**2-Non-public-work-clearance**
+└── google; openai; apple intelligence; microsoft
 
-**3-High-clearance-(public_work)**
-├── nvidia-nim; groq; openrouter
-└── poolside; cloudflare
+**3-Workspace-restricted**
+├── claude; mistral; grok; meta-ai; nvidia-nim; groq; openrouter
+└── poolside; cloudflare; docker connected to cloud; {api-cloud_models-endpoints}
 
-**3-Basic-clearance-(low-level)**
-├── {api-cloud-models-endpoints}
-└── hugging-face-inference
-
-**X-Tier_Sandbox-Only-&-NO-Private_&_Personal**
+**X-Ultrarestricted-Sandbox-No-PII**
 └── deepSeek; kimi; minimax; z.ai; qwen; anything-chinese-hosted
 ```
 
@@ -73,16 +65,16 @@ modified: 15-September-2026
 - Highly demanding and with growth mindset.
 
 # Workspace
-Execute approved tasks inside the assigned directory creating two main sub-directories:
-- `./main` everything required to run, code-main output.
-- `./main/docs` everything related to Plans, Handoffs, CONTEXT.json README.md, CHANGELOG.md
-- `./main/docker` everything docker and containers required to run, if applied.
-- `./main/temp` all scaffolding and temporary code, script, files that can be deletable, if applied.
+Execute approved tasks inside the assigned directory creating these two sub-directories:
+- `./main` everything required to run, main code, configurations (including docker files to run it, if applicable), README.md and CHANGELOG.md
+- `./main/temp` all scaffolding and temporary code, script, files that can be deleted, if applicable.
 
-**ENSURE THAT:**
-1. CHANGELOG.md is always updated and includes conclusions of tasks before termination.
-2. CONTEXT.json has all the high level information derived and copy-pasted from `./temp`.
-3. Only then proceed with the cleanup of the scaffolding and unnecessary residue in `./temp`.
+**Rules of `CHANGELOG.md`:**
+1. Always updated and include conclusions of tasks before termination/kills.
+2. Structured from the most recent change to the the oldest.
+3. Always include at the end of each tag section the high level context information derived and copy-pasted from `./main/temp`.
+4. Only after ensuiring rules 1 to 3, proceed with the cleanup of the scaffolding and unnecessary residue in `./main/temp`.
+5. All change stages/version tags names should be written in ISO 8601 date-time on UTC+01:00.
 
 # Reasoning Rules
 1. Verify global rules and instructions, workspace context and permissions.
@@ -98,7 +90,7 @@ Verify and be able to Explain:
 
 If engaging on `high-risk` or `never-do` precede by one logical operation per block with incremental steps (if multi-step execution helps reduce risk).
 
-If the **output** isn't ready to run (contained, constrained or inferable environment) test with available tools or transparently declare the gaps, constraints and lack of testing before handoff.
+If the **output** isn't ready to run (contained, constrained or inferrable environment) test with available tools or transparently declare the gaps, constraints and lack of testing before handoff.
 
 # HIGH-RISK-ACTIONS (ALWAYS-EXPLICITLY-VERIFY):
 - Access or change `.env`, secret files/folder, locked folders, credentials, configurations and keys.

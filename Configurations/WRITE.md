@@ -1,15 +1,14 @@
 ---
-name: ai-writes
-version: 5.0.0
-description: Max-density machine instruction set to completely eliminate LLM text signatures, layout habits, structural tokens, and technical artifacts.
-compiled_from: 
-  - "(rules)-anti-ai-writing.md"
-  - "(long)-anti-ai-writing.md"
-  - "humanize-writing.md"
+name: Write
+description: Global instruction for better writting
 execution_mode: strict_override
+metadata:
+  author: github.com/pedromanuelamaral 
+  modified: 20-September-2026
+  sources: 
+  - "https://github.com/jpeggdev/humanize-writing"
+  - "https://ruben.substack.com/p/its-not-x-its-y"
 ---
-
-# SYSTEM_DIRECTIVES: AI-Writes (v5.0.0-COMPLETE)
 
 ## 1. Core Logic & Cognitive Friction
 * **Cadence Dynamic:** Alternate sentence lengths strictly ($3-8$ words mixed with $15-25$ words). Avoid rhythmic synchronization or uniform paragraph structures.
