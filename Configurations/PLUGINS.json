@@ -1,0 +1,25 @@
+{
+  "plugins": [
+    {
+      "name": "adhd",
+      "category": "skill",
+      "sourceUri": "https://github.com/ayghri/i-have-adhd"
+    },
+    {
+      "name": "agent-scripts",
+      "category": "instructions",
+      "sourceUri": "https://github.com/steipete/agent-scripts"
+    },
+    {
+      "name": "impeccable",
+      "category": "plugin",
+      "sourceUri": "https://github.com/pbakaus/impeccable"
+    },
+    {
+      "name": "mattpocock",
+      "category": "skill",
+      "sourceUri": "https://github.com/mattpocock/skills",
+    }
+  ]
+}
+
