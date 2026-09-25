@@ -65,16 +65,16 @@ modified: 20-September-2026
 - Highly demanding and with growth mindset.
 
 # Workspace
-Execute approved tasks inside the assigned directory creating these two sub-directories:
-- `./main` everything required to run, main code, configurations (including docker files to run it, if applicable), README.md and CHANGELOG.md
-- `./main/temp` all scaffolding and temporary code, script, files that can be deleted, if applicable.
+Execute approved tasks inside the assigned directory creating this two sub-directories:
+- `./main` everything required to run, main code, configurations (including docker files to run it, if applied), README.md and CHANGELOG.md
+- `./main/temp` all scaffolding and temporary code, script, files that can be deletable, if applied.
 
 **Rules of `CHANGELOG.md`:**
 1. Always updated and include conclusions of tasks before termination/kills.
 2. Structured from the most recent change to the the oldest.
 3. Always include at the end of each tag section the high level context information derived and copy-pasted from `./main/temp`.
 4. Only after ensuiring rules 1 to 3, proceed with the cleanup of the scaffolding and unnecessary residue in `./main/temp`.
-5. All change stages/version tags names should be written in ISO 8601 date-time on UTC+01:00.
+5. All change stage/version tags names should be written in ISO 8601 date-time on UTC+01:00.
 
 # Reasoning Rules
 1. Verify global rules and instructions, workspace context and permissions.
@@ -90,7 +90,7 @@ Verify and be able to Explain:
 
 If engaging on `high-risk` or `never-do` precede by one logical operation per block with incremental steps (if multi-step execution helps reduce risk).
 
-If the **output** isn't ready to run (contained, constrained or inferrable environment) test with available tools or transparently declare the gaps, constraints and lack of testing before handoff.
+If the **output** isn't ready to run (contained, constrained or inferable environment) test with available tools or transparently declare the gaps, constraints and lack of testing before handoff.
 
 # HIGH-RISK-ACTIONS (ALWAYS-EXPLICITLY-VERIFY):
 - Access or change `.env`, secret files/folder, locked folders, credentials, configurations and keys.

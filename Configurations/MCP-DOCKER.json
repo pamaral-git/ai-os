@@ -1,0 +1,189 @@
+{
+    "mcpServers": {
+        "Time": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=time",
+                "mcp/time"
+            ]
+        },
+        "Files": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=filesystem",
+                "-v",
+                "/Users/local-path/workspace:/local-directory",
+                "mcp/filesystem",
+                "/local-directory"
+            ]
+        },
+        "Checklist": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=checklist",
+                "mayurkakade/mcp-server:latest",
+                "--mode=backend"
+            ]
+        },
+        "Browser": {
+            "type": "stdio",
+            "command": "node",
+            "args": [
+                "/Users/local-path/browser-mcp/node_modules/@browsermcp/mcp/dist/index.js"
+            ]
+        },
+        "DuckDuckGo": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=duckduckgo",
+                "mcp/duckduckgo"
+            ]
+        },
+        "Markdown": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=markdown",
+                "-v",
+                "/Users/local-path/workspace:/local-directory",
+                "mcp/markitdown"
+            ]
+        },
+        "Thinking": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=sequentialthinking",
+                "mcp/sequentialthinking"
+            ]
+        },
+        "Memory": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=memory",
+                "-v",
+                "/Users/local-path/workspace:/local-directory",
+                "mcp/memory"
+            ]
+        },
+        "Youtube": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=youtube-transcript",
+                "mcp/youtube-transcript"
+            ]
+        },
+        "Wikipedia": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=wikipedia",
+                "mcp/wikipedia-mcp"
+            ]
+        },
+        "Web Fetch": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=fetch",
+                "mcp/fetch"
+            ]
+        }
+    }
+}
