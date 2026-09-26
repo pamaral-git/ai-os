@@ -1,20 +1,11 @@
-# AI-Research-Hub - [Site](https://pedromanuelamaral.github.io/AI-Research-Hub)
+# AI Operating System
 
-Local-first repository for model configurations, instructions, autonomous loops, and notes. The setup targets on-device inference on Apple Silicon and self-hosted Docker containers, supporting work on downstream tools such as [Arta (art analysis curation)](https://github.com/pedromanuelamaral/arta), [Agent Lab (learning tech enviroment)](https://github.com/pedromanuelamaral/agent-lab), [Fusion Research (macro equity research)](https://pedromanuelamaral.github.io/fusion-research/), and [Mentally Here (health companion)](https://pedromanuelamaral.github.io/mentally-here/Index.html).
+My local AI Operating System (configurations, models, instructions, frameworks and notes). AI-OS underlies all of my work
 
+**Hardware**: `MacBook Pro M4-24GB RAM` ; **Software**: `iOS-MacOS 27; llama.cpp; Oh My Pi; Docker`
+
+**AI-OS Directory** ◦ [HTML Index](https://pamaral-git.github.io/ai-os/)
 ```
-Host: MacBook Pro M4 (24 GB unified memory)
-OS: macOS 27, iOS 27, Android
-Runtimes: llama.cpp, Docker
-Author: Pedro Amaral
-```
-
----
-
-## Directory
-
-```
-AI-Research-Hub/
 ├── Configurations/            <- Runtime configs, system inventory, model swap rules
 │   ├── AGENT.md               <- Global agent identity and workspace rules
 │   ├── WRITE.md               <- Global writing rules
@@ -25,11 +16,11 @@ AI-Research-Hub/
 │   ├── llama-swap.yaml        <- Local model server definitions
 │   └── llama-swap-to-cli.py   <- YAML llama-server to llama-cli converter
 ├── Contributions/             <- Pull Requests done on other Platforms
-│   └── [PR1_Heretic-Models-Explorer](https://huggingface.co/spaces/MuXodious/Heretic-Models-Explorer/discussions/2#6aa80bacee81a827dc56bf6d)
+│   └── PR1_Heretic-Models-Explorer
 ├── Instructions/              <- Reusable task prompts
 │   ├── Loops/ 
 │   │   ├── cleanup.md         <- Cache and residue deletion checklist
-│   │   └── RSI/               <- Recursive self-improvement harness
+│   │   └── improve/               <- Recursive self-improvement harness
 │   │       │   ├── acceptance.py  <- Requirement verification runner
 │   │       ├── loop.md            <- Refinement loop specification
 │   │       ├── lri.py             <- Loop execution controller
@@ -72,7 +63,7 @@ AI-Research-Hub/
 |---|---|
 | [2026-06-21--Gemini-3.6-Testing.md](Notebook/2026-06-21--Gemini-3.6-Testing.md) | Accessibility and benchmark comparison for HTML refactoring |
 | [2026-06-29--Cerebras-Hackathon.md](Notebook/2026-06-29--Cerebras-Hackathon.md) | Build notes and latency logs for Arta |
-| [2026-07-20--Gemma4-12B-MTP.md](Notebook/2026-07-20--Gemma4-12B-MTP.md) | Quantized inference speeds across Apple Silicon targets |
+| [2026-07-20--Gemma4-12B-MTP.md](Notebook/2026-07-20--Gemma4- 12B-MTP.md) | Quantized inference speeds across Apple Silicon targets |
 | [2026-08-04--Local-AI-update.md](Notebook/2026-08-04--Local-AI-update.md) | Model weights inventory and llama.cpp build updates |
 | [2026-08-05--Gemma4-TTS-LFM.md](Notebook/2026-08-05--Gemma4-TTS-LFM.md) | Audio generation benchmarks comparing Gemma-4 TTS and LFM-2.5 |
 | [2026-08-22--Self-Hosting-Sovereignty.md](Notebook/2026-08-22--Self-Hosting-Sovereignty.md) | Technical and privacy reasons for running models on local hardware |
