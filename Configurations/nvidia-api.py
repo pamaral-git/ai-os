@@ -1,9 +1,4 @@
 #!/usr/bin/env python3
-"""
-NVIDIA NIM New Models Scraper & Endpoint Config Generator
-Detects newly added models and generates custom endpoint JSON with optimal parameters.
-"""
-
 import os
 import sys
 import json
@@ -110,7 +105,7 @@ def fetch_models_via_crawl4ai() -> List[Dict[str, Any]]:
     return models
 
 
-def load_cached_ids() -> set:
+def load_cached_ids() -> set[str]:
     if CACHE_FILE.exists():
         try:
             with open(CACHE_FILE, "r") as f:
@@ -120,7 +115,7 @@ def load_cached_ids() -> set:
     return set()
 
 
-def save_cached_ids(ids: set):
+def save_cached_ids(ids: set[str]):
     CACHE_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(CACHE_FILE, "w") as f:
         json.dump(sorted(list(ids)), f, indent=2)
