@@ -31,51 +31,28 @@ jobs:
         shell: bash
         run: |
           mkdir -p _site
+          touch _site/.nojekyll
 
-          # Copy directory hierarchy with only .html files into _site
-          find . -type f -name '*.html' ! -name 'index.html' ! -path './.*' ! -path './_site/*' | while read -r file; do
+          # Copy root index.html as the primary landing page
+          if [ -f "index.html" ]; then
+            cp index.html _site/
+          elif [ -f "Index.html" ]; then
+            cp Index.html _site/index.html
+          fi
+
+          # Copy directory hierarchy with all .html/.htm files into _site
+          find . -type f \( -name '*.html' -o -name '*.htm' \) ! -path './.*' ! -path './_site/*' ! -path './index.html' ! -path './Index.html' | while IFS= read -r file; do
             dest="_site/${file#./}"
             mkdir -p "$(dirname "$dest")"
             cp "$file" "$dest"
           done
 
-          # Collect staged relative html files
-          cd _site
-          html_files=$(find . -type f -name '*.html' ! -name 'index.html' | sed 's|^\./||' | sort)
-
-          # Generate index.html
-          cat <<'EOF' > index.html
-          <!doctype html>
-          <html lang="en">
-          <head>
-            <meta charset="utf-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>AI Operating System Index</title>
-            <style>
-              body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 2rem; line-height: 1.6; }
-              ul { list-style: square; padding-left: 1.2rem; }
-              a { color: #0969da; text-decoration: none; }
-              a:hover { text-decoration: underline; }
-            </style>
-          </head>
-          <body>
-            <h1>HTML Documents</h1>
-            <ul>
-          EOF
-
-          if [ -z "$html_files" ]; then
-            echo "      <li><em>No HTML pages found.</em></li>" >> index.html
-          else
-            while IFS= read -r f; do
-              [ -n "$f" ] && printf '      <li><a href="%s">%s</a></li>\n' "$f" "$f" >> index.html
-            done <<< "$html_files"
-          fi
-
-          cat <<'EOF' >> index.html
-            </ul>
-          </body>
-          </html>
-          EOF
+          # Copy companion web assets (images, css, js, json, svg, webp)
+          find . -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.svg' -o -name '*.webp' -o -name '*.gif' -o -name '*.css' -o -name '*.js' -o -name '*.json' \) ! -path './.*' ! -path './_site/*' | while IFS= read -r file; do
+            dest="_site/${file#./}"
+            mkdir -p "$(dirname "$dest")"
+            cp "$file" "$dest"
+          done
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

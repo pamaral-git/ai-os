@@ -14,6 +14,7 @@ My local AI Operating System (configurations, models, instructions, frameworks a
 │   ├── INVENTORY.sh           <- Capture system snapshot
 │   ├── MCP-DOCKER.json        <- Docker contained MCP tools
 │   ├── PLUGINS.json           <- External Community tools
+│   ├── KIT.html               <- AI Developer Playground
 │   ├── ai-browser.sh          <- AI Browser use script
 │   ├── nvidia-api.py          <- NVIDIA-NIM endpoint checker-config
 │   └── llama-swap-to-cli.py   <- Convert llama-swap to llama-cli
