@@ -1,0 +1,390 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AI Operating System</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  /* Dark theme GitHub palette */
+  --surface: #0d1117;
+  --bg: #0d1117;
+  --card: #161b22;
+  --card-hover: #1c2128;
+  --ink: #e6edf3;
+  --muted: #8b949e;
+  --line: #30363d;
+  --line-strong: #8b949e;
+  --accent: #1f6feb;
+  --accent-hover: #388bfd;
+  --accent-subtle: rgba(31, 111, 235, 0.12);
+  --green: #3fb950;
+  --green-subtle: rgba(63, 185, 80, 0.12);
+  --red: #f85149;
+  --skill: #bc8cff;
+  --skill-subtle: rgba(188, 140, 255, 0.12);
+  --font-serif: 'Fraunces', Georgia, serif;
+  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+* { box-sizing: border-box; }
+html, body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+a { color: inherit; text-decoration: none; }
+.shell {
+  width: min(1320px, calc(100% - 56px));
+  margin: 0 auto;
+  padding: 72px 0 80px;
+}
+.layout {
+  display: grid;
+  grid-template-columns: 0.92fr 1.08fr;
+  gap: 72px;
+  align-items: start;
+  min-height: calc(100vh - 144px);
+}
+.left {
+  padding-top: 112px;
+}
+.kicker {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-bottom: 28px;
+  font-family: var(--font-mono);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--green);
+}
+.kicker::before {
+  content: "";
+  width: 52px;
+  height: 1.5px;
+  background: var(--green);
+  display: block;
+}
+h1 {
+  margin: 0;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(3.8rem, 6.6vw, 6.4rem);
+  line-height: 0.88;
+  letter-spacing: -0.05em;
+  color: var(--ink);
+}
+.desc {
+  margin: 32px 0 0;
+  max-width: 48ch;
+  font-size: 17px;
+  line-height: 1.65;
+  color: var(--ink);
+}
+.desc em {
+  font-family: var(--font-serif);
+  font-style: italic;
+  color: var(--muted);
+}
+.specs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 26px;
+}
+.spec-pill {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  padding: 5px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--muted);
+}
+.spec-pill span {
+  color: var(--ink);
+  font-weight: 700;
+}
+.ctas {
+  display: flex;
+  gap: 12px;
+  margin-top: 40px;
+  flex-wrap: wrap;
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 44px;
+  padding: 0 18px;
+  border-radius: 8px;
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 14px;
+  border: 1px solid transparent;
+  transition: all 180ms ease;
+  cursor: pointer;
+}
+.btn-accent {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+}
+.btn-accent:hover {
+  transform: translateY(-1px);
+  background: var(--accent-hover);
+  box-shadow: 0 4px 14px rgba(31, 111, 235, 0.35);
+}
+.btn-light {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--line);
+}
+.btn-light:hover {
+  transform: translateY(-1px);
+  border-color: var(--line-strong);
+  background: var(--card-hover);
+}
+.btn .ico {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  font-size: 12px;
+}
+.btn-light .ico {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Grid & Cards */
+.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 22px;
+  align-items: start;
+  padding-top: 12px;
+  border-top: 1px solid var(--line);
+}
+.card {
+  position: relative;
+  background: var(--card);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 28px 26px 22px;
+  min-height: 246px;
+  display: flex;
+  flex-direction: column;
+  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
+}
+.card:hover {
+  transform: translateY(-2px);
+  border-color: var(--line-strong);
+  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
+}
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 22px;
+}
+.tag {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--skill);
+  border: 1px solid rgba(188, 140, 255, 0.28);
+  padding: 5px 9px;
+  border-radius: 5px;
+  background: var(--skill-subtle);
+  line-height: 1;
+}
+.tag-green {
+  color: var(--green);
+  border-color: rgba(63, 185, 80, 0.28);
+  background: var(--green-subtle);
+}
+.arrow {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--muted);
+  transition: transform 180ms ease, color 180ms ease;
+}
+.card:hover .arrow {
+  color: var(--accent-hover);
+  transform: translateX(3px);
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 32px;
+  line-height: 1.02;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+.card p {
+  margin: 0;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: var(--muted);
+  max-width: 32ch;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+  padding-top: 28px;
+}
+.chip {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  padding: 5px 9px;
+  color: var(--muted);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* System Module Card (Wide) */
+.card-wide {
+  grid-column: 1 / -1;
+}
+.art-btns {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: auto;
+  padding-top: 28px;
+}
+.art-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 38px;
+  padding: 0 16px;
+  border-radius: 8px;
+  border: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.02);
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 13px;
+  letter-spacing: -0.01em;
+  transition: all 180ms ease;
+}
+.art-btn:hover {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: var(--accent);
+  transform: translateY(-1px);
+}
+
+@media(max-width:1100px) {
+  .layout { grid-template-columns: 1fr; gap: 40px; }
+  .left { padding-top: 24px; }
+  .grid { border-top: none; padding-top: 0; }
+}
+@media(max-width:680px) {
+  .shell { width: min(100% - 28px, 1320px); padding: 28px 0 48px; }
+  .grid { grid-template-columns: 1fr; }
+  .card-wide { grid-column: auto; }
+  h1 { font-size: clamp(3rem, 15vw, 4.2rem); }
+}
+</style>
+</head>
+<body>
+<div class="shell">
+  <div class="layout">
+    <div class="left">
+      <div class="kicker">AI-OS</div>
+      <h1>AI Operating System</h1>
+      <p class="desc">
+        My  Operating System — configurations, models, instructions, notes, scripts and more.
+      </p>
+
+      <div class="specs">
+        <div class="spec-pill"><span>MacBook Pro</span> M4-24GB RAM</div>
+        <div class="spec-pill"><span>MacOS</span> 27</div>
+        <div class="spec-pill"><span>RUNTIME</span> llama.cpp / Docker / Oh My Pi</div>
+      </div>
+
+      <div class="ctas">
+        <a class="btn btn-light" href="https://github.com/pamaral-git/pamaral-git">👤 Whoami<span class="ico">→</span></a>
+        <a class="btn btn-accent" href="https://github.com/pamaral-git/ai-os" target="_blank" rel="noopener noreferrer">
+          GitHub Repository <span class="ico">↗</span>
+        </a>
+      </div>
+    </div>
+
+    <div class="grid">
+
+      <a class="card" href="./Notebook/2026-06-29--Cerebras-Hackathon.html">
+        <div class="card-top">
+          <span class="tag tag-green">Inference</span>
+          <span class="arrow">→</span>
+        </div>
+        <h2>Cerebras</h2>
+        <p>Cerebras x Gemma 4 Hackathon</p>
+        <div class="chips">
+          <span class="chip">2026-06-29</span><span class="chip">Wafers 🧇</span><span class="chip">Stats</span>
+        </div>
+      </a>
+
+      <a class="card" href="https://heretic-model-explorer-preview.streamlit.app/">
+        <div class="card-top">
+          <span class="tag tag-green">Finetuned</span>
+          <span class="arrow">→</span>
+        </div>
+        <h2>Heretic Explorer</h2>
+        <p>Discover Abliterated AI Models</p>
+        <div class="chips">
+          <span class="chip">🍴 Fork </span><span class="chip">OSS </span><span class="chip">Credit @MuXodious</span>
+        </div>
+      </a>
+      <a class="card" href="./Configurations/KIT.html">
+        <div class="card-top">
+          <span class="tag tag-green">System</span>
+          <span class="arrow">→</span>
+        </div>
+        <h2>Agentic Kit</h2>
+        <p>AI Playground for Developer Configuration and Learnings</p>
+        <div class="chips">
+          <span class="chip">OSS </span><span class="chip">Guide </span><span class="chip">🔄 Beginner</span>
+        </div>
+      </a>
+      <div class="card">
+        <div class="card-top">
+          <span class="tag tag-green">System</span>
+        </div>
+        <h2>Operating System</h2>
+        <p>Core system specifications and current local deployment</p>
+        <div class="art-btns">
+          <a class="art-btn" href="https://github.com/pamaral-git/ai-os/tree/main/Configurations" target="_blank" rel="noopener noreferrer">⚙️ Config.</a>
+          <a class="art-btn" href="https://github.com/pamaral-git/ai-os/tree/main/Notebook" target="_blank" rel="noopener noreferrer">🔬 Notes</a>
+          <a class="art-btn" href="https://github.com/pamaral-git/ai-os" target="_blank" rel="noopener noreferrer">🐙 Repo</a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
