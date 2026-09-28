@@ -1,0 +1,131 @@
+modelRoles:
+  web: searxng
+  tiny: llama.cpp/ling
+  smol: llama.cpp/ling
+  memory: llama.cpp/ling
+  judge: llama.cpp/ling
+  task: llama.cpp/minicpm
+  default: llama.cpp/qwen3a:low
+  vision: llama.cpp/qwen3a:high
+  plan: llama.cpp/qwen27b:medium
+  slow: llama.cpp/qwen27gsq:medium
+  advisor: llama.cpp/qwen27gsq:medium
+symbolPreset: nerd
+composer:
+  shape: box
+  tokenRate: true
+theme:
+  dark: titanium
+  light: light
+setupVersion: 2
+display:
+  showTokenUsage: true
+  pinnedAgents: full
+  showTurnTime: true
+proseOnlyThinking: false
+steeringMode: one-at-a-time
+tools:
+  approvalMode: always-ask
+  format: auto
+error:
+  notify: "on"
+compaction:
+  enabled: true
+  asyncEnabled: false
+  midTurnEnabled: false
+  methodOrder:
+    - shake
+    - soft
+  thresholdPercent: 80
+  handoffSaveToDisk: true
+memory:
+  backend: hindsight
+autolearn:
+  enabled: false
+checkpoint:
+  enabled: true
+security:
+  enabled: true
+plan:
+  enabled: true
+  defaultOnStartup: false
+  autosave: true
+task:
+  eager: default
+  enableEffort: true
+  maxConcurrency: 2
+  maxRecursionDepth: 0
+commands:
+  enableClaudeProject: false
+  enableOpencodeProject: false
+providers:
+  baseUrl: http://localhost:8080
+exa:
+  enabled: false
+searxng:
+  enabled: true
+  endpoint: http://searxng-engine:8080
+secrets:
+  enabled: true
+retry:
+  fallbackChains:
+    default:
+      - llama.cpp/qwen4b
+      - llama.cpp/ling
+    tiny:
+      - llama.cpp/qwen4b
+    smol:
+      - llama.cpp/qwen4b
+    memory:
+      - llama.cpp/qwen4b
+    judge:
+      - llama.cpp/qwen4b
+    vision:
+      - llama.cpp/qwen4b
+    task:
+      - llama.cpp/qwen4b
+      - llama.cpp/ling
+    plan:
+      - llama.cpp/qwen27gsq:medium
+      - llama.cpp/qwen3a:medium
+    slow:
+      - llama.cpp/qwen27b:medium
+      - llama.cpp/qwen3a:medium
+    advisor:
+      - llama.cpp/qwen27b:medium
+      - llama.cpp/qwen3a:medium
+find:
+  enabled: "on"
+computer:
+  enabled: false
+github:
+  enabled: true
+grep:
+  contextBefore: 1
+cycleOrder:
+  - smol
+  - default
+  - slow
+collab:
+  autoStart: control
+stt:
+  enabled: true
+  submitTrigger: never
+power:
+  sleepPrevention: idle
+marketplace:
+  autoUpdate: auto
+update:
+  channel: stable
+spelling:
+  autocorrect: true
+snapcompact:
+  toolResults: true
+  shape: auto
+  systemPrompt: none
+bash:
+  allowCompoundCommands: true
+hindsight:
+  "": ""
+skills:
+  enableSkillCommands: true

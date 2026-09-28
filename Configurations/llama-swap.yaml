@@ -17,6 +17,8 @@ macros:
   "config": "--context-shift --ui-config-file ${cloud}/AI-Files/AI-Brain/llama-settings.json"
   "agent": "--tools all --ui-mcp-proxy --mcp-servers-config ${cloud}/AI-Files/AI-Brain/mcp.json"
   "preset": "--jinja -ngl 99 --flash-attn on --reasoning-preserve -t 4 -tb 4 -b 2048 -ub 1024"
+  "1-slot": "--parallel 1"
+  "2-slot": "--parallel 2 --kv-unified"
   "cache-q5": "--parallel 2 --cache-type-k q5_1 --cache-type-v q5_1"
   "cache-q8": "--parallel 1 --cache-type-k q8_0 --cache-type-v q5_1"
 
@@ -40,7 +42,7 @@ models:
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/ling-3-tiny-heretic.gguf ${agent}
-      ${preset} ${cache-q5} -c 70500
+      ${preset} ${cache-q5} -c 70500 ${2-slot}
     ttl: 1000
     unloadTimeout: 35
 
@@ -62,7 +64,7 @@ models:
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/miniCPM5-2B-heretic.gguf ${agent} 
-      ${preset} -c 70500 ${cache-q5}
+      ${preset} -c 70500 ${cache-q5} ${2-slot}
     ttl: 900
     unloadTimeout: 30
 
@@ -86,7 +88,7 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/qwen-3.5-4B-Uncensored-Q6K.gguf ${agent}
       --mmproj ${root}/.mmproj-qwen-4b.gguf ${image}
-      ${preset} ${cache-q5} -c 70500
+      ${preset} ${cache-q5} -c 70500 ${2-slot}
     ttl: 900
     unloadTimeout: 30
 
@@ -98,7 +100,7 @@ models:
       in: [text, image]
       out: [text]
       tools: true
-      context: 55800
+      context: 60800
     filters:
       setParams:
         temperature: 0.6
@@ -112,7 +114,7 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/qwen-3.6-35B-A3B-heretic-IQ3M.gguf ${agent}
       --mmproj ${root}/.mmproj-qwen-3.6-f16.gguf ${image}
-      ${preset} -c 55800 ${cache-q5}
+      ${preset} -c 60800 ${cache-q5} ${1-slot}
     unloadTimeout: 70
 
   qwen27b:
@@ -139,7 +141,7 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/qwen-3.8-27B-heretic-IQ3M.gguf
       --mmproj ${root}/.mmproj-qwen-3.8-27b.gguf ${image}
-      ${preset} -c 40800 ${cache-q8} ${agent}
+      ${preset} -c 40800 ${cache-q8} ${agent} ${1-slot}
     unloadTimeout: 70
 
   qwen27gsq:
@@ -165,7 +167,7 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/qwen-3.8-27B-GSQ-RCO.gguf ${agent}
       --mmproj ${root}/.mmproj-Qwen3.8-27B-BF16.gguf ${image}
-      ${preset} -c 40800 ${cache-q8}
+      ${preset} -c 40800 ${cache-q8} ${1-slot}
     ttl: 1000
     unloadTimeout: 70
 
