@@ -8,11 +8,14 @@ My local AI Operating System (configurations, models, instructions, frameworks a
 ```
 ├── Configurations/
 │   ├── AGENT.md               <- Global agent rules
+│   ├── AGENT-LOOP.md          <- Snippets of Loops from agent rules
+│   ├── OMP-config.yaml        <- Oh My Pi harness configurations
+│   ├── DOCKER.yaml            <- Main Docker hosted Services
 │   ├── WRITE.md               <- Global writing rules
+│   ├── MCP.json               <- Remote and Docker MCP tools
 │   ├── llama-swap.yaml        <- Local model server definitions
 │   ├── DOCKER.md              <- Docker hosting preferences
 │   ├── INVENTORY.sh           <- Capture system snapshot
-│   ├── MCP-DOCKER.json        <- Docker contained MCP tools
 │   ├── PLUGINS.json           <- External Community tools
 │   ├── KIT.html               <- AI Developer Playground
 │   ├── ai-browser.sh          <- AI Browser use script
