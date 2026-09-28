@@ -2,10 +2,10 @@
 name: explain
 description: explain it better for me to understand
 metadata:
-  author: github.com/pedromanuelamaral 
-  modified: 07-September-2026
-  tools: Requires Web-search and Deep-research
-  optional: If asked, separately add a separate code canvas file that acts as a user interactive active learning playground that takes the approach of making the user learn by osmosis in a sink or swim way.
+  author: github.com/pedromanuelamaral
+  modified: 28-September-2026
+  tools: Web-search; Agentic Research; GitHub (for code); YouTube
+  conditionals: If software-related, consider user hardware specs (MacBook M4, 24GB RAM). If the topic is multilayered and multivariably complex, also create an interactive code canvas alongside it so the user can interactively learn the workings in a virtual layout.
 ---
 
 Goal: Create a fully accurate explanation and comparison of the [topic]. Use two specific visual Mermaid layouts, factoring in a:
