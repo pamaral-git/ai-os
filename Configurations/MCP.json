@@ -184,6 +184,52 @@
                 "com.docker.compose.service=fetch",
                 "mcp/fetch"
             ]
+        },
+        "DeepWiki": {
+          "type": "http",
+          "url": "https://mcp.deepwiki.com/mcp"
+        },
+        "Film Flixor": {
+          "type": "http",
+          "url": "https://flixor.toolpipe.ai/mcp"
+        },
+        "Film Finder": {
+          "type": "http",
+          "url": "https://nuova.pro/api/mcp/moviepick"
+        },
+        "Hot AI 100": {
+          "type": "http",
+          "url": "https://www.hot100.ai/mcp"
+        },
+        "Equibles": {
+          "type": "http",
+          "url": "https://mcp.equibles.com/mcp"
+        },
+        "AlphaVantage": {
+          "type": "http",
+          "url": "https://mcp.alphavantage.co/mcp"
+        },
+        "YFinance": {
+          "type": "http",
+          "url": "https://gateway.mcpservers.org/yahoo-finance/mcp"
+        },
+        "Context7": {
+          "type": "http",
+          "url": "https://mcp.context7.com/mcp",
+          "enabled": true
+        },
+        "Firecrawl": {
+          "type": "http",
+          "url": "https://mcp.firecrawl.dev/v2/mcp"
+        },
+        "Exa-AI": {
+          "type": "http",
+          "url": "https://mcp.exa.ai/mcp"
+        },
+        "Tavily": {
+          "type": "http",
+          "url": "https://mcp.tavily.com/mcp"
+          }
         }
     }
 }

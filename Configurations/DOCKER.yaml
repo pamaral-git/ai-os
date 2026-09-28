@@ -1,0 +1,176 @@
+# yaml-language-server: $schema=https://github.com/compose-spec/compose-go/raw/refs/heads/main/schema/compose-spec.json
+
+# VARIABLES, KEYS, PATHS - Substitute Placeholders
+x-config: &default-config
+  # Base directories (Paths)
+  docker_root: &docker_root "${DOCKER_ROOT:~/models/docker}"
+  downloads_dir: &downloads_dir "${DOWNLOADS_DIR:~/Downloads}"
+
+  # User & Group Permissions (Host binding - run `id -u` and `id -g`)
+  puid: &puid "${PUID:-1000}"
+  pgid: &pgid "${PGID:-1000}"
+  tz: &tz "${TZ:-Etc/UTC}"
+
+  # LLM API & Service Secrets
+  hindsight_base_url: &hindsight_base_url "${HINDSIGHT_API_LLM_BASE_URL:-http://host.docker.internal:8080/v1}"
+  hindsight_api_key: &hindsight_api_key "${HINDSIGHT_API_LLM_API_KEY:-local}"
+  hindsight_model: &hindsight_model "${HINDSIGHT_API_LLM_MODEL:-ling}"
+
+x-firefox-common: &firefox-common
+  image: lscr.io/linuxserver/firefox:latest
+  security_opt:
+    - seccomp=unconfined
+  shm_size: "2gb"
+  restart: unless-stopped
+  volumes:
+    - ${DOCKER_ROOT:~/models/docker}/firefox/policies.json:/usr/lib/firefox/distribution/policies.json:ro
+
+services:
+  hindsight:
+    image: ghcr.io/vectorize-io/hindsight:latest
+    container_name: hindsight
+    shm_size: 1gb
+    ports:
+      - "127.0.0.1:8878:8888" # Change the host-side port here for the Hindsight API.
+      - "127.0.0.1:9988:9999" # Change the host-side port here for the control-plane UI.
+    environment:
+      HINDSIGHT_API_LLM_PROVIDER: openai
+      # Docker Desktop on macOS resolves host.docker.internal to the host machine.
+      HINDSIGHT_API_LLM_BASE_URL: ${HINDSIGHT_API_LLM_BASE_URL:-http://host.docker.internal:8080/v1}
+      HINDSIGHT_API_LLM_API_KEY: ${HINDSIGHT_API_LLM_API_KEY:-local}
+      # Default alias verified from the host llama-swap /v1/models response.
+      HINDSIGHT_API_LLM_MODEL: ${HINDSIGHT_API_LLM_MODEL:-ling}
+      HINDSIGHT_API_WORKER_ID: hindsight-local
+    volumes:
+      - ./data:/home/hindsight/.pg0
+    restart: unless-stopped
+
+  vane:
+    image: itzcrazykns1337/vane:latest
+    container_name: vane
+    restart: no
+    ports:
+      - "8377:3000"
+    environment:
+      - PORT=3000
+      - NODE_ENV=production
+    volumes:
+      - ${DOCKER_ROOT:~/models/docker}/ai-tools/vane:/home/vane/data
+
+  context:
+    container_name: context-mcp
+    image: node:22-bookworm-slim
+    restart: unless-stopped
+    ports:
+      - "7885:8885"
+    volumes:
+      - ${DOCKER_ROOT:~/models/docker}/ai-tools/context:/root/.context
+    command: ["npx", "-y", "@neuledge/context@latest", "serve", "--http", "8885", "--host", "0.0.0.0"]
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TZ:-Etc/UTC}
+      - WEBUI_PORT=9999
+      - TORRENTING_PORT=9998
+    volumes:
+      - ${DOCKER_ROOT:~/models/docker}/tools-media/qbit:/config
+      - ${DOWNLOADS_DIR:~/Downloads}:/downloads
+    ports:
+      - 9999:9999
+      - 9998:9998
+      - 9998:9998/udp
+    restart: unless-stopped
+
+  mp3chapters:
+    image: nginx:latest
+    container_name: mp3chapters
+    ports:
+      - "127.0.0.1:9780:80" # Change the host-side port here to customize the local URL.
+    volumes:
+      - ./mp3chapters.github.io-master:/usr/share/nginx/html:ro
+      - ./nginx.conf/default.conf:/etc/nginx/conf.d/default.conf:ro
+    read_only: true
+    tmpfs:
+      - /var/cache/nginx
+      - /var/run
+      - /tmp
+    restart: unless-stopped
+
+  deepseek:
+    <<: *firefox-common
+    container_name: deepseek
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TITLE=deepseek
+      - FF_OPEN_URL=https://chat.deepseek.com/
+      - DISABLE_IPV6=true
+    volumes:
+      - ${DOCKER_ROOT:~/models/docker}/firefox/deepseek/config:/config
+      - ${DOCKER_ROOT:~/models/docker}/firefox/policies.json:/usr/lib/firefox/distribution/policies.json:ro
+    ports:
+      - "3001:3000"
+
+  minimax:
+    <<: *firefox-common
+    container_name: minimax
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TITLE=minimax
+      - FF_OPEN_URL=https://agent.minimax.io/
+      - DISABLE_IPV6=true
+    volumes:
+      - ${DOCKER_ROOT:~/models/docker}/firefox/minimax/config:/config
+      - ${DOCKER_ROOT:~/models/docker}/firefox/policies.json:/usr/lib/firefox/distribution/policies.json:ro
+    ports:
+      - "3002:3000"
+
+  kimi:
+    <<: *firefox-common
+    container_name: kimi
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TITLE=kimi
+      - FF_OPEN_URL=https://kimi.com/
+      - DISABLE_IPV6=true
+    volumes:
+      - ${DOCKER_ROOT:~/models/docker}/firefox/kimi/config:/config
+      - ${DOCKER_ROOT:~/models/docker}/firefox/policies.json:/usr/lib/firefox/distribution/policies.json:ro
+    ports:
+      - "3003:3000"
+
+  qwen:
+    <<: *firefox-common
+    container_name: qwen
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TITLE=qwen
+      - FF_OPEN_URL=https://chat.qwen.ai/
+      - DISABLE_IPV6=true
+    volumes:
+      - ${DOCKER_ROOT:~/models/docker}/firefox/qwen/config:/config
+      - ${DOCKER_ROOT:~/models/docker}/firefox/policies.json:/usr/lib/firefox/distribution/policies.json:ro
+    ports:
+      - "3004:3000"
+
+  zai:
+    <<: *firefox-common
+    container_name: zai
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TITLE=zai
+      - FF_OPEN_URL=https://chat.z.ai/
+      - DISABLE_IPV6=true
+    volumes:
+      - ${DOCKER_ROOT:~/models/docker}/firefox/zai/config:/config
+      - ${DOCKER_ROOT:~/models/docker}/firefox/policies.json:/usr/lib/firefox/distribution/policies.json:ro
+    ports:
+      - "3005:3000"
