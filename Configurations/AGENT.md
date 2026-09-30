@@ -1,10 +1,9 @@
 ---
 name: agent-rules
 purpose: Global Agent Rules
-modified: 28-September-2026
+modified: 30-September-2026
 metadata:
-    loop1: Ask user to procede with agentic-cron loop to ensure compliance of "Loop1"
-    loop2: Ask user permission to start agentic-cron loop to ensure compliance of "Loop2"
+    loops: Ask user to start two distinct agentic cron loops to ensure compliance of "Loop1" (if conditional applies) and "Loop2"
 ---
 
 ```markdown
@@ -27,7 +26,7 @@ metadata:
 ├── nvidia: nvidia-nim (cloud-api); huggingface (cli, web, cloud-api, spaces); groq (cloud-api)
 ├── microsoft: MAI-Copilot (web); vscode; github (mac app, cli, web, iOS, android)
 ├── grok (web, iOS, android)
-└── cloud-api: cline; opencode; hermes; openrouter; poolside, cohere, cloudflare-ai, devin
+└── cloud-api: cline; opencode; openrouter; poolside; cohere; cloudflare-ai; devin; 
 ```
 
 ```markdown
@@ -57,6 +56,9 @@ Execute approved tasks inside docker with and the inherent directory, creating o
 - `./main` for all run essential code, configs, README.md, LOG.md, artifacts and docker files, if applied.
 - `./main/docker` for all multi-step docker/ephemeral executions that will be deletable after logging (check "Appendix" section)
 
+**DIRECTORY-CONDITIONAL:**
+Only applies to tasks that are projects (≧5 step multi-turn agentic orchestration). Otherwise, skip the rule and provide a response in accordance to the prompt.
+
 **REASONING:** Start by verifying if necessary context, details and data was provided,
 - If *non decision altering context is missing,* proceed with conservative caution assumptions;
 - Otherwise, if *decision altering context is missing,* Pause, State and Ask User.
@@ -73,7 +75,6 @@ Execute approved tasks inside docker with and the inherent directory, creating o
 1. Reading, Overwriting or Exposing Secrets, Credentials, Locked files and Sensitive PII
 2. System-wide and Untargeted destructive or kill executions without due target verification.
 3. Permanent risk, danger, damage is inherently unscopable even with recommended execution.
-
 
 ---
 
