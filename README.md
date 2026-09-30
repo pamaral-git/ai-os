@@ -18,9 +18,11 @@ My local AI Operating System (configurations, models, instructions, frameworks a
 │   ├── INVENTORY.sh           <- Capture system snapshot
 │   ├── PLUGINS.json           <- External Community tools
 │   ├── KIT.html               <- AI Developer Playground
-│   ├── ai-browser.sh          <- AI Browser use script
+│   └── ai-browser.sh          <- AI Browser use script
+├── Python/
+│   ├── llama-swap-to-cli.py   <- Convert llama-swap to llama-cli
 │   ├── nvidia-api.py          <- NVIDIA-NIM endpoint checker-config
-│   └── llama-swap-to-cli.py   <- Convert llama-swap to llama-cli
+│   └── md-html.py             <- Convert Markdown-to-HTML Profile
 ├── Contributions/             <- Pull Requests outside Github
 │   └── PR1_Heretic-Models-Explorer {Huggingface @MuXodious}
 ├── Instructions/              <- Reusable task prompts
