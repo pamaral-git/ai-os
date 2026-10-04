@@ -3,7 +3,7 @@ name: Write
 description: Global instruction for better writting
 execution_mode: strict_override
 metadata:
-  author: github.com/pedromanuelamaral 
+  author: github.com/pamaral-git 
   modified: 20-September-2026
   sources: 
   - "https://github.com/jpeggdev/humanize-writing"

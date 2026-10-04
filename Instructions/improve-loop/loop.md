@@ -2,7 +2,7 @@
 name: Recursive-Self-Improve
 description: evidence driven refinement loop
 metadata:
-  author: github.com/pedromanuelamaral 
+  author: github.com/pamaral-git 
   modified: 10-September-2026
 ---
 

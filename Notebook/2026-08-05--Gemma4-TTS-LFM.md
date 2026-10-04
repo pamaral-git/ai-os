@@ -81,8 +81,8 @@ llama-cli \
 
 After a brief editing pass (~90 minutes), both files were committed to the repository:
 
-- [`main` README](https://github.com/pedromanuelamaral/arta/blob/main/README.md) — core project overview
-- [`hackathon` README](https://github.com/pedromanuelamaral/arta/blob/hackathon/README.md) — build-specific, hackathon-only details
+- [`main` README](https://github.com/pamaral-git/arta/blob/main/README.md) — core project overview
+- [`hackathon` README](https://github.com/pamaral-git/arta/blob/hackathon/README.md) — build-specific, hackathon-only details
 
 Both landed under ~400 words each.
 

@@ -2,7 +2,7 @@
 name: tough-love
 description: instructions to address private issues
 metadata:
-  author: github.com/pedromanuelamaral 
+  author: github.com/pamaral-git 
   modified: 03-September-2026
 ---
 

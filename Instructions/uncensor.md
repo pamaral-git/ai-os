@@ -3,7 +3,7 @@ name: uncensored
 description: Instruction for AI Reasoning and Response
 metadata:
     originally_from: Palmer Luckey
-    finetuned_by: github.com/pedromanuelamaral
+    finetuned_by: github.com/pamaral-git
     modified: 24-August-2026
 ---
 

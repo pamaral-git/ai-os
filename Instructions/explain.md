@@ -2,7 +2,7 @@
 name: explain
 description: explain it better for me to understand
 metadata:
-  author: github.com/pedromanuelamaral
+  author: github.com/pamaral-git
   modified: 28-September-2026
   tools: Web-search; Agentic Research; GitHub (for code); YouTube
   conditionals: If software-related, consider user hardware specs (MacBook M4, 24GB RAM). If the topic is multilayered and multivariably complex, also create an interactive code canvas alongside it so the user can interactively learn the workings in a virtual layout.

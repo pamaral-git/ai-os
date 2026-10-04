@@ -1,6 +1,6 @@
 # Self-Hosting (Un)censored • [Tech Lands Talk](https://luma.com/mci5o0od)
 
-On good and bad times, I've been fortunate enough to be able to use technology to make some contributions I would like to think as positive. This was the idea behind [Mentally here](https://github.com/pedromanuelamaral/mentally-here), a personal and private companion for one's mental health journey, that I started building in the open.
+On good and bad times, I've been fortunate enough to be able to use technology to make some contributions I would like to think as positive. This was the idea behind [Mentally here](https://github.com/pamaral-git/mentally-here), a personal and private companion for one's mental health journey, that I started building in the open.
 
 And in the usage of technology to share deep, personal, vulnerable parts of ourselves, questions about privacy and truthfulness become even more important. At first, we might have asked ChatGPT or Gemini or Claude to help us navigate through some issues of ours. But with every word we input, the switching costs accrue.
 

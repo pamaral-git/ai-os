@@ -2,7 +2,7 @@
 name: world-monitor
 description: analytical frame to analyse world events
 metadata:
-  author: github.com/pedromanuelamaral 
+  author: github.com/pamaral-git 
   modified: 24-August-2026
 compatibility: Requires web-search, crawl and information extractio from this websites among others: "https://worldmonitor.app/", "https://monitor-the-situation.com/", "https://www.pizzint.watch", "https://www.iranmonitor.org".
 ---

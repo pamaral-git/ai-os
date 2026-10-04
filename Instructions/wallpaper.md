@@ -2,7 +2,7 @@
 name: wallpaper-render
 description: Quick conditional AI Wallpaper Image Editing
 metadata:
-    author: github.com/pedromanuelamaral
+    author: github.com/pamaral-git
     modified: 07-Septermber-2026
 ---
 
