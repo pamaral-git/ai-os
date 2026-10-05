@@ -1,7 +1,7 @@
 ---
 name: agent-rules
 purpose: Global Agent Rules
-modified: 30-September-2026
+modified: 5-october-2026
 metadata:
     loops: Ask user to start two distinct agentic cron loops to ensure compliance of "Loop1" (if conditional applies) and "Loop2"
 ---
@@ -9,11 +9,11 @@ metadata:
 ```markdown
 **operating system:**
 ├── apple/
-│   ├── Host: iPhone 15 A16 Bionic-6GB - iOS 27
-│   │   └── a-shell; koder; ssh-termius; google-edge-eloquent
-│   └── Host: MacBook Pro M4-24GB-10Core-{4Perf-6Eff} - macOS 27
-│       ├── xcode 27; apple-intelligence; docker; termius; tmux; google-edge-eloquent
-│       └── pkg: mise; brew; bun; uv; pip
+│   ├── Host: iPhone 15 A16 Bionic-6GB - iOS 27.0.1
+│   │   └── a-shell; koder. Remote-mac: ssh, termius, tailscale
+│   └── Host: MacBook Pro M4-24GB-10Core-{4Perf-6Eff} - macOS 27.0.1
+│       ├── xcode 27; apple-intelligence; tmux; mosh;  tailscale
+│       └── sandbox: openshell, docker, podman. Pkg: mise; brew; bun; uv; pip
 ├── android: Lenovo TB-J616F-(Android 12)-4GB RAM 8core 2.05GHz-{2Perf.}
 ├── google/
 │   ├── antigravity (2.0, agy-cli, remote web-app); kaggle (cli, web)
@@ -22,16 +22,17 @@ metadata:
 ├── claude (web, mac app, iOS, android)
 ├── meta-ai (web, mac app, iOS, android)
 ├── mistral (web, cli, iOS, android, api)
-├── local-llm Mac: llama.cpp (cli/server/swap), Oh-My-Pi, apple local foundation models and MLX
+├── local-tts: google-edge-eloquent (mac, ios)
+├── local-llm Mac: llama.cpp (cli/server/swap), Pi, Oh-My-Pi, apple-afm and MLX
 ├── nvidia: nvidia-nim (cloud-api); huggingface (cli, web, cloud-api, spaces); groq (cloud-api)
 ├── microsoft: MAI-Copilot (web); vscode; github (mac app, cli, web, iOS, android)
 ├── grok (web, iOS, android)
-└── cloud-api: cline; opencode; openrouter; poolside; cohere; cloudflare-ai; devin; 
+└── cloud-api: cline; opencode; openrouter; poolside; cohere; cloudflare-ai; devin.
 ```
 
 ```markdown
 **access-levels:**
-├── 1. Private & Public: local-llm; edge-eloquent (local-transcript)
+├── 1. Private & Public: local-llm; edge-eloquent
 ├── 2. Private Work: google; openai; apple intelligence; microsoft; docker-contained
 ├── 3. Non-Sensitive Tasks: claude; mistral; grok; meta-ai; nvidia; {cloud-api}
 └── x. Complete-Sandbox: deepSeek; kimi; minimax; z.ai; qwen; other-china-hosted
@@ -52,12 +53,14 @@ metadata:
 # Rules
 
 **DIRECTORY:**
-Execute approved tasks inside docker with and the inherent directory, creating only:
+Execute approved tasks inside docker or openshell sandbox with and the inherent directory, creating only:
 - `./main` for all run essential code, configs, README.md, LOG.md, artifacts and docker files, if applied.
 - `./main/docker` for all multi-step docker/ephemeral executions that will be deletable after logging (check "Appendix" section)
 
 **DIRECTORY-CONDITIONAL:**
 Only applies to tasks that are projects (≧5 step multi-turn agentic orchestration). Otherwise, skip the rule and provide a response in accordance to the prompt.
+
+**PERMISSION-REQUESTS:** Avoid persistently asksing the user for permissions to operate inside already established sandbox. If the enviroment and granted permission aren't clear in the prompt ask once before starting.
 
 **REASONING:** Start by verifying if necessary context, details and data was provided,
 - If *non decision altering context is missing,* proceed with conservative caution assumptions;
