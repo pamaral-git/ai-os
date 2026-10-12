@@ -12,17 +12,49 @@ includeAliasesInList: false
 macros:
   "bin": "llama-server"
   "root": "/Users/pedroamaral/Models"
-  "cloud": "/Users/pedroamaral/Documents"
+  "brain": "/Users/pedroamaral/Documents/AI-Brain"
   "image": "--image-min-tokens 1024"
-  "config": "--context-shift --ui-config-file ${cloud}/AI-Files/AI-Brain/llama-settings.json"
-  "agent": "--tools all --ui-mcp-proxy --mcp-servers-config ${cloud}/AI-Files/AI-Brain/mcp.json"
-  "preset": "--jinja -ngl 99 --flash-attn on --reasoning-preserve -t 4 -tb 4 -b 2048 -ub 1024"
+  "config": "--cache-ram 4048 --ctx-checkpoints 16 --ui-config-file ${brain}/llama-settings.json"
+  "agent": "--tools all --ui-mcp-proxy --mcp-servers-config ${brain}/.mcp.json"
+  "preset": "--jinja -ngl 99  --flash-attn on --reasoning-preserve -t 4 -tb 4 -b 2048 -ub 1024"
   "1-slot": "--parallel 1"
   "2-slot": "--parallel 2 --kv-unified"
-  "cache-q5": "--parallel 2 --cache-type-k q5_1 --cache-type-v q5_1"
-  "cache-q8": "--parallel 1 --cache-type-k q8_0 --cache-type-v q5_1"
+  "cache-q5": "--cache-type-k q5_1 --cache-type-v q5_1"
+  "cache-q8": "--cache-type-k q8_0 --cache-type-v q5_1"
 
 models:
+
+  apple:
+    name: "Apple Intelligence"
+    description: "Apple Foundation Model"
+    aliases: ["AFM"]
+    useModelName: "system"
+    cmd: /usr/bin/fm serve --host 127.0.0.1 --port ${PORT}
+    proxy: http://127.0.0.1:${PORT}
+    checkEndpoint: /health
+    ttl: 0
+    unloadTimeout: 35
+
+  aescode:
+    name: "Aesthetic Code 8B"
+    description: "Qwen 8B Microsoft Finetune"
+    capabilities:
+      in: [text, image]
+      out: [text]
+      tools: true
+      context: 50500
+    filters:
+      setParams:
+        temperature: 0.8
+        top_p: 0.95
+        reasoning_budget: 10000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/aescode-8b.gguf ${agent}
+      --mmproj ${root}/.mmproj-aescode.gguf ${image}
+      ${preset} ${cache-q8} -c 50500 ${2-slot}
+    ttl: 1000
+    unloadTimeout: 35
 
   ling:
     name: "Ling A1B"
@@ -59,12 +91,39 @@ models:
       setParams:
         temperature: 0.60
         top_p: 0.95
+        min_p: 0.0
+        repeat_penalty: 1.15
         reasoning_budget: 15000
         enable_thinking: True
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/miniCPM5-2B-heretic.gguf ${agent} 
       ${preset} -c 70500 ${cache-q5} ${2-slot}
+      --min-p 0.0 --repeat-penalty 1.15
+    ttl: 900
+    unloadTimeout: 30
+
+  frog4b:
+    name: "Frog Nano 4B"
+    aliases: ["Frog 4B"]
+    description: "Qwen-4B Microsoft Finetune"
+    capabilities:
+      in: [text, image]
+      out: [text]
+      context: 70500
+      tools: true
+    filters:
+      setParams:
+        temperature: 0.6
+        top_p: 0.95
+        min_p: 0.05
+        repeat_penalty: 1.05
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/frognano-4b.gguf ${agent}
+      --mmproj ${root}/.mmproj-frognano.gguf ${image}
+      ${preset} ${cache-q5} -c 70500 ${2-slot} --min-p 0.05 --repeat-penalty 1.05
     ttl: 900
     unloadTimeout: 30
 
@@ -114,6 +173,55 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/qwen-3.6-35B-A3B-heretic-IQ3M.gguf ${agent}
       --mmproj ${root}/.mmproj-qwen-3.6-f16.gguf ${image}
+      ${preset} -c 60800 ${cache-q5} ${1-slot}
+    unloadTimeout: 70
+
+  laguna:
+    name: "Laguna XS MoE"
+    aliases: ["Laguna XS"]
+    description: "Laguna 33B MoE"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 60800
+    filters:
+      setParams:
+        temperature: 0.6
+        top_p: 0.95
+        top_k: 20
+        min_p: 0.0
+        repeat_penalty: 1.0
+        presence_penalty: 0
+        reasoning_budget: 12000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/laguna-xs-2.1.gguf ${agent}
+      ${preset} -c 60800 ${cache-q5} ${1-slot}
+    unloadTimeout: 70
+
+  gemma:
+    name: "Gemma 25B MoE"
+    aliases: ["Gemma 4"]
+    description: "Gemma 4 MoE"
+    capabilities:
+      in: [text, image]
+      out: [text]
+      tools: true
+      context: 60800
+    filters:
+      setParams:
+        temperature: 0.6
+        top_p: 0.95
+        top_k: 20
+        min_p: 0.0
+        repeat_penalty: 1.0
+        presence_penalty: 0
+        reasoning_budget: 12000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/gemma-4-26b-a4b-IQ3S.gguf ${agent}
+      --mmproj ${root}/.mmproj-gemma-4.gguf ${image}
       ${preset} -c 60800 ${cache-q5} ${1-slot}
     unloadTimeout: 70
 
@@ -173,14 +281,19 @@ models:
 
 matrix:
   vars:
+    afm: apple
+    aes: aescode
     lng: ling
     cpm: minicpm
+    gmm: gemma
+    lxs: laguna
+    f4b: frog4b
     q4b: qwen4b
     q3a: qwen3a
     q8h: qwen27b
     q8b: qwen27gsq
 
   sets:
-    main: q3a
-    agent: (cpm & q4b) | lng
+    main: q3a | lxs | gmm
+    agent: (afm | cpm) & (q4b | f4b | lng | aes)
     max: q8b | q8h
