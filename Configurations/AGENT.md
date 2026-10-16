@@ -1,9 +1,9 @@
 ---
 name: agent-rules
 purpose: Global Agent Rules
-modified: 12-october-2026
+modified: 16-october-2026
 metadata:
-    loops: Ask user to start two distinct agentic cron loops to ensure compliance of "Loop1" (if conditional applies) and "Loop2"
+    loop: Ask user question if he wants to start two distinct agent loops: "Loop1" (if conditional applies) and, "Loop2". Check Appendix.
 ---
 
 ```markdown

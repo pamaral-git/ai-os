@@ -1,15 +1,11 @@
 modelRoles:
   web: searxng
-  tiny: llama.cpp/ling
-  smol: llama.cpp/ling
-  memory: llama.cpp/ling
-  judge: llama.cpp/ling
-  task: llama.cpp/minicpm
-  default: llama.cpp/qwen3a:low
-  vision: llama.cpp/qwen3a:high
-  plan: llama.cpp/qwen27b:medium
-  slow: llama.cpp/qwen27gsq:medium
-  advisor: llama.cpp/qwen27gsq:medium
+  default: llama.cpp/qwen3a
+  coder: llama.cpp/cpm3b
+  memory: llama.cpp/cpm1b
+  vision: llama.cpp/gemma
+  task: llama.cpp/liquid
+  advisor: llama.cpp/gemma4h
 symbolPreset: nerd
 composer:
   shape: box
@@ -22,11 +18,18 @@ display:
   showTokenUsage: true
   pinnedAgents: full
   showTurnTime: true
-proseOnlyThinking: false
+proseOnlyThinking: true
 steeringMode: one-at-a-time
 tools:
-  approvalMode: always-ask
+  approvalMode: write
   format: auto
+  xdev: false
+  approval:
+    bash: prompt
+    read: allow
+    eval: prompt
+    computer: prompt
+    mcp__filesystem__delete: deny
 error:
   notify: "on"
 compaction:
@@ -35,6 +38,7 @@ compaction:
   midTurnEnabled: false
   methodOrder:
     - shake
+    - snapcompact
     - soft
   thresholdPercent: 80
   handoffSaveToDisk: true
@@ -59,41 +63,36 @@ commands:
   enableClaudeProject: false
   enableOpencodeProject: false
 providers:
-  baseUrl: http://localhost:8080
+  baseUrl:
 exa:
   enabled: false
 searxng:
   enabled: true
-  endpoint: http://searxng-engine:8080
+  endpoint:
 secrets:
   enabled: true
 retry:
   fallbackChains:
     default:
-      - llama.cpp/qwen4b
-      - llama.cpp/ling
-    tiny:
-      - llama.cpp/qwen4b
-    smol:
-      - llama.cpp/qwen4b
+      - llama.cpp/liquid
+      - llama.cpp/cpm3b
+    coder:
+      - llama.cpp/qwen3a
+      - llama.cpp/liquid
     memory:
       - llama.cpp/qwen4b
-    judge:
-      - llama.cpp/qwen4b
+      - llama.cpp/cpm3b
     vision:
-      - llama.cpp/qwen4b
+      - llama.cpp/qwen3a
+      - llama.cpp/cpm3b
     task:
-      - llama.cpp/qwen4b
+      - llama.cpp/cpm3b
+      - llama.cpp/laguna
       - llama.cpp/ling
-    plan:
-      - llama.cpp/qwen27gsq:medium
-      - llama.cpp/qwen3a:medium
-    slow:
-      - llama.cpp/qwen27b:medium
-      - llama.cpp/qwen3a:medium
     advisor:
-      - llama.cpp/qwen27b:medium
-      - llama.cpp/qwen3a:medium
+      - llama.cpp/gemma
+      - llama.cpp/qwen3a
+  maxRetries: 4
 find:
   enabled: "on"
 computer:
@@ -102,12 +101,10 @@ github:
   enabled: true
 grep:
   contextBefore: 1
-cycleOrder:
-  - smol
-  - default
-  - slow
+cycleOrder: []
 collab:
   autoStart: control
+  displayName: Mac
 stt:
   enabled: true
   submitTrigger: never
@@ -118,7 +115,8 @@ marketplace:
 update:
   channel: stable
 spelling:
-  autocorrect: true
+  autocorrect: off
+  autocomplete: "off"
 snapcompact:
   toolResults: true
   shape: auto
@@ -126,6 +124,20 @@ snapcompact:
 bash:
   allowCompoundCommands: true
 hindsight:
-  "": ""
+    : ...
 skills:
   enableSkillCommands: true
+statusLine:
+  preset: default
+disabledProviders:
+  - claude
+  - github
+  - codex
+  - gemini
+  - opencode
+emojiAutocomplete: false
+defaultThinkingLevel: auto
+prewalk:
+  enabled: false
+disabledExtensions:
+  - skill:reverse-engineer-anything

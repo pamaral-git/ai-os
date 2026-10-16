@@ -14,7 +14,7 @@ macros:
   "root": "/Users/pedroamaral/Models"
   "brain": "/Users/pedroamaral/Documents/AI-Brain"
   "image": "--image-min-tokens 1024"
-  "config": "--cache-ram 4048 --ctx-checkpoints 16 --ui-config-file ${brain}/llama-settings.json"
+  "config": "--cache-ram 4048 --ctx-checkpoints 16 --ui-config-file ${brain}/llama-conf.json"
   "agent": "--tools all --ui-mcp-proxy --mcp-servers-config ${brain}/.mcp.json"
   "preset": "--jinja -ngl 99  --flash-attn on --reasoning-preserve -t 4 -tb 4 -b 2048 -ub 1024"
   "1-slot": "--parallel 1"
@@ -56,6 +56,28 @@ models:
     ttl: 1000
     unloadTimeout: 35
 
+  liquid:
+    name: "LFM 2.5 MoE"
+    aliases: ["LFM 24B A2B"]
+    description: "A2B Text MoE Model"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 80000
+    filters:
+      setParams:
+        temperature: 0.1
+        top_k: 50
+        repeat_penalty: 1.05
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/LFM2.5-24B-A2B-Q5_K_M.gguf ${agent}
+      ${preset} ${cache-q5} -c 80000 ${1-slot}
+    ttl: 1000
+    unloadTimeout: 35
+
   ling:
     name: "Ling A1B"
     aliases: ["Ling 8B A1B"]
@@ -78,7 +100,33 @@ models:
     ttl: 1000
     unloadTimeout: 35
 
-  minicpm:
+  cpm1b:
+    name: "MiniCPM5 4.7 1B"
+    aliases: ["MiniCPM5 1B"]
+    description: "1B Dense Multimodal"
+    capabilities:
+      in: [text, image]
+      out: [text]
+      context: 80500
+      tools: true
+    filters:
+      setParams:
+        temperature: 0.60
+        top_p: 0.95
+        min_p: 0.0
+        repeat_penalty: 1.15
+        reasoning_budget: 15000
+        enable_thinking: True
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/miniCPM-V-4.7-1B.gguf ${agent}
+      --mmproj ${root}/.mmproj-minicpm-4.7-1b.gguf ${image}
+      ${preset} -c 80500 ${cache-q5} ${2-slot}
+      --min-p 0.0 --repeat-penalty 1.15
+    ttl: 900
+    unloadTimeout: 30
+
+  cpm2b:
     name: "MiniCPM5 2B"
     aliases: ["MiniCPM5 2B"]
     description: "2B Dense Text Model"
@@ -99,6 +147,32 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/miniCPM5-2B-heretic.gguf ${agent} 
       ${preset} -c 70500 ${cache-q5} ${2-slot}
+      --min-p 0.0 --repeat-penalty 1.15
+    ttl: 900
+    unloadTimeout: 30
+
+  cpm3b:
+    name: "MiniCPM5 4.7 A3B"
+    aliases: ["MiniCPM5 A3B"]
+    description: "3B MoE Multimodal"
+    capabilities:
+      in: [text, image]
+      out: [text]
+      context: 60800
+      tools: true
+    filters:
+      setParams:
+        temperature: 0.60
+        top_p: 0.95
+        min_p: 0.0
+        repeat_penalty: 1.15
+        reasoning_budget: 12000
+        enable_thinking: True
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/miniCPM-V-4.7-35B-A3B.gguf ${agent}
+      --mmproj ${root}/.mmproj-minicpm-4.7-a3b.gguf ${image}
+      ${preset} -c 60800 ${cache-q5} ${1-slot}
       --min-p 0.0 --repeat-penalty 1.15
     ttl: 900
     unloadTimeout: 30
@@ -225,15 +299,15 @@ models:
       ${preset} -c 60800 ${cache-q5} ${1-slot}
     unloadTimeout: 70
 
-  qwen27b:
-    name: "Qwen 27B Heretic"
-    aliases: ["Qwen 3.8 Heretic"]
-    description: "27B Dense Multimodal"
+  gemma4h:
+    name: "Gemma 25B MoE"
+    aliases: ["Gemma 4 Heretic"]
+    description: "Gemma 4 Heretic MoE"
     capabilities:
       in: [text, image]
       out: [text]
       tools: true
-      context: 40800
+      context: 60800
     filters:
       setParams:
         temperature: 0.6
@@ -241,42 +315,13 @@ models:
         top_k: 20
         min_p: 0.0
         repeat_penalty: 1.0
-        presence_penalty: 0.1
-        reasoning_budget: 13000
-        chat_template_kwargs:
-          reasoning_effort: medium
+        presence_penalty: 0
+        reasoning_budget: 12000
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/qwen-3.8-27B-heretic-IQ3M.gguf
-      --mmproj ${root}/.mmproj-qwen-3.8-27b.gguf ${image}
-      ${preset} -c 40800 ${cache-q8} ${agent} ${1-slot}
-    unloadTimeout: 70
-
-  qwen27gsq:
-    name: "Qwen 3.8 GSQ"
-    aliases: ["Qwen 3.8 GSQ"]
-    description: "27B GSQ Dense Multimodal"
-    capabilities:
-      in: [text, image]
-      out: [text]
-      tools: true
-      context: 40800
-    filters:
-      setParams:
-        temperature: 0.6
-        top_p: 0.95
-        top_k: 20
-        min_p: 0.05
-        repeat_penalty: 1.05
-        reasoning_budget: 12000
-        chat_template_kwargs:
-          reasoning_effort: medium
-    cmd: |
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/qwen-3.8-27B-GSQ-RCO.gguf ${agent}
-      --mmproj ${root}/.mmproj-Qwen3.8-27B-BF16.gguf ${image}
-      ${preset} -c 40800 ${cache-q8} ${1-slot}
-    ttl: 1000
+      -m ${root}/gemma-4-26B-A4B-it-heretic.Q4_K_S.gguf ${agent}
+      --mmproj ${root}/.mmproj-gemma-4.gguf ${image}
+      ${preset} -c 60800 ${cache-q5} ${1-slot}
     unloadTimeout: 70
 
 matrix:
@@ -284,16 +329,17 @@ matrix:
     afm: apple
     aes: aescode
     lng: ling
-    cpm: minicpm
-    gmm: gemma
+    m1b: cpm1b
+    m2b: cpm2b
+    m3b: cpm3b
+    lfm: liquid
+    gem: gemma
+    ghr: gemma4h
+    qwe: qwen3a
     lxs: laguna
     f4b: frog4b
     q4b: qwen4b
-    q3a: qwen3a
-    q8h: qwen27b
-    q8b: qwen27gsq
 
   sets:
-    main: q3a | lxs | gmm
-    agent: (afm | cpm) & (q4b | f4b | lng | aes)
-    max: q8b | q8h
+    tiny: afm & (m1b | m2b) | (q4b | f4b)
+    moe: lng | lfm | lxs | gem | ghr | qwe | m3b

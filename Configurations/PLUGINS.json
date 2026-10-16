@@ -11,6 +11,16 @@
       "sourceUri": "https://github.com/steipete/agent-scripts"
     },
     {
+      "name": "noodle",
+      "category": "skill",
+      "sourceUri": "https://github.com/poteto/noodle"
+    },
+    {
+      "name": "chrome-dev",
+      "category": "plugin",
+      "sourceUri": "https://github.com/ChromeDevTools/chrome-devtools-mcp"
+    },
+    {
       "name": "impeccable",
       "category": "plugin",
       "sourceUri": "https://github.com/pbakaus/impeccable"

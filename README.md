@@ -8,31 +8,26 @@ My local AI Operating System (configurations, models, instructions, frameworks a
 ```
 ├── Configurations/
 │   ├── AGENT.md               <- Global agent rules
-│   ├── AGENT-LOOP.md          <- Snippets of Loops from agent rules
-│   ├── OMP-config.yaml        <- Oh My Pi harness configurations
+│   ├── LOOP.md                <- Snippets of Loops
+│   ├── tmux.config            <- Tmux configurations
+│   ├── OMP.yaml               <- Oh My Pi harness configurations
 │   ├── DOCKER.yaml            <- Main Docker hosted Services
 │   ├── WRITE.md               <- Global writing rules
-│   ├── MCP.json               <- Remote and Docker MCP tools
+│   ├── MCP.json               <- Local, Remote and Docker MCP tools
 │   ├── llama-swap.yaml        <- Local model server definitions
 │   ├── DOCKER.md              <- Docker hosting preferences
 │   ├── INVENTORY.sh           <- Capture system snapshot
 │   ├── PLUGINS.json           <- External Community tools
-│   ├── KIT.html               <- AI Developer Playground
-│   └── ai-browser.sh          <- AI Browser use script
-├── Python/
+│   └── KIT.html               <- AI Developer Playground
+├── Scripts/
 │   ├── llama-swap-to-cli.py   <- Convert llama-swap to llama-cli
+│   ├── cinema-bun.ts          <- Bun script to fetch letterboxd context
 │   ├── nvidia-api.py          <- NVIDIA-NIM endpoint checker-config
+│   ├── ai-browser.sh          <- AI Browser use script
 │   └── md-html.py             <- Convert Markdown-to-HTML Profile
 ├── Contributions/             <- Pull Requests outside Github
 │   └── PR1_Heretic-Models-Explorer {Huggingface @MuXodious}
 ├── Instructions/              <- Reusable task prompts
-│   ├── cleanup.md             <- Cache and residue deletion checklist
-│   ├── improve-loop           <- Recursive self-improvement harness
-│   │     ├── acceptance.py    <- Requirement verification runner
-│   │     ├── loop.md          <- Refinement loop specification
-│   │     ├── lri.py           <- Loop execution controller
-│   │     ├── policy.yml       <- Execution and memory limits
-│   │     └── task.json        <- Task contract format
 │   ├── explain.md             <- Explain it to me prompt
 │   ├── compact.md             <- Context compaction instruction
 │   ├── redact.md              <- PII and secret removal prompt
