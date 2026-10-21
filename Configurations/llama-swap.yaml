@@ -11,7 +11,7 @@ includeAliasesInList: false
 
 macros:
   "bin": "llama-server"
-  "root": "/Users/pedroamaral/Models"
+  "root": "/Users/pedroamaral/models"
   "brain": "/Users/pedroamaral/Documents/AI-Brain"
   "image": "--image-min-tokens 1024"
   "config": "--cache-ram 4048 --ctx-checkpoints 16 --ui-config-file ${brain}/llama-conf.json"
@@ -35,27 +35,6 @@ models:
     ttl: 0
     unloadTimeout: 35
 
-  aescode:
-    name: "Aesthetic Code 8B"
-    description: "Qwen 8B Microsoft Finetune"
-    capabilities:
-      in: [text, image]
-      out: [text]
-      tools: true
-      context: 50500
-    filters:
-      setParams:
-        temperature: 0.8
-        top_p: 0.95
-        reasoning_budget: 10000
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/aescode-8b.gguf ${agent}
-      --mmproj ${root}/.mmproj-aescode.gguf ${image}
-      ${preset} ${cache-q8} -c 50500 ${2-slot}
-    ttl: 1000
-    unloadTimeout: 35
-
   liquid:
     name: "LFM 2.5 MoE"
     aliases: ["LFM 24B A2B"]
@@ -64,7 +43,7 @@ models:
       in: [text]
       out: [text]
       tools: true
-      context: 80000
+      context: 95000
     filters:
       setParams:
         temperature: 0.1
@@ -73,8 +52,8 @@ models:
         reasoning_budget: 15000
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/LFM2.5-24B-A2B-Q5_K_M.gguf ${agent}
-      ${preset} ${cache-q5} -c 80000 ${1-slot}
+      -m ${root}/LFM-2.5-24B-A2B-Q5-heretic.gguf ${agent}
+      ${preset} ${cache-q5} -c 90000 ${1-slot}
     ttl: 1000
     unloadTimeout: 35
 
@@ -103,11 +82,11 @@ models:
   cpm1b:
     name: "MiniCPM5 4.7 1B"
     aliases: ["MiniCPM5 1B"]
-    description: "1B Dense Multimodal"
+    description: "1B Multimodal"
     capabilities:
       in: [text, image]
       out: [text]
-      context: 80500
+      context: 95500
       tools: true
     filters:
       setParams:
@@ -119,9 +98,9 @@ models:
         enable_thinking: True
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/miniCPM-V-4.7-1B.gguf ${agent}
+      -m ${root}/minicpm-4.7-1b-heretic.gguf ${agent}
       --mmproj ${root}/.mmproj-minicpm-4.7-1b.gguf ${image}
-      ${preset} -c 80500 ${cache-q5} ${2-slot}
+      ${preset} -c 95500 ${cache-q5} ${2-slot}
       --min-p 0.0 --repeat-penalty 1.15
     ttl: 900
     unloadTimeout: 30
@@ -147,32 +126,6 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/miniCPM5-2B-heretic.gguf ${agent} 
       ${preset} -c 70500 ${cache-q5} ${2-slot}
-      --min-p 0.0 --repeat-penalty 1.15
-    ttl: 900
-    unloadTimeout: 30
-
-  cpm3b:
-    name: "MiniCPM5 4.7 A3B"
-    aliases: ["MiniCPM5 A3B"]
-    description: "3B MoE Multimodal"
-    capabilities:
-      in: [text, image]
-      out: [text]
-      context: 60800
-      tools: true
-    filters:
-      setParams:
-        temperature: 0.60
-        top_p: 0.95
-        min_p: 0.0
-        repeat_penalty: 1.15
-        reasoning_budget: 12000
-        enable_thinking: True
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/miniCPM-V-4.7-35B-A3B.gguf ${agent}
-      --mmproj ${root}/.mmproj-minicpm-4.7-a3b.gguf ${image}
-      ${preset} -c 60800 ${cache-q5} ${1-slot}
       --min-p 0.0 --repeat-penalty 1.15
     ttl: 900
     unloadTimeout: 30
@@ -250,56 +203,30 @@ models:
       ${preset} -c 60800 ${cache-q5} ${1-slot}
     unloadTimeout: 70
 
-  laguna:
-    name: "Laguna XS MoE"
-    aliases: ["Laguna XS"]
-    description: "Laguna 33B MoE"
-    capabilities:
-      in: [text]
-      out: [text]
-      tools: true
-      context: 60800
-    filters:
-      setParams:
-        temperature: 0.6
-        top_p: 0.95
-        top_k: 20
-        min_p: 0.0
-        repeat_penalty: 1.0
-        presence_penalty: 0
-        reasoning_budget: 12000
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/laguna-xs-2.1.gguf ${agent}
-      ${preset} -c 60800 ${cache-q5} ${1-slot}
-    unloadTimeout: 70
-
-  gemma:
-    name: "Gemma 25B MoE"
-    aliases: ["Gemma 4"]
-    description: "Gemma 4 MoE"
+  gemma2e:
+    name: "Gemma E2B"
+    description: "Gemma E2B LiteRT"
+    useModelName: "gemma4-2b"
+    proxy: http://127.0.0.1:${PORT}
+    checkEndpoint: /v1/models
     capabilities:
       in: [text, image]
       out: [text]
       tools: true
-      context: 60800
+      context: 74500
     filters:
       setParams:
-        temperature: 0.6
-        top_p: 0.95
-        top_k: 20
-        min_p: 0.0
-        repeat_penalty: 1.0
-        presence_penalty: 0
-        reasoning_budget: 12000
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/gemma-4-26b-a4b-IQ3S.gguf ${agent}
-      --mmproj ${root}/.mmproj-gemma-4.gguf ${image}
-      ${preset} -c 60800 ${cache-q5} ${1-slot}
-    unloadTimeout: 70
+        temperature: 0.1
+        audio_backend: cpu
+        vision_backend: cpu
+        max_num_tokens: 74500
+        thinking: true
+        thinking_budget: 12000
+    cmd: /Users/pedroamaral/.local/bin/litert-lm serve --host 127.0.0.1 --port ${PORT}
+    ttl: 1000
+    unloadTimeout: 35
 
-  gemma4h:
+  gemma4a:
     name: "Gemma 25B MoE"
     aliases: ["Gemma 4 Heretic"]
     description: "Gemma 4 Heretic MoE"
@@ -324,22 +251,59 @@ models:
       ${preset} -c 60800 ${cache-q5} ${1-slot}
     unloadTimeout: 70
 
+  xspark:
+    name: "Spark 2.6 4B"
+    aliases: ["Spark"]
+    description: "Spark 4B Dense"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 90800
+    filters:
+      setParams:
+        temperature: 0.7
+        top_p: 0.90
+        top_k: 40
+        min_p: 0.05
+        repeat_penalty: 1.0
+        presence_penalty: 0.15
+        reasoning_budget: 1536
+        chat_template_kwargs:
+          enable_thinking: true
+          reasoning_effort: "low"
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/spark-x2.6-4b.gguf ${agent}
+      ${preset} -c 90800 ${cache-q5} ${1-slot}
+    unloadTimeout: 70
+
+  embgemma:
+    name: "EmbeddingGemma 2"
+    description: "Local text embeddings for Hindsight; 768 dimensions"
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT}
+      -m "/Users/pedroamaral/Library/Application Support/DigUp/Models/embeddinggemma-2-Q8_0.gguf"
+      --embedding --pooling mean -ngl 99 --flash-attn on
+      -c 8192 -b 8192 -ub 8192 --parallel 1 -t 4 -tb 4 --no-webui
+    ttl: 0
+    unloadTimeout: 20
+
 matrix:
   vars:
-    afm: apple
-    aes: aescode
-    lng: ling
-    m1b: cpm1b
-    m2b: cpm2b
-    m3b: cpm3b
-    lfm: liquid
-    gem: gemma
-    ghr: gemma4h
-    qwe: qwen3a
-    lxs: laguna
+    fm3: apple
+    l1a: ling
+    c1b: cpm1b
+    c2b: cpm2b
     f4b: frog4b
     q4b: qwen4b
+    x4b: xspark
+    e7k: embgemma
+    l2a: liquid
+    g2e: gemma2e
+    g4a: gemma4a
+    q3a: qwen3a
 
   sets:
-    tiny: afm & (m1b | m2b) | (q4b | f4b)
-    moe: lng | lfm | lxs | gem | ghr | qwe | m3b
+    tiny: "(c1b | c2b | g2e) | (q4b | f4b | x4b) & e7k & fm3"
+    moe: "(l1a | l2a | g4a | q3a) & e7k & fm3"

@@ -1,34 +1,39 @@
 {
   "plugins": [
-    {
-      "name": "adhd",
-      "category": "skill",
-      "sourceUri": "https://github.com/ayghri/i-have-adhd"
-    },
-    {
-      "name": "agent-scripts",
-      "category": "instructions",
-      "sourceUri": "https://github.com/steipete/agent-scripts"
-    },
+      {
+        "name": "i-have-adhd",
+        "sourceType": "git",
+        "sourceUri": "https://github.com/ayghri/i-have-adhd"
+      },
+      {
+        "name": "impeccable",
+        "sourceType": "github",
+        "sourceUri": "pbakaus/impeccable"
+      },
+      {
+        "name": "mattpocock",
+        "sourceType": "git",
+        "sourceUri": "https://github.com/mattpocock/skills"
+      },
+      {
+        "name": "addy-web-quality-skills",
+        "sourceType": "github",
+        "sourceUri": "addyosmani/web-quality-skills"
+      },
+      {
+        "name": "humanizer",
+        "sourceType": "github",
+        "sourceUri": "blader/humanizer"
+      }
     {
       "name": "noodle",
-      "category": "skill",
+      "sourceType": "git",
       "sourceUri": "https://github.com/poteto/noodle"
     },
     {
       "name": "chrome-dev",
-      "category": "plugin",
+      "sourceType": "git",
       "sourceUri": "https://github.com/ChromeDevTools/chrome-devtools-mcp"
-    },
-    {
-      "name": "impeccable",
-      "category": "plugin",
-      "sourceUri": "https://github.com/pbakaus/impeccable"
-    },
-    {
-      "name": "mattpocock",
-      "category": "skill",
-      "sourceUri": "https://github.com/mattpocock/skills",
     }
   ]
 }

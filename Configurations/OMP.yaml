@@ -1,11 +1,11 @@
 modelRoles:
   web: searxng
-  default: llama.cpp/qwen3a
-  coder: llama.cpp/cpm3b
+  default: llama.cpp/liquid
+  coder: llama.cpp/qwen3a
   memory: llama.cpp/cpm1b
-  vision: llama.cpp/gemma
-  task: llama.cpp/liquid
-  advisor: llama.cpp/gemma4h
+  vision: llama.cpp/gemma4a
+  task: "@default"
+  advisor: llama.cpp/qwen3a
 symbolPreset: nerd
 composer:
   shape: box
@@ -38,7 +38,6 @@ compaction:
   midTurnEnabled: false
   methodOrder:
     - shake
-    - snapcompact
     - soft
   thresholdPercent: 80
   handoffSaveToDisk: true
@@ -57,42 +56,43 @@ plan:
 task:
   eager: default
   enableEffort: true
-  maxConcurrency: 2
+  maxConcurrency: 1
   maxRecursionDepth: 0
 commands:
   enableClaudeProject: false
   enableOpencodeProject: false
 providers:
-  baseUrl:
+  baseUrl: http://127.0.0.1:8080
 exa:
   enabled: false
 searxng:
   enabled: true
-  endpoint:
+  endpoint: http://searxng-engine:8080
 secrets:
   enabled: true
 retry:
+  modelFallback: false
+  enabled: true
   fallbackChains:
     default:
-      - llama.cpp/liquid
-      - llama.cpp/cpm3b
-    coder:
       - llama.cpp/qwen3a
+      - llama.cpp/gemma4a
+    coder:
+      - llama.cpp/frog4b
       - llama.cpp/liquid
     memory:
       - llama.cpp/qwen4b
-      - llama.cpp/cpm3b
+      - llama.cpp/liquid
     vision:
       - llama.cpp/qwen3a
-      - llama.cpp/cpm3b
+      - llama.cpp/cpm1b
     task:
-      - llama.cpp/cpm3b
-      - llama.cpp/laguna
       - llama.cpp/ling
+      - llama.cpp/cpm1b
     advisor:
-      - llama.cpp/gemma
-      - llama.cpp/qwen3a
-  maxRetries: 4
+      - llama.cpp/gemma4a
+      - llama.cpp/liquid
+  maxRetries: 1
 find:
   enabled: "on"
 computer:
@@ -115,16 +115,19 @@ marketplace:
 update:
   channel: stable
 spelling:
-  autocorrect: off
+  autocorrect: "off"
   autocomplete: "off"
 snapcompact:
-  toolResults: true
+  toolResults: false
   shape: auto
   systemPrompt: none
 bash:
   allowCompoundCommands: true
 hindsight:
-    : ...
+  bankId: Global Memory
+  autoRecall: false
+  apiUrl: http://
+  apiToken: local
 skills:
   enableSkillCommands: true
 statusLine:
@@ -139,5 +142,3 @@ emojiAutocomplete: false
 defaultThinkingLevel: auto
 prewalk:
   enabled: false
-disabledExtensions:
-  - skill:reverse-engineer-anything
