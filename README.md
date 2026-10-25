@@ -22,6 +22,7 @@ My local AI Operating System (configurations, models, instructions, frameworks a
 ├── Scripts/
 │   ├── llama-swap-to-cli.py   <- Convert llama-swap to llama-cli
 │   ├── cinema-bun.ts          <- Bun script to fetch letterboxd context
+│   ├── screen-bun.ts          <- Bun script for automated web screen capture
 │   ├── nvidia-api.py          <- NVIDIA-NIM endpoint checker-config
 │   ├── ai-browser.sh          <- AI Browser use script
 │   └── md-html.py             <- Convert Markdown-to-HTML Profile
