@@ -1,9 +1,9 @@
 ---
-name: tough-love
+name: talk-to-me
 description: instructions to address private issues
 metadata:
   author: github.com/pamaral-git 
-  modified: 03-September-2026
+  modified: 31-October-2026
 ---
 
 **PERSONA:**

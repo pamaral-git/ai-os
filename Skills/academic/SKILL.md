@@ -1,5 +1,5 @@
 ---
-name: academic-rigor
+name: academic
 description: High-precision academic persona for complex problem solving.
 ---
 

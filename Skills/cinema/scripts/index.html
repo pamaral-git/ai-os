@@ -1,0 +1,212 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>film-digest</title></head>
+<body>
+<script src="tools.js"></script>
+<script>
+'use strict';
+const T = window.AgentTools;
+
+function parseLdJson(text) {
+  const cleaned = String(text || '')
+    .replace(/\/\*\s*<!\[CDATA\[\s*\*\//g, '')
+    .replace(/\/\*\s*\]\]>\s*\*\//g, '')
+    .replace(/<!--/g, '')
+    .replace(/-->/g, '')
+    .trim();
+  return JSON.parse(cleaned);
+}
+
+function asPeople(v) {
+  if (!v) return [];
+  const arr = Array.isArray(v) ? v : [v];
+  return arr.map(function (d) { return d && (d.name || (typeof d === 'string' ? d : null)); }).filter(Boolean);
+}
+
+async function searchFilms(query) {
+  const html = await T.fetchText(
+    'https://letterboxd.com/search/films/?q=' + encodeURIComponent(query),
+    { timeoutMs: 15000, retries: 0 }
+  );
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const seen = new Set();
+  const out = [];
+  const anchors = doc.querySelectorAll('a[href^="/film/"]');
+  for (let i = 0; i < anchors.length; i++) {
+    if (out.length >= 6) break;
+    const a = anchors[i];
+    const href = a.getAttribute('href') || '';
+    const m = href.match(/^\/film\/([^\/]+)\/?/);
+    if (!m) continue;
+    const slug = m[1];
+    if (seen.has(slug)) continue;
+    seen.add(slug);
+    const img = a.querySelector('img');
+    const title = (img && img.getAttribute('alt')) || (a.textContent || '').trim();
+    if (!title || title.length > 120) continue;
+    out.push({ source: 'letterboxd', slug: slug, title: title });
+  }
+  return out;
+}
+
+async function filmDetail(slug) {
+  const url = 'https://letterboxd.com/film/' + encodeURIComponent(slug) + '/';
+  const html = await T.fetchText(url, { timeoutMs: 15000, retries: 0 });
+  const doc = new DOMParser().parseFromString(html, 'text/html');
+  const scripts = doc.querySelectorAll('script[type="application/ld+json"]');
+  let movie = null;
+  for (let i = 0; i < scripts.length; i++) {
+    try {
+      const j = parseLdJson(scripts[i].textContent);
+      const candidates = Array.isArray(j) ? j : [j];
+      for (let c = 0; c < candidates.length; c++) {
+        const item = candidates[c];
+        const typ = item && item['@type'];
+        if (typ === 'Movie' || typ === 'https://schema.org/Movie') { movie = item; break; }
+      }
+      if (movie) break;
+    } catch (_) { /* malformed block */ }
+  }
+  if (!movie) throw new Error('empty LD+JSON on film page');
+
+  const rating = movie.aggregateRating && movie.aggregateRating.ratingValue != null
+    ? Number(movie.aggregateRating.ratingValue) : null;
+  const poster = (movie.image && (movie.image.url || movie.image)) || null;
+  const published = movie.datePublished || movie.dateCreated || '';
+  const genres = Array.isArray(movie.genre) ? movie.genre.slice(0, 4) : (movie.genre ? [movie.genre] : []);
+
+  return {
+    source: 'letterboxd',
+    slug: slug,
+    url: url,
+    title: movie.name || null,
+    year: published ? String(published).slice(0, 4) : null,
+    directors: asPeople(movie.director),
+    rating_out_of_5: rating != null && !isNaN(rating) ? +rating.toFixed(2) : null,
+    genres: genres,
+    runtime: movie.duration ? String(movie.duration).replace(/^PT/, '').toLowerCase() : null,
+    poster: typeof poster === 'string' ? poster : null,
+    description: movie.description ? T.cap(movie.description, 220) : null,
+  };
+}
+
+async function wikiSearch(query) {
+  const q = /\bfilm\b/i.test(query) ? query : query + ' film';
+  const url = 'https://en.wikipedia.org/w/api.php?action=opensearch&format=json&origin=*&limit=6&search=' +
+    encodeURIComponent(q);
+  const j = await T.fetchJson(url);
+  const titles = j[1] || [];
+  const descs = j[2] || [];
+  const urls = j[3] || [];
+  const rows = titles.map(function (title, i) {
+    return {
+      source: 'wikipedia',
+      title: title,
+      page: title,
+      description: descs[i] || '',
+      url: urls[i] || null,
+    };
+  });
+  rows.sort(function (a, b) { return wikiScore(b) - wikiScore(a); });
+  return rows;
+}
+
+function wikiScore(r) {
+  let s = 0;
+  if (/\(\d{4} film\)/i.test(r.title)) s += 5;
+  else if (/film\)/i.test(r.title)) s += 3;
+  if (/film/i.test(r.description || '')) s += 1;
+  return s;
+}
+
+async function wikiFilm(title) {
+  const url = 'https://en.wikipedia.org/api/rest_v1/page/summary/' +
+    encodeURIComponent(String(title).replace(/ /g, '_'));
+  const d = await T.fetchJson(url);
+  if (d.type === 'https://mediawiki.org/wiki/HyperSwitch/errors/not_found') {
+    throw new Error('HTTP 404 wikipedia title');
+  }
+  const blob = (d.description || '') + ' ' + (d.extract || '');
+  const year = blob.match(/\b(1[89]\d{2}|20\d{2})\b/);
+  return {
+    source: 'wikipedia',
+    title: d.title || title,
+    year: year ? year[1] : null,
+    description: d.extract ? T.cap(d.extract, 280) : null,
+    poster: d.originalimage && d.originalimage.source || (d.thumbnail && d.thumbnail.source) || null,
+    url: d.content_urls && d.content_urls.desktop && d.content_urls.desktop.page || null,
+    rating_out_of_5: null,
+    directors: [],
+  };
+}
+
+async function dispatch(data) {
+  const action = data && data.action;
+  try {
+    if (action === 'search') {
+      const q = String(data.query || '').trim();
+      if (!q) return T.err('search needs query', 'Ask for the film title (year optional).');
+      let rows = [];
+      let letterboxdError = null;
+      try { rows = await searchFilms(q); }
+      catch (e) { letterboxdError = e.message; }
+      if (rows.length) {
+        return T.ok({
+          source: 'letterboxd',
+          count: rows.length,
+          results: rows,
+          _next: 'List title + slug. Offer action=film with that slug. Do not invent a different slug.',
+        });
+      }
+      const wiki = await wikiSearch(q);
+      if (!wiki.length) {
+        return T.err('no search results for "' + q + '"', 'Try a shorter title. Do not invent a slug or a rating.');
+      }
+      return T.ok({
+        source: 'wikipedia',
+        letterboxd: letterboxdError ? T.cap(letterboxdError, 140) : 'no server-rendered film links',
+        count: wiki.length,
+        results: wiki,
+        _next: 'These are Wikipedia titles, not Letterboxd slugs. Call action=film with title set to page. Do not invent a Letterboxd rating.',
+      });
+    }
+
+    if (action === 'film') {
+      const slug = String(data.slug || '').trim();
+      const title = String(data.title || '').trim();
+      if (!slug && !title) {
+        return T.err('film needs slug or title', 'Search first. Pass a Letterboxd slug, or a Wikipedia title.');
+      }
+      if (slug) {
+        try {
+          const f = await filmDetail(slug);
+          return T.ok({ film: f, _next: 'One-line title + year, director, Letterboxd rating, then the poster URL.' });
+        } catch (e) {
+          if (!title) {
+            const d = T.describeError(e);
+            return T.err(d.msg, d.hint + ' If you have a Wikipedia page title from search, retry with title instead of slug.');
+          }
+        }
+      }
+      const f = await wikiFilm(title);
+      return T.ok({
+        film: f,
+        _next: 'Wikipedia summary, not a Letterboxd rating. Give title, one sentence, then the poster URL. Say the rating is unavailable.',
+      });
+    }
+
+    return T.err('unknown action "' + action + '"', 'Use action=search|film.');
+  } catch (e) {
+    const d = T.describeError(e);
+    return T.err(d.msg, d.hint);
+  }
+}
+
+window.ai_edge_gallery_get_result = async function (dataStr) {
+  let data;
+  try { data = JSON.parse(dataStr); }
+  catch (e) { return JSON.stringify(T.err('invalid JSON input', 'Send a JSON object with an `action` field.')); }
+  const result = await dispatch(data);
+  return typeof result === 'string' ? result : JSON.stringify(result);
+};
+</script>
+</body></html>

@@ -1,0 +1,371 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><title>feed-reader</title></head>
+<body>
+<script src="tools.js"></script>
+<script>
+'use strict';
+const T = window.AgentTools;
+
+const CALL_BUDGET = 4;           // hard cap per user request
+const CACHE_TTL_MS = 10 * 60e3;  // 10 min
+const SESSION_RESET_MS = 2 * 60e3; // 2 min inactivity resets auto call counter
+
+let sessionCalls = 0;
+let lastCallTime = 0;
+
+/* ---------- tiny stable hash for cache keys ---------- */
+function h32(s) {
+  let h = 5381;
+  for (let i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
+}
+
+/* ---------- URL normalizer ---------- */
+function normalizeUrl(u) {
+  if (!u) return '';
+  u = String(u).trim();
+  if (!/^https?:\/\//i.test(u)) return 'https://' + u;
+  return u;
+}
+
+/* ---------- cached fetch of a feed ---------- */
+async function loadFeed(url) {
+  url = normalizeUrl(url);
+  const key = 'feed:' + h32(url);
+  const cached = T.kv.get(key, null);
+  if (cached && (Date.now() - cached.ts) < CACHE_TTL_MS) {
+    return { feed: cached.feed, via: 'cache' };
+  }
+  const { text, via, json } = await T.fetchViaProxy(url, { feed: true });
+  if (json) {
+    const feed = T.parseFeed(json);
+    T.kv.set(key, { ts: Date.now(), feed: feed });
+    return { feed: feed, via: via };
+  }
+  if (/^\s*<!doctype html|<html[\s>]/i.test(text.slice(0, 200))) {
+    throw new Error('not a feed: response is HTML, not XML');
+  }
+  const feed = T.parseFeed(text);
+  T.kv.set(key, { ts: Date.now(), feed: feed });
+  return { feed: feed, via: via };
+}
+
+/* ---------- discover feeds on a homepage ---------- */
+async function discoverFeeds(home) {
+  home = normalizeUrl(home);
+  const { text } = await T.fetchViaProxy(home);
+  const doc = new DOMParser().parseFromString(text, 'text/html');
+  const found = new Map();
+  doc.querySelectorAll('link[rel~="alternate"]').forEach(function (l) {
+    const type = (l.getAttribute('type') || '').toLowerCase();
+    if (type.includes('rss') || type.includes('atom') || type.includes('xml')) {
+      const href = l.getAttribute('href');
+      if (href) {
+        try {
+          found.set(new URL(href, home).toString(), l.getAttribute('title') || null);
+        } catch (_) {}
+      }
+    }
+  });
+  if (!found.size) {
+    try {
+      const base = new URL(home);
+      ['/feed', '/feed.xml', '/rss', '/rss.xml', '/atom.xml', '/index.xml'].forEach(function (p) {
+        found.set(new URL(p, base).toString(), null);
+      });
+    } catch (_) {}
+  }
+  return Array.from(found.entries()).slice(0, 6).map(function (pair) {
+    return { url: pair[0], title: pair[1] };
+  });
+}
+
+/* ---------- readable article text ---------- */
+async function readArticle(url, maxChars) {
+  url = normalizeUrl(url);
+  const { text } = await T.fetchViaProxy(url);
+  const art = T.extractArticle(text);
+  const body = (art.text || '').replace(/\s+/g, ' ').trim();
+  if (!body || body.length < 80) throw new Error('empty article: readability failed');
+  return {
+    url: url,
+    title: T.cap(art.title || '', 160) || null,
+    chars: body.length,
+    text: T.cap(body, maxChars || 1200),
+  };
+}
+
+/* ---------- Google News RSS search ---------- */
+function newsUrl(query) {
+  const q = encodeURIComponent(query);
+  return 'https://news.google.com/rss/search?q=' + q + '&hl=en-US&gl=US&ceid=US:en';
+}
+
+/* ---------- Nowflation presets ---------- */
+const NF = {
+  feed:   'https://nowflation.com/feed.xml',
+  head:   'https://nowflation.com/api/inflation/export/headline.csv',
+  gaps:   'https://nowflation.com/data/gaptable.json',
+  series: function (id) {
+    return 'https://nowflation.com/api/inflation/export/series/' + encodeURIComponent(id) + '.csv';
+  },
+};
+
+async function nfBrief(limit) {
+  const { feed } = await loadFeed(NF.feed);
+  return {
+    source: 'Nowflation (nowflation.com)',
+    channel: feed.title || 'Nowflation Daily Brief',
+    items: feed.items.slice(0, limit).map(function (i) {
+      return {
+        date: i.date,
+        title: i.title,
+        link: i.link,
+        summary: T.cap(i.summary, 420),
+      };
+    }),
+  };
+}
+
+async function nfHeadline(limit) {
+  const { text } = await T.fetchViaProxy(NF.head);
+  const rows = T.parseCSV(text);
+  if (!rows.length) throw new Error('empty feed: headline.csv had no data rows');
+  rows.sort(function (a, b) {
+    return String(a.date || a.day || '').localeCompare(String(b.date || b.day || ''));
+  });
+  const parse = function (r) {
+    return {
+      date: r.date || r.day || null,
+      index: num(r.index_value || r.index),
+      year_ago_base: num(r.year_ago_base || r.base),
+      yoy: num(r.yoy || r.yoy_pct || r.yoy_percent),
+    };
+  };
+  const tail = rows.slice(-Math.max(2, Math.min(limit, 10)));
+  const series = tail.map(parse);
+  const last = series[series.length - 1] || {};
+  const prev = series[series.length - 2] || {};
+  return {
+    source: 'Nowflation (nowflation.com)',
+    latest: last,
+    prev: prev,
+    change_pp: (last.yoy != null && prev.yoy != null) ? +(last.yoy - prev.yoy).toFixed(3) : null,
+    history: series.slice(-8),
+  };
+}
+
+async function nfSeries(id, limit) {
+  if (!id) throw new Error('series id required, e.g. GASREGW, JTSJOL');
+  id = String(id).toUpperCase().trim();
+  const { text } = await T.fetchViaProxy(NF.series(id));
+  const rows = T.parseCSV(text);
+  if (!rows.length) throw new Error('empty feed: series ' + id + ' had no rows');
+  rows.sort(function (a, b) {
+    return String(a.period || a.date || a.observation_date || '').localeCompare(String(b.period || b.date || b.observation_date || ''));
+  });
+  return {
+    source: 'Nowflation (nowflation.com)',
+    series: id,
+    observations: rows.slice(-Math.max(2, Math.min(limit || 10, 20))).map(function (r) {
+      return {
+        period: r.period || r.date || r.observation_date || null,
+        value: num(r.value),
+      };
+    }),
+    csv_url: NF.series(id),
+  };
+}
+
+async function nfGaps(limit) {
+  const j = await T.fetchJsonThroughProxy(NF.gaps);
+  return {
+    source: 'Nowflation (nowflation.com)',
+    gaps: T.cap(JSON.stringify(j), limit && limit < 6 ? 600 : 1400),
+  };
+}
+
+function num(v) {
+  if (v == null || v === '') return null;
+  const n = Number(String(v).replace(/[^0-9.\-]/g, ''));
+  return Number.isFinite(n) ? n : null;
+}
+
+/* ---------- subscriptions ---------- */
+function subs() { return T.kv.get('feed:subs', {}); }
+function saveSubs(o) { T.kv.set('feed:subs', o); }
+
+/* ---------- envelope with agent-loop metadata ---------- */
+function done(obj, next, callsUsed) {
+  const remaining = Math.max(0, CALL_BUDGET - (callsUsed || 1));
+  return T.ok(Object.assign({}, obj, {
+    calls_remaining: remaining,
+    _next: remaining === 0 ? 'ANSWER now with what you have. Do not call again.' : next,
+  }));
+}
+
+/* ---------- dispatch ---------- */
+async function dispatch(data) {
+  const action = data && data.action;
+
+  let used;
+  if (data && data._call != null) {
+    used = T.clampInt(data._call, 1, CALL_BUDGET, 1);
+    sessionCalls = used;
+  } else {
+    const now = Date.now();
+    if (now - lastCallTime > SESSION_RESET_MS) sessionCalls = 0;
+    sessionCalls++;
+    used = Math.min(sessionCalls, CALL_BUDGET);
+  }
+  lastCallTime = Date.now();
+
+  try {
+    if (action === 'fetch') {
+      let target = data.url || data.name;
+      if (!target) return T.err('fetch needs url', 'Call action:"discover" on the site homepage first.');
+      const s = subs();
+      if (s[target] && s[target].url) target = s[target].url;
+
+      const { feed, via } = await loadFeed(target);
+      let items = feed.items || [];
+      if (data.since) items = items.filter(function (i) { return (i.date || '') >= data.since; });
+      const limit = T.clampInt(data.limit, 1, 15, 8);
+      const out = items.slice(0, limit);
+      if (!out.length) throw new Error('empty feed: no items matched');
+      return done({
+        feed: feed.title,
+        via: via,
+        count: out.length,
+        items: out,
+      }, out.some(function (i) { return i.link; }) ?
+        'If the user asked for detail on one story, call action:"read" on its link. Otherwise ANSWER.' :
+        'ANSWER with the item list.', used);
+    }
+
+    if (action === 'discover') {
+      if (!data.url) return T.err('discover needs url', 'Pass the site homepage, e.g. "https://example.com".');
+      const feeds = await discoverFeeds(data.url);
+      if (!feeds.length) return T.err('no feeds found on that page', 'The site may not publish RSS. Offer action:"read" on a specific article URL instead.');
+      return done({ homepage: data.url, feeds: feeds }, 'Pick the most relevant feed URL and call action:"fetch" on it.', used);
+    }
+
+    if (action === 'read') {
+      if (!data.url) return T.err('read needs url', 'Pass the article link returned by action:"fetch".');
+      const a = await readArticle(data.url, T.clampInt(data.max_chars, 400, 2400, 1200));
+      return done({ article: a }, 'ANSWER using only this text. Do not add facts not present here.', used);
+    }
+
+    if (action === 'news') {
+      let query = '';
+      let ticker = null;
+      if (data.ticker) {
+        ticker = String(data.ticker).toUpperCase().trim();
+        query = '"' + ticker + '" stock';
+      } else if (data.q || data.query) {
+        query = String(data.q || data.query).trim();
+      }
+      if (!query) return T.err('news needs ticker', 'Ask for the exact ticker, e.g. AAPL.');
+
+      const { feed } = await loadFeed(newsUrl(query));
+      const limit = T.clampInt(data.limit, 1, 10, 5);
+      const items = (feed.items || []).slice(0, limit).map(function (i) {
+        return {
+          date: i.date,
+          title: i.title,
+          link: i.link,
+        };
+      });
+      if (!items.length) throw new Error('empty feed: no news items for ' + (ticker || query));
+      return done({
+        ticker: ticker || undefined,
+        query: ticker ? undefined : query,
+        source: 'Google News RSS',
+        items: items,
+      }, 'If the user wants the story, call action:"read" on one link. Otherwise ANSWER and label this as press coverage, not a quote.', used);
+    }
+
+    if (action === 'nowflation') {
+      const what = data.what || 'brief';
+      const limit = T.clampInt(data.limit, 1, 12, 5);
+      if (what === 'brief') {
+        const r = await nfBrief(limit);
+        return done(r, 'If the user asked why inflation moved, call action:"read" on the latest brief link. Otherwise ANSWER with the headline number first.', used);
+      }
+      if (what === 'headline') {
+        const r = await nfHeadline(limit);
+        return done(r, 'ANSWER with the latest YoY, the prior value, and the pp change. Credit Nowflation.', used);
+      }
+      if (what === 'series') {
+        const r = await nfSeries(data.series, limit);
+        return done(r, 'ANSWER with the latest observation and the direction. Credit Nowflation.', used);
+      }
+      if (what === 'gaps') {
+        const r = await nfGaps(limit);
+        return done(r, 'ANSWER with the CPI gap and the PCE gap only. Credit Nowflation.', used);
+      }
+      return T.err('unknown nowflation what "' + what + '"', 'Use what=brief|headline|series|gaps.');
+    }
+
+    if (action === 'subscribe') {
+      if (!data.url) return T.err('subscribe needs url', 'Pass the feed URL.');
+      const s = subs();
+      let name = data.name;
+      if (!name) {
+        try { name = new URL(normalizeUrl(data.url)).hostname; }
+        catch (_) { name = data.url; }
+      }
+      name = T.cap(name, 40);
+      s[name] = { url: data.url, added: T.now() };
+      saveSubs(s);
+      return done({ subscribed: name, url: data.url, total: Object.keys(s).length },
+        'ANSWER confirming the subscription and the name to use later.', used);
+    }
+
+    if (action === 'unsubscribe') {
+      const target = data.name || data.url;
+      if (!target) return T.err('unsubscribe needs name or url', 'Provide the subscription name or url.');
+      const s = subs();
+      let removed = false;
+      if (s[target]) {
+        delete s[target];
+        removed = true;
+      } else {
+        for (const k of Object.keys(s)) {
+          if (s[k].url === target || k.toLowerCase() === String(target).toLowerCase()) {
+            delete s[k];
+            removed = true;
+            break;
+          }
+        }
+      }
+      saveSubs(s);
+      return done({ unsubscribed: target, success: removed, total: Object.keys(s).length },
+        'ANSWER confirming the subscription was removed.', used);
+    }
+
+    if (action === 'list') {
+      const s = subs();
+      const cacheKeys = T.kv.keys('feed:').filter(function (k) { return k !== 'feed:subs'; });
+      return done({ subscriptions: s, cached_feeds: cacheKeys.length },
+        'ANSWER with the subscription names and URLs. Do not fetch anything.', used);
+    }
+
+    return T.err('unknown action "' + action + '"', 'Use action=fetch|discover|read|news|nowflation|subscribe|unsubscribe|list.');
+  } catch (e) {
+    const d = T.describeError(e);
+    return T.err(d.msg, d.hint);
+  }
+}
+
+window.ai_edge_gallery_get_result = async function (dataStr) {
+  let data;
+  try {
+    data = JSON.parse(dataStr);
+  } catch (e) {
+    return JSON.stringify(T.err('invalid JSON input', 'Send a JSON object with an `action` field.'));
+  }
+  return JSON.stringify(await dispatch(data));
+};
+</script>
+</body></html>
