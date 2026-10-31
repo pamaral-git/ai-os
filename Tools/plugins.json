@@ -1,0 +1,302 @@
+{
+  "plugins": [
+      {
+        "name": "i-have-adhd",
+        "sourceType": "git",
+        "sourceUri": "https://github.com/ayghri/i-have-adhd"
+      },
+      {
+        "name": "impeccable",
+        "sourceType": "github",
+        "sourceUri": "pbakaus/impeccable"
+      },
+      {
+        "name": "mattpocock",
+        "sourceType": "git",
+        "sourceUri": "https://github.com/mattpocock/skills"
+      },
+      {
+        "name": "addy-web-quality-skills",
+        "sourceType": "github",
+        "sourceUri": "addyosmani/web-quality-skills"
+      },
+      {
+        "name": "humanizer",
+        "sourceType": "github",
+        "sourceUri": "blader/humanizer"
+      }
+    {
+      "name": "noodle",
+      "sourceType": "git",
+      "sourceUri": "https://github.com/poteto/noodle"
+    },
+    {
+      "name": "chrome-dev",
+      "sourceType": "git",
+      "sourceUri": "https://github.com/ChromeDevTools/chrome-devtools-mcp"
+    }
+  ]
+},
+{
+    "mcpServers": {
+        "Time": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=time",
+                "mcp/time"
+            ]
+        },
+        "Files": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=filesystem",
+                "-v",
+                "/Users/local-path/workspace:/local-directory",
+                "mcp/filesystem",
+                "/local-directory"
+            ]
+        },
+        "Checklist": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=checklist",
+                "mayurkakade/mcp-server:latest",
+                "--mode=backend"
+            ]
+        },
+        "Browser": {
+            "type": "stdio",
+            "command": "node",
+            "args": [
+                "/Users/local-path/browser-mcp/node_modules/@browsermcp/mcp/dist/index.js"
+            ]
+        },
+        "DuckDuckGo": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp",
+                "--label",
+                "com.docker.compose.service=duckduckgo",
+                "mcp/duckduckgo"
+            ]
+        },
+        "Markdown": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp",
+                "--label",
+                "com.docker.compose.service=markdown",
+                "-v",
+                "/Users/local-path/workspace:/local-directory",
+                "mcp/markitdown"
+            ]
+        },
+        "Thinking": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp",
+                "--label",
+                "com.docker.compose.service=thinking",
+                "mcp/sequentialthinking"
+            ]
+        },
+        "Memory": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp-servers",
+                "--label",
+                "com.docker.compose.service=memory",
+                "-v",
+                "/Users/local-path/workspace:/local-directory",
+                "mcp/memory"
+            ]
+        },
+        "Code-Graph": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "exec",
+                "-i",
+                "codegraphcontext",
+                "cgc",
+                "mcp",
+                "start",
+                "--label",
+                "com.docker.compose.project=mcp",
+                "com.docker.compose.service=codegraph"
+                ]
+        },
+        "Youtube": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp",
+                "--label",
+                "com.docker.compose.service=youtube",
+                "mcp/youtube-transcript"]
+        },
+        "Wikipedia": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp",
+                "--label",
+                "com.docker.compose.service=wikipedia",
+                "mcp/wikipedia-mcp"
+            ]
+        },
+        "Web Fetch": {
+            "type": "stdio",
+            "command": "docker",
+            "args": [
+                "run",
+                "-i",
+                "--rm",
+                "--init",
+                "--stop-timeout",
+                "2",
+                "--label",
+                "com.docker.compose.project=mcp",
+                "--label",
+                "com.docker.compose.service=fetch",
+                "mcp/fetch"
+            ]
+        },
+        "REA": {
+          "type": "stdio",
+          "command": "node",
+          "args": ["/Users/local-path/node_modules/rea-agents/scripts/rea.mjs", "mcp"]
+        },
+        "Agent-Browser": {
+          "type": "stdio",
+          "command": "agent-browser",
+          "args": ["mcp", "--tools", "all"]
+        },
+        "DeepWiki": {
+          "type": "http",
+          "url": "https://mcp.deepwiki.com/mcp"
+        },
+        "Film Flixor": {
+          "type": "http",
+          "url": "https://flixor.toolpipe.ai/mcp"
+        },
+        "Film Finder": {
+          "type": "http",
+          "url": "https://nuova.pro/api/mcp/moviepick"
+        },
+        "Hot AI 100": {
+          "type": "http",
+          "url": "https://www.hot100.ai/mcp"
+        },
+        "Equibles": {
+          "type": "http",
+          "url": "https://mcp.equibles.com/mcp"
+        },
+        "AlphaVantage": {
+          "type": "http",
+          "url": "https://mcp.alphavantage.co/mcp"
+        },
+        "YFinance": {
+          "type": "http",
+          "url": "https://gateway.mcpservers.org/yahoo-finance/mcp"
+        },
+        "Context7": {
+          "type": "http",
+          "url": "https://mcp.context7.com/mcp",
+          "enabled": true
+        },
+        "Mermaid": {
+          "type": "http",
+          "url": "https://mcp.mermaidchart.com/mcp"
+        },
+        "Firecrawl": {
+          "type": "http",
+          "url": "https://mcp.firecrawl.dev/v2/mcp"
+        },
+        "Exa-AI": {
+          "type": "http",
+          "url": "https://mcp.exa.ai/mcp"
+        },
+        "Tavily": {
+          "type": "http",
+          "url": "https://mcp.tavily.com/mcp"
+          }
+        }
+    }
+}
