@@ -1,25 +1,4 @@
-<html lang="en"><head><style>
-@font-face {
-  font-family: "Optimistic";
-  font-style: normal;
-  font-weight: 400 600;
-  font-display: swap;
-  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
-}
-@font-face {
-  font-family: "Optimistic Mono";
-  font-style: normal;
-  font-weight: 400;
-  font-display: swap;
-  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
-}
-:where(html) {
-  font-family: "Optimistic", system-ui, sans-serif;
-}
-:where(code, pre, kbd, samp) {
-  font-family: "Optimistic Mono", ui-monospace, monospace;
-}
-</style>
+<html lang="en"><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NEFILUM Web — archive 2024-2026</title>
@@ -57,7 +36,7 @@ a{color:inherit;text-decoration:none}a:hover{color:var(--accent)}
 .toc{position:sticky;top:0;z-index:20;background:rgba(246,242,234,.92);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
 .toc-inner{max-width:1280px;margin:0 auto;padding:0 18px;height:36px;display:flex;align-items:center;gap:12px}
 .toc-lbl{font:700 9px/1 var(--sans);letter-spacing:.16em;text-transform:uppercase;color:var(--soft)} .toc a{font:600 10px/1 var(--sans);letter-spacing:.11em;text-transform:uppercase;color:var(--soft);padding:5px 7px;border-radius:6px} .toc a.active,.toc a:hover{color:var(--ink);background:#ECE6D9}
-.progress{height:2px;background:var(--line)} .progress-bar{height:100%;width:0;background:var(--accent);transition:width .1s linear}
+.progress{height:2px;background:var(--line)} .progress-bar{height:100%;width:100%;background:var(--accent);transform:scaleX(0);transform-origin:left;transition:transform .1s linear}
 .shell{max-width:1280px;margin:0 auto;padding:0 18px}
 .section{padding:20px 0 16px;border-bottom:1px solid var(--line);display:grid;grid-template-columns:150px 1fr;gap:16px}
 @media(max-width:900px){.section{grid-template-columns:1fr;gap:10px}}
@@ -95,6 +74,13 @@ a{color:inherit;text-decoration:none}a:hover{color:var(--accent)}
 .iphone-label{position:absolute;bottom:-18px;left:0;right:0;text-align:center;font:700 7px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase;color:#9AA9C1}
 @media(max-width:900px){.iphone-float{display:none}}
 footer{padding:10px 18px;display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font:500 9.5px/1.3 var(--sans);color:var(--soft);max-width:1280px;margin:0 auto;border-top:1px solid var(--line)}
+@media(max-width:600px){
+  .lang button,.toc a,.link-out,.go{min-height:44px;display:inline-flex;align-items:center}
+  .toc-inner{height:auto;min-height:44px;flex-wrap:wrap;padding-top:4px;padding-bottom:4px}
+  .btn-pair,.sub-routes button{min-height:44px}
+  .browser-bar{height:48px}
+  .viewport{height:min(70vh,620px);min-height:400px}
+}
 </style>
 </head>
 <body>
@@ -115,7 +101,7 @@ footer{padding:10px 18px;display:flex;justify-content:space-between;gap:10px;fle
   </div>
 </section>
 
-<div class="toc"><div class="progress"><div class="progress-bar" id="progress-bar" style="width: 0%;"></div></div><div class="toc-inner"><div class="toc-lbl">01 — 02</div><nav style="display:flex;gap:4px" id="toc-links"><a href="#visao-geral" data-i18n="toc_overview" class="active">Overview</a><a href="#comparador" data-i18n="toc_compare">Side-by-side</a></nav></div></div>
+<div class="toc"><div class="progress"><div class="progress-bar" id="progress-bar" style="transform: scaleX(0);"></div></div><div class="toc-inner"><div class="toc-lbl">01 — 02</div><nav style="display:flex;gap:4px" id="toc-links"><a href="#visao-geral" data-i18n="toc_overview" class="active">Overview</a><a href="#comparador" data-i18n="toc_compare">Side-by-side</a></nav></div></div>
 
 <div class="shell">
   <section class="section" id="visao-geral">
@@ -147,8 +133,8 @@ footer{padding:10px 18px;display:flex;justify-content:space-between;gap:10px;fle
 </div>
 
 <section class="studio" id="comparador"><div class="studio-inner"><div class="studio-bar"><div><h2 data-i18n="compare_title">Side-by-side comparator</h2><p style="font:400 10px/1.4 var(--sans);color:var(--darkSoft);margin-top:4px">Auto responsive — desktop 1280 scaled, mobile 100% · iPhone mockup bottom-right of each display, hidden on phone · no toggle buttons.</p></div></div><div class="controls"><div class="tabs" id="pair-selector"><button type="button" class="btn-pair active">Home</button><button type="button" class="btn-pair">News</button><button type="button" class="btn-pair">Events</button><button type="button" class="btn-pair">Documents</button><button type="button" class="btn-pair">About</button><button type="button" class="btn-pair">Debates</button><button type="button" class="btn-pair">Join</button><button type="button" class="btn-pair">Blog</button></div><div class="sub-routes" id="sub-routes"></div><div class="note" id="pair-description">Home: Direct Weebly → new initial view.</div></div><div class="frames">
-<div class="browser"><div class="browser-bar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="url" id="url-old">Old Website</div><a class="link-out" id="link-old" href=".source/old-web.html#inicio" target="_blank" rel="noopener">Open ↗</a></div><div class="viewport" id="box-old"><div class="iphone-float" id="iphone-old-float" style="display: none;"><div class="iphone-notch"></div><div class="iphone-screen"><iframe id="frame-old-mobile" src=".source/old-web.html#inicio" title="Old mobile" sandbox="allow-same-origin allow-scripts allow-forms" loading="eager"></iframe></div><div class="iphone-label">375 · Old</div></div><iframe class="snapshot-frame scaled" id="frame-old" src=".source/old-web.html#inicio" title="Old" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" loading="eager" style="width: 1280px; transform: scale(0.277344); height: 2596.056338px;"></iframe></div></div>
-<div class="browser"><div class="browser-bar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="url" id="url-new">New Website</div><a class="link-out" id="link-new" href=".source/new-web.html#/inicio" target="_blank" rel="noopener" style="visibility: visible;">Open ↗</a></div><div class="viewport" id="box-new"><div class="iphone-float" id="iphone-new-float" style="display: none;"><div class="iphone-notch"></div><div class="iphone-screen"><iframe id="frame-new-mobile" src=".source/new-web.html#/inicio" title="New mobile" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" loading="eager" referrerpolicy="no-referrer"></iframe></div><div class="iphone-label">375 · New</div></div><iframe class="snapshot-frame" id="frame-new" src=".source/new-web.html#/inicio" title="New" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation" loading="eager" referrerpolicy="no-referrer" style="display: block; width: 100%; margin: 0px; height: 720px;"></iframe><div class="empty" id="card-new-empty"><div class="empty-box"><strong data-i18n="no_equiv">No direct equivalent</strong><p id="card-new-text">Integrated elsewhere.</p></div></div></div></div>
+<div class="browser"><div class="browser-bar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="url" id="url-old">Old Website</div><a class="link-out" id="link-old" href="source/old-web.html#inicio" target="_blank" rel="noopener">Open ↗</a></div><div class="viewport" id="box-old"><div class="iphone-float" id="iphone-old-float" style="display: none;"><div class="iphone-notch"></div><div class="iphone-screen"><iframe id="frame-old-mobile" src="source/old-web.html#inicio" title="Old mobile" sandbox="allow-same-origin allow-scripts allow-forms" loading="lazy"></iframe></div><div class="iphone-label">375 · Old</div></div><iframe class="snapshot-frame scaled" id="frame-old" src="source/old-web.html#inicio" title="Old" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" loading="lazy" style="width: 1280px; transform: scale(0.277344); height: 2596.056338px;"></iframe></div></div>
+<div class="browser"><div class="browser-bar"><div class="dots"><div class="dot r"></div><div class="dot y"></div><div class="dot g"></div></div><div class="url" id="url-new">New Website</div><a class="link-out" id="link-new" href="source/new-web.html#/inicio" target="_blank" rel="noopener" style="visibility: visible;">Open ↗</a></div><div class="viewport" id="box-new"><div class="iphone-float" id="iphone-new-float" style="display: none;"><div class="iphone-notch"></div><div class="iphone-screen"><iframe id="frame-new-mobile" src="source/new-web.html#/inicio" title="New mobile" sandbox="allow-same-origin allow-scripts allow-forms allow-popups" loading="lazy" referrerpolicy="no-referrer"></iframe></div><div class="iphone-label">375 · New</div></div><iframe class="snapshot-frame" id="frame-new" src="source/new-web.html#/inicio" title="New" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-top-navigation-by-user-activation" loading="lazy" referrerpolicy="no-referrer" style="display: block; width: 100%; margin: 0px; height: 720px;"></iframe><div class="empty" id="card-new-empty"><div class="empty-box"><strong data-i18n="no_equiv">No direct equivalent</strong><p id="card-new-text">Integrated elsewhere.</p></div></div></div></div>
 </div></div></section>
 
 <footer><div>NEFILUM Web · Pedro Amaral 2024-2026 · 31 Oct 2026 · 119,704B 1605 lines · 19 sitemap URLs · auto responsive + iPhone bottom-right</div><div>cards: kept expanded created deleted merged</div></footer>
@@ -197,7 +183,7 @@ function applyLang(l){
  if(PAIRS_DATA[currentPair]) document.getElementById('pair-description').textContent=d.pairs[currentPair].t+': '+d.pairs[currentPair].n;
  const sr=document.getElementById('sub-routes');
  if(sr.classList.contains('show')){
-  const srcs=['.source/new-web.html#/sobre/historia','.source/new-web.html#/sobre/documentos','.source/new-web.html#/sobre/mandatos','.source/new-web.html#/sobre/arquivos','.source/new-web.html#/sobre/manual'];
+  const srcs=['source/new-web.html#/sobre/historia','source/new-web.html#/sobre/documentos','source/new-web.html#/sobre/mandatos','source/new-web.html#/sobre/arquivos','source/new-web.html#/sobre/manual'];
   sr.innerHTML='<span class="sub-routes-label">'+(l==='pt'?'Sub-rotas:':'Sub-routes:')+'</span>';
   d.subroutes.forEach((label,i)=>{
    const sb=document.createElement('button');sb.type='button';sb.textContent=label;if(i===0) sb.classList.add('active');
@@ -207,14 +193,14 @@ function applyLang(l){
  }
 }
 const PAIRS_DATA=[
- {old_src:".source/old-web.html#inicio",new_src:".source/new-web.html#/inicio"},
- {old_src:".source/old-web.html#noticias",new_src:".source/new-web.html#/atualidade/noticias"},
- {old_src:".source/old-web.html#eventos",new_src:".source/new-web.html#/atualidade/eventos"},
- {old_src:".source/old-web.html#documentos",new_src:".source/new-web.html#/sobre/documentos"},
- {old_src:".source/old-web.html#sobre",new_src:".source/new-web.html#/sobre/historia"},
- {old_src:".source/old-web.html#debates-das-jornadas",new_src:""},
- {old_src:".source/old-web.html#associa-te",new_src:".source/new-web.html#/sobre/manual"},
- {old_src:".source/old-web.html#blogue",new_src:".source/new-web.html#/atualidade/eventos"}
+ {old_src:"source/old-web.html#inicio",new_src:"source/new-web.html#/inicio"},
+ {old_src:"source/old-web.html#noticias",new_src:"source/new-web.html#/atualidade/noticias"},
+ {old_src:"source/old-web.html#eventos",new_src:"source/new-web.html#/atualidade/eventos"},
+ {old_src:"source/old-web.html#documentos",new_src:"source/new-web.html#/sobre/documentos"},
+ {old_src:"source/old-web.html#sobre",new_src:"source/new-web.html#/sobre/historia"},
+ {old_src:"source/old-web.html#debates-das-jornadas",new_src:""},
+ {old_src:"source/old-web.html#associa-te",new_src:"source/new-web.html#/sobre/manual"},
+ {old_src:"source/old-web.html#blogue",new_src:"source/new-web.html#/atualidade/eventos"}
 ];
 let currentPair=0;
 const frameOld=document.getElementById('frame-old');
@@ -232,7 +218,7 @@ function syncMobileIframes(oldSrc, newSrc){
   if(oldMob) oldMob.src=oldSrc;
   if(newMob){
     const parts=newSrc.split('#');
-    const base=parts[0]||'.source/new-web.html';
+    const base=parts[0]||'source/new-web.html';
     const hash=parts[1] ? '#'+parts[1] : '';
     newMob.onload=function(){
       try{ if(hash){ setTimeout(()=>{ try{ newMob.contentWindow.location.hash=hash; }catch(e){} }, 120); } }catch(e){}
@@ -292,7 +278,7 @@ function setPair(idx){
  }
  if(d.pairs[idx].t==='About' || d.pairs[idx].t==='Sobre o Núcleo'){
   subRoutesBox.classList.add('show');
-  const srcs=['.source/new-web.html#/sobre/historia','.source/new-web.html#/sobre/documentos','.source/new-web.html#/sobre/mandatos','.source/new-web.html#/sobre/arquivos','.source/new-web.html#/sobre/manual'];
+  const srcs=['source/new-web.html#/sobre/historia','source/new-web.html#/sobre/documentos','source/new-web.html#/sobre/mandatos','source/new-web.html#/sobre/arquivos','source/new-web.html#/sobre/manual'];
   subRoutesBox.innerHTML='<span class="sub-routes-label">'+(LANG==='pt'?'Sub-rotas:':'Sub-routes:')+'</span>';
   d.subroutes.forEach((label,i)=>{
    const sb=document.createElement('button');sb.type='button';sb.textContent=label;if(i===0) sb.classList.add('active');
@@ -306,7 +292,7 @@ document.addEventListener('keydown',(e)=>{if(e.key==='ArrowLeft'){setPair((curre
 const progressBar=document.getElementById('progress-bar');
 const tocLinks=document.querySelectorAll('#toc-links a');
 const sections=Array.from(document.querySelectorAll('.section, .studio')).map(s=>({id:s.id,el:s}));
-function onScroll(){const scrolled=window.scrollY/(document.documentElement.scrollHeight-window.innerHeight);progressBar.style.width=(scrolled*100)+'%';let current=sections[0].id;for(const sec of sections){if(window.scrollY+80>=sec.el.offsetTop) current=sec.id;}tocLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+current));}
+function onScroll(){const scrolled=window.scrollY/(document.documentElement.scrollHeight-window.innerHeight);progressBar.style.transform='scaleX('+scrolled+')';let current=sections[0].id;for(const sec of sections){if(window.scrollY+80>=sec.el.offsetTop) current=sec.id;}tocLinks.forEach(a=>a.classList.toggle('active',a.getAttribute('href')==='#'+current));}
 window.addEventListener('scroll',onScroll,{passive:true});
 document.getElementById('btn-en').addEventListener('click',()=>applyLang('en'));
 document.getElementById('btn-pt').addEventListener('click',()=>applyLang('pt'));

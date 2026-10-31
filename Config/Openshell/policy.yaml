@@ -1,0 +1,63 @@
+version: 1
+
+# Sandbox policy for agents that may talk ONLY to the local llama-swap on the host.
+# Default-deny: anything not listed below is blocked.
+# Install to ~/.config/openshell/policy.yaml (or set POLICY=...). If you change the host or
+# port here, change HOST_IP / LLAMA_PORT in llama-openshell.sh to match.
+
+process:
+  run_as_user: "1500"
+  run_as_group: "1500"
+
+landlock:
+  # best_effort silently skips filesystem rules if the Podman VM kernel lacks Landlock.
+  # llama-openshell.sh therefore probes at startup (writes to /var/tmp, which is not listed
+  # below) and refuses to start llama-swap if that write succeeds.
+  compatibility: best_effort
+
+filesystem_policy:
+  include_workdir: true
+  read_only:
+    - /usr
+    - /lib
+    - /lib64
+    - /bin
+    - /sbin
+    - /etc
+    - /dev/urandom
+    - /proc
+  read_write:
+    - /tmp
+    - /dev/null
+
+network_policies:
+  local_llama_inference:
+    endpoints:
+      # 192.168.127.254 is Podman Machine's standard host-gateway address
+      # (what host.containers.internal resolves to). It is not a secret.
+      - host: "192.168.127.254"
+        port: 8080
+        protocol: rest
+        enforcement: enforce
+        rules:
+          - allow:
+              method: GET
+              path: "/health"
+          - allow:
+              method: GET
+              path: "/v1/models"
+          - allow:
+              method: POST
+              path: "/v1/chat/completions"
+          - allow:
+              method: POST
+              path: "/v1/completions"
+          - allow:
+              method: POST
+              path: "/v1/embeddings"
+    # Anything these binaries run inside the sandbox can send arbitrary prompts to your
+    # local models through the allowed routes. Trim this list to what the agent needs.
+    binaries:
+      - path: "/usr/bin/curl"
+      - path: "/usr/local/bin/node"
+      - path: "/usr/local/bin/python3"

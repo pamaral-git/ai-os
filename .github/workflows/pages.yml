@@ -30,29 +30,33 @@ jobs:
       - name: Build HTML Site
         shell: bash
         run: |
+          set -e
           mkdir -p _site
           touch _site/.nojekyll
 
-          # Copy root index.html as the primary landing page
+          # Copy root index file (create default if missing)
           if [ -f "index.html" ]; then
             cp index.html _site/
           elif [ -f "Index.html" ]; then
             cp Index.html _site/index.html
+          else
+            echo "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" content=\"0; url=Docs/index.html\"></head></html>" > _site/index.html
           fi
 
-          # Copy directory hierarchy with all .html/.htm files into _site
-          find . -type f \( -name '*.html' -o -name '*.htm' \) ! -path './.*' ! -path './_site/*' ! -path './index.html' ! -path './Index.html' | while IFS= read -r file; do
-            dest="_site/${file#./}"
-            mkdir -p "$(dirname "$dest")"
-            cp "$file" "$dest"
-          done
+          # Copy ALL .html/.htm files preserving directory structure
+          find . -type f \( -name '*.html' -o -name '*.htm' \) \
+            ! -path './.*' \
+            ! -path './_site/*' \
+            -exec cp --parents {} _site/ \;
 
-          # Copy companion web assets (images, css, js, json, svg, webp)
-          find . -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.svg' -o -name '*.webp' -o -name '*.gif' -o -name '*.css' -o -name '*.js' -o -name '*.json' \) ! -path './.*' ! -path './_site/*' | while IFS= read -r file; do
-            dest="_site/${file#./}"
-            mkdir -p "$(dirname "$dest")"
-            cp "$file" "$dest"
-          done
+          # Copy ALL web assets preserving directory structure
+          find . -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.svg' \
+            -o -name '*.webp' -o -name '*.gif' -o -name '*.css' -o -name '*.js' \
+            -o -name '*.json' -o -name '*.woff' -o -name '*.woff2' -o -name '*.ttf' \
+            -o -name '*.otf' \) \
+            ! -path './.*' \
+            ! -path './_site/*' \
+            -exec cp --parents {} _site/ \;
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

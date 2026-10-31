@@ -9,7 +9,7 @@ from pathlib import Path
 from typing import Dict, List, Any
 
 # Paths & Settings
-CACHE_FILE = Path.home() / ".cache" / "nvidia_models_cache.json"
+CACHE_FILE = Path.home() / ".cache" / "nvidia-nim-cache.json"
 NVIDIA_API_KEY = os.getenv("NVIDIA_API_KEY", "")
 NVIDIA_MODELS_URL = "https://integrate.api.nvidia.com/v1/models"
 CRAWL4AI_URL = "http://[Insert_IP]/md"

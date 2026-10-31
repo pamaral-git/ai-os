@@ -1,0 +1,24 @@
+ [tools]
+ bun = "latest"
+ github-cli = "latest"
+ go = "latest"
+ node = "latest"
+ pandoc = "latest"
+ python = "latest"
+ ripgrep = "latest"
+ trivy = "latest"
+ "github:mostlygeek/llama-swap" = "latest"
+ uv = "latest"
+ "llama.cpp" = { version = "latest", prerelease = true, version_prefix = "b" }
+ cmake = "latest"
+ typst = "latest"
+ "github:can1357/oh-my-pi" = "latest"
+ "github:opengrep/opengrep" = { version = "latest", bin = "opengrep" }
+ gitleaks = "latest"
+ agent-browser = "latest"
+ "github:0xShug0/audio.cpp" = "latest"
+ rust = "latest"
+
+ [settings]
+ auto_update = true
+ minimum_release_age = "0s"
