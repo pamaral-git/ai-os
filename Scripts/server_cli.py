@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-  llama-swap-to-cli.py — Convert llama-swap YAML configurations into valid llama-cli commands and markdown.
+  server_cli.py — Convert llama-swap YAML configurations into valid llama-cli commands and markdown.
 
 Features:
 - Recursive macro resolution (resolving nested macros like ${agent} -> ${basic}).
@@ -14,7 +14,7 @@ Use the following commands:
 
 docker run --rm \
   -v "/your/path/with/llama-swap.yaml:/models:ro" \
-  -v "/your/path/to/this/script/llama-swap-to-cli.py:/scripts:ro" \
+  -v "/your/path/to/this/script/server_cli.py:/scripts:ro" \
   -v "/the/output/path/for/llama-cli.md:/out" \
   python:3.11-slim \
   sh -c "pip install --no-cache-dir pyyaml >/dev/null 2>&1 && python3 /scripts/swap2climd.py /your/llama-swap.yaml -o /out/llama-cli.md"

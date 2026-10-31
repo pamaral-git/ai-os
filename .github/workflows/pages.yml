@@ -41,14 +41,19 @@ jobs:
           fi
 
           # Copy directory hierarchy with all .html/.htm files into _site
-          find . -type f \( -name '*.html' -o -name '*.htm' \) ! -path './.*' ! -path './_site/*' ! -path './index.html' ! -path './Index.html' | while IFS= read -r file; do
+          find . -type f \( -name '*.html' -o -name '*.htm' \) ! -path './.*' ! -path '*/.*/*' ! -path './_site/*' ! -path './index.html' ! -path './Index.html' | while IFS= read -r file; do
             dest="_site/${file#./}"
             mkdir -p "$(dirname "$dest")"
             cp "$file" "$dest"
           done
 
-          # Copy companion web assets (images, css, js, json, svg, webp)
-          find . -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.svg' -o -name '*.webp' -o -name '*.gif' -o -name '*.css' -o -name '*.js' -o -name '*.json' \) ! -path './.*' ! -path './_site/*' | while IFS= read -r file; do
+          # Publish archived snapshots from their hidden source folder at a public path.
+          mkdir -p _site/Contributions/Nefilum-web/source
+          cp Contributions/Nefilum-web/.source/old-web.html _site/Contributions/Nefilum-web/source/
+          cp Contributions/Nefilum-web/.source/new-web.html _site/Contributions/Nefilum-web/source/
+
+          # Copy companion web assets (including self-hosted fonts)
+          find . -type f \( -name '*.png' -o -name '*.jpg' -o -name '*.jpeg' -o -name '*.svg' -o -name '*.webp' -o -name '*.gif' -o -name '*.css' -o -name '*.js' -o -name '*.json' -o -name '*.woff' -o -name '*.woff2' -o -name '*.ttf' -o -name '*.otf' \) ! -path './.*' ! -path '*/.*/*' ! -path './_site/*' | while IFS= read -r file; do
             dest="_site/${file#./}"
             mkdir -p "$(dirname "$dest")"
             cp "$file" "$dest"

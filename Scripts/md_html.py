@@ -34,7 +34,7 @@ A zero-dependency, single-file Python script to transform any Markdown document 
 ## Installation & Requirements
 
 - Python 3.8+ (no additional packages required).
-- Place [md2html.py](file:///Users/pedroamaral/Documents/Profile/CV/main/md2html.py) anywhere in your PATH or call it directly with `python3`.
+- Place [md_html.py](file:///Users/pedroamaral/Documents/Profile/CV/main/md_html.py) anywhere in your PATH or call it directly with `python3`.
 
 ---
 
@@ -42,36 +42,36 @@ A zero-dependency, single-file Python script to transform any Markdown document 
 
 ### Convert a Single File
 ```bash
-python3 /Users/pedroamaral/Documents/Profile/CV/main/md2html.py input.md
+python3 /Users/pedroamaral/Documents/Profile/CV/main/md_html.py input.md
 # Generates input.html in the same directory
 ```
 
 ### Specify Output Path
 ```bash
-python3 /Users/pedroamaral/Documents/Profile/CV/main/md2html.py input.md -o output.html
+python3 /Users/pedroamaral/Documents/Profile/CV/main/md_html.py input.md -o output.html
 ```
 
 ### Batch Convert a Directory
 ```bash
-python3 /Users/pedroamaral/Documents/Profile/CV/main/md2html.py /path/to/markdown_dir/
+python3 /Users/pedroamaral/Documents/Profile/CV/main/md_html.py /path/to/markdown_dir/
 # Converts all *.md files to corresponding *.html files
 ```
 
 ### Customize Title and Accent Color
 ```bash
-python3 /Users/pedroamaral/Documents/Profile/CV/main/md2html.py input.md --title "My Custom Title" --accent "#059669"
+python3 /Users/pedroamaral/Documents/Profile/CV/main/md_html.py input.md --title "My Custom Title" --accent "#059669"
 ```
 
 ### Raw Markdown Mode (Disable CV Heuristics)
 For general documentation or standard README files where you want the exact same visual styling and page layout without resume-specific section parsing:
 ```bash
-python3 /Users/pedroamaral/Documents/Profile/CV/main/md2html.py README.md --raw-markdown -o README.html
+python3 /Users/pedroamaral/Documents/Profile/CV/main/md_html.py README.md --raw-markdown -o README.html
 ```
 
 ### Live Watch Mode
 Continuously monitors a file and recompiles on save:
 ```bash
-python3 /Users/pedroamaral/Documents/Profile/CV/main/md2html.py CV.md --watch
+python3 /Users/pedroamaral/Documents/Profile/CV/main/md_html.py CV.md --watch
 ```
 
 ---

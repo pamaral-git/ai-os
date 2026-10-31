@@ -1,0 +1,90 @@
+{
+  "host": "127.0.0.1",
+  "port": 8808,
+  "backend": "metal",
+  "device": 0,
+  "threads": 1,
+  "lazy_load": true,
+  "max_loaded_models": 0,
+  "idle_unload_ms": 0,
+  "min_free_memory_mb": 0,
+  "models": [
+    {
+      "id": "qwen3-tts-0.6b",
+      "family": "qwen3_tts",
+      "path": "/Volumes/X-Drive/-workspace/openshell/webllm/iphone-local-ai/desktop/models/qwen3-tts-12hz-0.6b-base-q8_0.gguf",
+      "task": "tts",
+      "mode": "offline"
+    },
+    {
+      "id": "qwen3-tts-0.6b-stream",
+      "family": "qwen3_tts",
+      "path": "/Volumes/X-Drive/-workspace/openshell/webllm/iphone-local-ai/desktop/models/qwen3-tts-12hz-0.6b-base-q8_0.gguf",
+      "task": "tts",
+      "mode": "streaming"
+    },
+    {
+      "id": "ming3-tts-0.5b",
+      "family": "ming3_tts",
+      "path": "/Volumes/X-Drive/-workspace/openshell/webllm/iphone-local-ai/desktop/models/ming-3.0-tts-0.5b-q8_0.gguf",
+      "task": "tts",
+      "mode": "offline"
+    },
+    {
+      "id": "ming3-tts-0.5b-stream",
+      "family": "ming3_tts",
+      "path": "/Volumes/X-Drive/-workspace/openshell/webllm/iphone-local-ai/desktop/models/ming-3.0-tts-0.5b-q8_0.gguf",
+      "task": "tts",
+      "mode": "streaming"
+    },
+    {
+      "id": "phonon-40m-en",
+      "family": "gradium_phonon",
+      "path": "/Volumes/X-Drive/-workspace/openshell/webllm/gradium-phonon-40m_en/model.safetensors",
+      "task": "tts",
+      "mode": "offline"
+    },
+    {
+      "id": "phonon-40m-en-stream",
+      "family": "gradium_phonon",
+      "path": "/Volumes/X-Drive/-workspace/openshell/webllm/gradium-phonon-40m_en/model.safetensors",
+      "task": "tts",
+      "mode": "streaming"
+    },
+    {
+      "id": "phonon-40m-pt",
+      "family": "gradium_phonon",
+      "path": "/Users/pedroamaral/models/audio/gradium-phonon-40m-pt/model.safetensors",
+      "task": "tts",
+      "mode": "offline"
+    },
+    {
+      "id": "phonon-40m-pt-stream",
+      "family": "gradium_phonon",
+      "path": "/Users/pedroamaral/models/audio/gradium-phonon-40m-pt/model.safetensors",
+      "task": "tts",
+      "mode": "streaming"
+    },
+    {
+      "id": "voxtral-mini-4b-realtime",
+      "family": "voxtral_realtime",
+      "path": "/Users/pedroamaral/models/audio/Voxtral-Mini-4B-Realtime-2602.gguf",
+      "task": "asr",
+      "mode": "offline"
+    },
+    {
+      "id": "voxtral-mini-4b-realtime-stream",
+      "family": "voxtral_realtime",
+      "path": "/Users/pedroamaral/models/audio/Voxtral-Mini-4B-Realtime-2602.gguf",
+      "task": "asr",
+      "mode": "streaming"
+    },
+    {
+      "id": "cohere-transcribe",
+      "family": "cohere_asr",
+      "path": "/Users/pedroamaral/models/audio/cohere-transcribe.gguf",
+      "task": "asr",
+      "mode": "offline"
+    }
+  ]
+}

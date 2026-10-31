@@ -1,0 +1,13 @@
+[openshell]
+version = 2
+
+[openshell.gateway]
+compute_driver = "podman"
+
+[openshell.drivers.podman]
+# On macOS, Podman Machine supplies host.containers.internal. Keep the gateway
+# listener on its default loopback address (127.0.0.1:17670).
+grpc_endpoint = "https://host.containers.internal:17670"
+# Podman Machine's usual host gateway address. Leave commented unless the
+# sandbox cannot reach llama-swap at this address.
+# host_gateway_ip = "192.168.127.254"

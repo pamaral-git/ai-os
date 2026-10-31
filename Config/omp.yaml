@@ -1,8 +1,8 @@
 modelRoles:
   web: searxng
-  default: llama.cpp/liquid
+  default: llama.cpp/lfmMoE
   coder: llama.cpp/qwen3a
-  memory: llama.cpp/cpm1b
+  memory: llama.cpp/lfmvl
   vision: llama.cpp/gemma4a
   task: "@default"
   advisor: llama.cpp/qwen3a
@@ -77,21 +77,24 @@ retry:
     default:
       - llama.cpp/qwen3a
       - llama.cpp/gemma4a
+      - llama.cpp/lfmvl
     coder:
-      - llama.cpp/frog4b
-      - llama.cpp/liquid
+      - llama.cpp/gemma4a
+      - llama.cpp/lfmMoE
     memory:
       - llama.cpp/qwen4b
-      - llama.cpp/liquid
+      - llama.cpp/lfmMoE
     vision:
       - llama.cpp/qwen3a
-      - llama.cpp/cpm1b
+      - llama.cpp/lfmvl
     task:
+      - llama.cpp/qwen4b
+      - llama.cpp/lfmomni
+      - llama.cpp/xspark
       - llama.cpp/ling
-      - llama.cpp/cpm1b
     advisor:
       - llama.cpp/gemma4a
-      - llama.cpp/liquid
+      - llama.cpp/lfmMoE
   maxRetries: 1
 find:
   enabled: "on"
@@ -126,7 +129,7 @@ bash:
 hindsight:
   bankId: Global Memory
   autoRecall: false
-  apiUrl: http://
+  apiUrl: http://127.0.0.1:8878
   apiToken: local
 skills:
   enableSkillCommands: true
@@ -138,7 +141,71 @@ disabledProviders:
   - codex
   - gemini
   - opencode
+  - claude-plugins
 emojiAutocomplete: false
 defaultThinkingLevel: auto
 prewalk:
   enabled: false
+disabledExtensions:
+  - skill:reverse-engineer-anything
+  - skill:academic-rigor
+  - skill:ask-matt
+  - skill:claude-handoff
+  - skill:code-review
+  - skill:codebase-design
+  - skill:compact
+  - skill:diagnosing-bugs
+  - skill:domain-modeling
+  - skill:explain
+  - skill:git-guardrails-claude-code
+  - skill:grill-me
+  - skill:grill-with-docs
+  - skill:grilling
+  - skill:handoff
+  - skill:implement
+  - skill:implement-spec
+  - skill:improve-codebase-architecture
+  - skill:informal-writing
+  - skill:loop-me
+  - skill:migrate-to-shoehorn
+  - skill:pr
+  - skill:prototype
+  - skill:read-aloud
+  - skill:redact
+  - skill:research
+  - skill:resolving-merge-conflicts
+  - skill:retro
+  - skill:scaffold-exercises
+  - skill:setup-matt-pocock-skills
+  - skill:rewrite-check
+  - skill:i-have-adhd
+  - skill:writing-shape
+  - skill:writing-fragments
+  - skill:writing-for-agents
+  - skill:writing-beats
+  - skill:write
+  - skill:world-monitor
+  - skill:wizard
+  - skill:wayfinder
+  - skill:wallpaper-render
+  - skill:wait-what
+  - skill:upscale-wallpaper
+  - skill:triage
+  - skill:tough-love
+  - skill:to-tickets
+  - skill:to-spec
+  - skill:to-questionnaire
+  - skill:teach
+  - skill:tdd
+  - skill:spoken-poetry
+  - skill:situation-monitor
+  - skill:setup-ts-deep-modules
+  - skill:setup-pre-commit
+  - skill:seo
+  - skill:performance
+  - skill:core-web-vitals
+  - skill:accessibility
+  - extension-module:openwebui-bridge
+  - prompt:wallpaper
+enabledProviders: []
+extendedContext: true

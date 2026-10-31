@@ -35,7 +35,7 @@ models:
     ttl: 0
     unloadTimeout: 35
 
-  liquid:
+  lfmMoE:
     name: "LFM 2.5 MoE"
     aliases: ["LFM 24B A2B"]
     description: "A2B Text MoE Model"
@@ -54,6 +54,101 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/LFM-2.5-24B-A2B-Q5-heretic.gguf ${agent}
       ${preset} ${cache-q5} -c 90000 ${1-slot}
+    ttl: 1000
+    unloadTimeout: 35
+
+  lfm1b:
+    name: "LFM 3 1.7B"
+    aliases: ["LFM 3 1.7B"]
+    description: "1.7B Text Model"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 128000
+    filters:
+      setParams:
+        temperature: 0.1
+        top_k: 50
+        repeat_penalty: 1.1
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/LFM3-1.7B.gguf ${agent}
+      ${preset} ${cache-q5} -c 128000 ${1-slot}
+    ttl: 1000
+    unloadTimeout: 35
+
+  lfmomni:
+    name: "LFM 3 Omni"
+    aliases: ["LFM 3 2B Omni"]
+    description: "2B Omni"
+    capabilities:
+      in: [text, audio, image, video]
+      out: [text, audio, image, video]
+      tools: true
+      context: 105000
+    filters:
+      setParams:
+        temperature: 0
+        top_k: 50
+        repeat_penalty: 1.05
+        enable_thinking: false
+        audio_temperature: 0.4
+        audio_repetition_penalty: 1.2
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/LFM3-Omni-2B.gguf ${agent} --reasoning off
+      --mmproj ${root}/.mmproj-LFM3-Omni.gguf ${image}
+      ${preset} ${cache-q5} -c 105000 ${1-slot}
+    ttl: 1000
+    unloadTimeout: 35
+
+  lfmaudio:
+    name: "LFM 3 Audio"
+    aliases: ["LFM 3 2B Audio"]
+    description: "2B Audio"
+    capabilities:
+      in: [text, audio]
+      out: [text, audio]
+      tools: true
+      context: 90000
+    filters:
+      setParams:
+        temperature: 0.1
+        top_k: 50
+        repeat_penalty: 1.05
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/LFM3-Audio-2B.gguf ${agent}
+      --mmproj ${root}/.mmproj-LFM3-Audio.gguf
+      ${preset} ${cache-q5} -c 90000 ${1-slot}
+    ttl: 1000
+    unloadTimeout: 35
+
+  lfmvl:
+    name: "LFM 3 VL"
+    aliases: ["LFM 3 2B VL"]
+    description: "2B VL"
+    capabilities:
+      in: [text, image, video]
+      out: [text]
+      tools: true
+      context: 128000
+    filters:
+      setParams:
+        temperature: 0.1
+        top_k: 50
+        top_p: 1.0
+        min_p: 0.0
+        repeat_penalty: 1.1
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/LFM3-vl-2B.gguf ${agent}
+      --mmproj ${root}/.mmproj-LFM3-VL.gguf ${image}
+      ${preset} ${cache-q5} -c 128000 ${1-slot}
     ttl: 1000
     unloadTimeout: 35
 
@@ -79,9 +174,9 @@ models:
     ttl: 1000
     unloadTimeout: 35
 
-  cpm1b:
-    name: "MiniCPM5 4.7 1B"
-    aliases: ["MiniCPM5 1B"]
+  cpmvl:
+    name: "MiniCPM-VL 1B"
+    aliases: ["MiniCPM VL"]
     description: "1B Multimodal"
     capabilities:
       in: [text, image]
@@ -98,7 +193,7 @@ models:
         enable_thinking: True
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/minicpm-4.7-1b-heretic.gguf ${agent}
+      -m ${root}/minicpm-vl-4.7-1b-heretic.gguf ${agent}
       --mmproj ${root}/.mmproj-minicpm-4.7-1b.gguf ${image}
       ${preset} -c 95500 ${cache-q5} ${2-slot}
       --min-p 0.0 --repeat-penalty 1.15
@@ -119,38 +214,14 @@ models:
         temperature: 0.60
         top_p: 0.95
         min_p: 0.0
-        repeat_penalty: 1.15
+        repeat_penalty: 1.05
         reasoning_budget: 15000
         enable_thinking: True
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/miniCPM5-2B-heretic.gguf ${agent} 
       ${preset} -c 70500 ${cache-q5} ${2-slot}
-      --min-p 0.0 --repeat-penalty 1.15
-    ttl: 900
-    unloadTimeout: 30
-
-  frog4b:
-    name: "Frog Nano 4B"
-    aliases: ["Frog 4B"]
-    description: "Qwen-4B Microsoft Finetune"
-    capabilities:
-      in: [text, image]
-      out: [text]
-      context: 70500
-      tools: true
-    filters:
-      setParams:
-        temperature: 0.6
-        top_p: 0.95
-        min_p: 0.05
-        repeat_penalty: 1.05
-        reasoning_budget: 15000
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/frognano-4b.gguf ${agent}
-      --mmproj ${root}/.mmproj-frognano.gguf ${image}
-      ${preset} ${cache-q5} -c 70500 ${2-slot} --min-p 0.05 --repeat-penalty 1.05
+      --min-p 0.0 --repeat-penalty 1.05
     ttl: 900
     unloadTimeout: 30
 
@@ -159,7 +230,7 @@ models:
     aliases: ["Qwen 4B"]
     description: "4B Dense Multimodal"
     capabilities:
-      in: [text, image]
+      in: [text, image, audio, video]
       out: [text]
       context: 70500
       tools: true
@@ -183,7 +254,7 @@ models:
     aliases: ["Qwen 35B A3B"]
     description: "35B MoE A3B Multimodal"
     capabilities:
-      in: [text, image]
+      in: [text, image, audio, video]
       out: [text]
       tools: true
       context: 60800
@@ -204,13 +275,13 @@ models:
     unloadTimeout: 70
 
   gemma2e:
-    name: "Gemma E2B"
+    name: "Gemma E2B (LiteRT)"
     description: "Gemma E2B LiteRT"
-    useModelName: "gemma4-2b"
+    useModelName: "gemma4-2b-litert"
     proxy: http://127.0.0.1:${PORT}
     checkEndpoint: /v1/models
     capabilities:
-      in: [text, image]
+      in: [text, image, audio, video]
       out: [text]
       tools: true
       context: 74500
@@ -231,7 +302,7 @@ models:
     aliases: ["Gemma 4 Heretic"]
     description: "Gemma 4 Heretic MoE"
     capabilities:
-      in: [text, image]
+      in: [text, image, audio, video]
       out: [text]
       tools: true
       context: 60800
@@ -291,19 +362,23 @@ models:
 
 matrix:
   vars:
-    fm3: apple
+    afm: apple
     l1a: ling
-    c1b: cpm1b
+    c1b: cpmvl
+    l1b: lfm1b
+    l3o: lfmomni
+    l3u: lfmaudio
+    l3v: lfmvl
+    l2a: lfmMoE
     c2b: cpm2b
-    f4b: frog4b
     q4b: qwen4b
     x4b: xspark
     e7k: embgemma
-    l2a: liquid
     g2e: gemma2e
     g4a: gemma4a
     q3a: qwen3a
 
   sets:
-    tiny: "(c1b | c2b | g2e) | (q4b | f4b | x4b) & e7k & fm3"
-    moe: "(l1a | l2a | g4a | q3a) & e7k & fm3"
+    tiny: "(l1b | c2b) & (l3v | c1b | l3o | l3u) & e7k & afm"
+    smol: "(q4b | x4b) & e7k & afm"
+    moe: "(l1a | l2a | g4a | q3a) & afm"

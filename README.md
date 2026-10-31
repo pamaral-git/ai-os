@@ -5,39 +5,51 @@ My local AI Operating System (configurations, models, instructions, frameworks a
 **Hardware**: `MacBook Pro M4-24GB RAM` ; **Software**: `iOS-MacOS 27; llama.cpp; Oh My Pi; Docker`
 
 **AI-OS Directory** ◦ [HTML Index](https://pamaral-git.github.io/ai-os/)
+
+The Pages landing page lives at the repository root (`index.html`). The [NEFILUM archive and comparison](Contributions/Nefilum-web/nefilum-web.html) is published with the repository.
+
 ```
+├── index.html                  <- GitHub Pages landing page
 ├── Configurations/
 │   ├── AGENT.md               <- Global agent rules
-│   ├── LOOP.md                <- Snippets of Loops
-│   ├── tmux.config            <- Tmux configurations
-│   ├── OMP.yaml               <- Oh My Pi harness configurations
-│   ├── DOCKER.yaml            <- Main Docker hosted Services
-│   ├── WRITE.md               <- Global writing rules
-│   ├── MCP.json               <- Local, Remote and Docker MCP tools
-│   ├── llama-swap.yaml        <- Local model server definitions
 │   ├── DOCKER.md              <- Docker hosting preferences
+│   ├── DOCKER.yaml            <- Main Docker-hosted services
 │   ├── INVENTORY.sh           <- Capture system snapshot
-│   ├── PLUGINS.json           <- External Community tools
-│   └── KIT.html               <- AI Developer Playground
+│   ├── KIT.html               <- AI developer playground
+│   ├── LOOP.md                <- Loop snippets
+│   ├── MCP.json               <- Local, remote and Docker MCP tools
+│   ├── OMP.yaml               <- Oh My Pi harness configuration
+│   ├── PLUGINS.json           <- External community tools
+│   ├── WRITE.md               <- Global writing rules
+│   ├── llama-swap.yaml        <- Local model server definitions
+│   └── tmux.config            <- Tmux configuration
 ├── Scripts/
-│   ├── llama-swap-to-cli.py   <- Convert llama-swap to llama-cli
-│   ├── cinema-bun.ts          <- Bun script to fetch letterboxd context
-│   ├── screen-bun.ts          <- Bun script for automated web screen capture
-│   ├── nvidia-api.py          <- NVIDIA-NIM endpoint checker-config
-│   ├── ai-browser.sh          <- AI Browser use script
-│   └── md-html.py             <- Convert Markdown-to-HTML Profile
-├── Contributions/             <- Pull Requests outside Github
-│   └── PR1_Heretic-Models-Explorer {Huggingface @MuXodious}
-├── Instructions/              <- Reusable task prompts
-│   ├── explain.md             <- Explain it to me prompt
-│   ├── compact.md             <- Context compaction instruction
-│   ├── redact.md              <- PII and secret removal prompt
-│   ├── TTS.md                 <- Read-aloud optimisation rules
-│   ├── tough-love.md          <- Direct counter-argument persona
-│   ├── uncensor.md            <- Unfiltered response guidance
-│   ├── wallpaper.md           <- Wallpaper image editing rule
-│   └── monitor.md             <- Situation Monitor briefings
-└── Notebook/                  <- Benchmark logs and technical writeups
+│   ├── ai-browser.sh
+│   ├── cinema-bun.ts
+│   ├── llama-swap-to-cli.py
+│   ├── md-html.py
+│   ├── nvidia-api.py
+│   └── screen-bun.ts
+├── Contributions/
+│   ├── Nefilum-web/
+│   │   ├── nefilum-web.html  <- Archive and responsive site comparison
+│   │   └── .source/          <- Archived old and new site snapshots
+│   └── PR1_Heretic-Models-Explorer.zip
+├── Instructions/             <- Reusable prompts and skills
+│   ├── academic-rigour/
+│   ├── compact/
+│   ├── explain/
+│   ├── monitor/
+│   ├── read-aloud/
+│   ├── redact/
+│   ├── rewrite-check/
+│   ├── situation-monitor/
+│   ├── spoken-poetry/
+│   ├── tough-love/
+│   ├── upscale-wallpaper/
+│   ├── wallpaper-render/
+│   └── write/
+└── Notebook/                 <- Benchmark logs and technical writeups
     ├── 2026-06-21--Gemini-3.6-Testing.md
     ├── 2026-06-29--Cerebras-Hackathon.html
     ├── 2026-06-29--Cerebras-Hackathon.md
