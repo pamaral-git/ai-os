@@ -1,13 +1,69 @@
 ---
-name: world-monitor
+name: situation-monitor
 description: analytical frame to analyse world events
 metadata:
-  author: github.com/pamaral-git 
-  modified: 24-August-2026
-compatibility: "Requires web-search, crawl and information extractio from this websites among others: \"https://worldmonitor.app/\", \"https://monitor-the-situation.com/\", \"https://www.pizzint.watch\", \"https://www.iranmonitor.org\"."
+  author: github.com/pedromanuelamaral 
+  modified: 31-October-2024
+compatibility: "Requires web-search, crawl and information extractio from this websites among others: \"https://worldmonitor.app/\", \"https://monitor-the-situation.com/\", \"https://www.pizzint.watch\", \"https://www.iranmonitor.org\", \"https://www.pressreader.com\", \"https://x.com/i/lists\"".
+---
+
+# Situation Monitor - Fetch Scripts Documentation
+
+## Quick Start with Fetch Scripts
+
+This skill now includes standalone fetch scripts for monitoring target websites without authentication or installation. The scripts are located in the `scripts/` directory.
+
+### Available Scripts
+
+| Target | Bash Script | Python Script | Description |
+|--------|-------------|---------------|-------------|
+| WorldMonitor | `scripts/fetch_worldmonitor.sh` | `scripts/fetch_worldmonitor.py` | Global situation monitoring |
+| IranMonitor | `scripts/fetch_iranmonitor.sh` | `scripts/fetch_iranmonitor.py` | Iran-focused news |
+| PressReader | `scripts/fetch_pressreader.sh` | `scripts/fetch_pressreader.py` | Newspaper articles |
+| Pizzint.watch | `scripts/fetch_pizzint.sh` | `scripts/fetch_pizzint.py` | Intelligence platform |
+| Polyglobe | `scripts/fetch_polyglobe.sh` | `scripts/fetch_polyglobe.py` | Geospatial visualization |
+| Monitor the Situation | `scripts/fetch_monitor_the_situation.sh` | `scripts/fetch_monitor_the_situation.py` | Situation awareness |
+| X.com Lists | `scripts/fetch_x_list.sh` | `scripts/fetch_x_list.py` | Twitter list monitoring |
+
+**Note:** For X.com lists, the same script handles all list IDs (1854578015587500532, 2009482810529083846, 1845220642758803758).
+
+### Usage Examples
+
+```bash
+# Bash script
+./scripts/fetch_worldmonitor.sh output.json
+
+# Python script
+python3 scripts/fetch_worldmonitor.py --output output.json --limit 30
+
+# X.com list with Nitter method
+python3 scripts/fetch_x_list.py 1854578015587500532 --method nitter --output x_list.json
+
+# PressReader search
+python3 scripts/fetch_pressreader.py --query "Iran" --limit 50 --output news.json
+```
+
+### Requirements
+
+- **Bash scripts:** `curl`, `jq` (optional)
+- **Python scripts:** Python 3.x, optionally `requests`, `beautifulsoup4`
+
+### Features
+
+All scripts provide:
+- No authentication required
+- No installation required (copy-paste ready)
+- Rate limiting detection and retry
+- Clean JSON output
+- Error handling with graceful degradation
+- Works in cloud VMs and AI chat apps
+
+For complete documentation, see `scripts/README.md`.
+
 ---
 
 # World Monitor Instruction
+
 
 You are an elite intelligence analyst. Your mandate: produce 10x-density,
 zero-noise operational debriefs on any situation the operator designates.
@@ -15,7 +71,7 @@ You think in systems, not narratives. You quantify uncertainty. You
 distinguish signal from noise with surgical precision.
 
   - topic: [SITUATION NAME]
-  - time_window: [e.g. "Last 30 min" / "Last 6 hours"]
+  - time_window: [e.g., "Last 30 min" / "Last 6 hours"]
   - timestamp: [UTC TIMESTAMP]
   - previous_summary: [1-sentence key finding from last debrief]
   - layers:
