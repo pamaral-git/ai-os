@@ -1,42 +1,3 @@
----
-name: agent-loops
-purpose: Snippets of loops derived from `AGENT.md` rules
-modified: 16-October-2026
-metadata:
-    loop1: proactive loop to update the workspace log.md file
-    loop2: turn-based loop to verify execution compliance with global rules
-    loop3: goal-based loop to ensure anti-pollution after goal completion
-    loop4: goal-based loop to recursively improve output result
-    
----
-
-## Loop1 - `LOG.md` Rules:
-1. Update logs and include task conclusions before termination or kills.
-2. Structure entries from most recent to oldest.
-3. Append high-level context from `./main/docker/**` to the end of each tag section.
-4. Clean up scaffolding and unnecessary residue in `./main/docker/**` only after fulfilling rules 1 through 3.
-5. Format every log tag header using the ISO 8601 date-time standard in UTC+01:00.
-
-## Loop2 - Rules to Verify if:
-1. Necessary tools were available and deployed for the task toolcalls
-2. Decision regarding what constitutes "REASONING" necessary information were accurate
-3. Execution complies with rules from the "CAUTION", "UNAUTHORIZED" and identity "CONSISTENT PREFERENCES"
-
----
-
-# More Loops
-
-## Loop3 - Cleanup
-Goal: Cleanup and leave zero unrequested ghost/residue/cache files, after goal completion without impacting the ability to deploy the goal-output.
-
-Loop:
-  1. SCAN: List all files in main/, temporary/, docker/, root. Classify: required-to-run vs scaffolding-deletable vs unrequested-residue/cache/ghost.
-  2. VERIFY SCAN: If 0 residue and main/ self-contained with single readme.md + changelog.md + aliases -> TERMINAL NO_OP_ALREADY_CLEAN.
-  3. CLEAN ONE: Pick ONE residue item. Run Verified-Execution-Loop safety check. Use matched-record cleanup only, never broad `rm -rf *` or kill all. If Top-Secret/locked -> TERMINAL BLOCKED_LOCKED. If high-level temp -> TERMINAL APPROVAL_NEEDED_HIGH_LEVEL, ask user approval, let user delete.
-  4. EVIDENCE: Rescan. Is residue gone? Is main/ still runnable? If clean fails after 2 attempts -> TERMINAL FAILED_VERIFICATION.
-  5. DEPLOY CHECK: Can main/ run in constrained env? If not, explicitly declare constraints, mark UNVERIFIED / To Be Tested transparently.
-  6. REPEAT until scan = 0 unrequested residue -> TERMINAL SUCCESS_CLEAN_AND_RUNNABLE or SUCCESS_CLEAN_WITH_CONSTRAINTS.
-
 ## Loop4 - Recursive Improvement
 
 ```
@@ -44,7 +5,7 @@ Loop:
 
 Tone: Pragmatic, precise, conservatively cautious-skeptical.
 
-Goal: Build artifacts that pass 3 gates: **Precise**, **Correct**, **Ready-to-Use**.
+**GOAL:** Build artifacts that pass 3 gates: **Precise**, **Correct**, **Ready-to-Use**.
 
 1. **Hard Standard for Recursive Improvement**:
    - No loop exits until all gates are **unanimously approved** by the **Main Reasoning Judge**.
@@ -62,7 +23,7 @@ Goal: Build artifacts that pass 3 gates: **Precise**, **Correct**, **Ready-to-Us
 ## Phased Execution
 ### Phase 1: Task Breakdown
 - **Input**: User goal (e.g., "Implement a verifiable recursive loop for x").
-- **Output**: One **next task** (e.g., "Write a minimal prototype for x").
+- **OUTPUT:**: One **next task** (e.g., "Write a minimal prototype for x").
 - **Rules**:
   - If the goal is ambiguous, **ask one clarifying question**.
   - If the task is impossible, **state blockers and required information**.
@@ -85,7 +46,7 @@ Goal: Build artifacts that pass 3 gates: **Precise**, **Correct**, **Ready-to-Us
 1. **Constrained Environment Testing**:
    - Local: Run in virtual enviroment or docker
    - Cloud: Simulate cost constraints (e.g., limit API calls).
-2. **Output**:
+2. **OUTPUT:**
    - **Verified**: Artifact runs without errors.
    - **Unverified**: Explicitly declare constraints/gaps (e.g., "Untested in Python 3.12").
 3. **Failure Handling**:

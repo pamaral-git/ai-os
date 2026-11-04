@@ -52,77 +52,7 @@ models:
         reasoning_budget: 15000
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/LFM-2.5-24B-A2B-Q5-heretic.gguf ${agent}
-      ${preset} ${cache-q5} -c 90000 ${1-slot}
-    ttl: 1000
-    unloadTimeout: 35
-
-  lfm1b:
-    name: "LFM 3 1.7B"
-    aliases: ["LFM 3 1.7B"]
-    description: "1.7B Text Model"
-    capabilities:
-      in: [text]
-      out: [text]
-      tools: true
-      context: 128000
-    filters:
-      setParams:
-        temperature: 0.1
-        top_k: 50
-        repeat_penalty: 1.1
-        reasoning_budget: 15000
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/LFM3-1.7B.gguf ${agent}
-      ${preset} ${cache-q5} -c 128000 ${1-slot}
-    ttl: 1000
-    unloadTimeout: 35
-
-  lfmomni:
-    name: "LFM 3 Omni"
-    aliases: ["LFM 3 2B Omni"]
-    description: "2B Omni"
-    capabilities:
-      in: [text, audio, image, video]
-      out: [text, audio, image, video]
-      tools: true
-      context: 105000
-    filters:
-      setParams:
-        temperature: 0
-        top_k: 50
-        repeat_penalty: 1.05
-        enable_thinking: false
-        audio_temperature: 0.4
-        audio_repetition_penalty: 1.2
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/LFM3-Omni-2B.gguf ${agent} --reasoning off
-      --mmproj ${root}/.mmproj-LFM3-Omni.gguf ${image}
-      ${preset} ${cache-q5} -c 105000 ${1-slot}
-    ttl: 1000
-    unloadTimeout: 35
-
-  lfmaudio:
-    name: "LFM 3 Audio"
-    aliases: ["LFM 3 2B Audio"]
-    description: "2B Audio"
-    capabilities:
-      in: [text, audio]
-      out: [text, audio]
-      tools: true
-      context: 90000
-    filters:
-      setParams:
-        temperature: 0.1
-        top_k: 50
-        repeat_penalty: 1.05
-        reasoning_budget: 15000
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/LFM3-Audio-2B.gguf ${agent}
-      --mmproj ${root}/.mmproj-LFM3-Audio.gguf
+      -m ${root}/lfm2.5-24b-a2b-Q5-heretic.gguf ${agent}
       ${preset} ${cache-q5} -c 90000 ${1-slot}
     ttl: 1000
     unloadTimeout: 35
@@ -146,9 +76,79 @@ models:
         reasoning_budget: 15000
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/LFM3-vl-2B.gguf ${agent}
-      --mmproj ${root}/.mmproj-LFM3-VL.gguf ${image}
+      -m ${root}/lfm3-vl-2b-heretic.gguf ${agent}
+      --mmproj ${root}/.mmproj-lfm3-vl-heretic.gguf ${image}
       ${preset} ${cache-q5} -c 128000 ${1-slot}
+    ttl: 1000
+    unloadTimeout: 35
+
+  lfm1b:
+    name: "LFM 3 1.7B"
+    aliases: ["LFM 3 1.7B"]
+    description: "1.7B Text Model"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 128000
+    filters:
+      setParams:
+        temperature: 0.1
+        top_k: 50
+        repeat_penalty: 1.1
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/lfm3-1.7B-heretic.gguf ${agent}
+      ${preset} ${cache-q5} -c 128000 ${1-slot}
+    ttl: 1000
+    unloadTimeout: 35
+
+  lfmaudio:
+    name: "LFM 3 Audio"
+    aliases: ["LFM 3 2B Audio"]
+    description: "2B Audio"
+    capabilities:
+      in: [text, audio]
+      out: [text, audio]
+      tools: true
+      context: 90000
+    filters:
+      setParams:
+        temperature: 0.1
+        top_k: 50
+        repeat_penalty: 1.05
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/lfm3-audio-2B.gguf ${agent}
+      --mmproj ${root}/.mmproj-lfm3-audio.gguf
+      ${preset} ${cache-q5} -c 90000 ${1-slot}
+    ttl: 1000
+    unloadTimeout: 35
+
+  lfmomni:
+    name: "LFM 3 Omni"
+    aliases: ["LFM 3 2B Omni"]
+    description: "2B Omni"
+    capabilities:
+      in: [text, audio, image, video]
+      out: [text, audio, image, video]
+      tools: true
+      context: 105000
+    filters:
+      setParams:
+        temperature: 0
+        top_k: 50
+        repeat_penalty: 1.05
+        enable_thinking: false
+        audio_temperature: 0.4
+        audio_repetition_penalty: 1.2
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/lfm3-omni-2b.gguf ${agent} --reasoning off
+      --mmproj ${root}/.mmproj-lfm3-omni.gguf ${image}
+      ${preset} ${cache-q5} -c 105000 ${1-slot}
     ttl: 1000
     unloadTimeout: 35
 
@@ -160,7 +160,7 @@ models:
       in: [text]
       out: [text]
       tools: true
-      context: 70500
+      context: 80500
     filters:
       setParams:
         temperature: 0.7
@@ -274,33 +274,10 @@ models:
       ${preset} -c 60800 ${cache-q5} ${1-slot}
     unloadTimeout: 70
 
-  gemma2e:
-    name: "Gemma E2B (LiteRT)"
-    description: "Gemma E2B LiteRT"
-    useModelName: "gemma4-2b-litert"
-    proxy: http://127.0.0.1:${PORT}
-    checkEndpoint: /v1/models
-    capabilities:
-      in: [text, image, audio, video]
-      out: [text]
-      tools: true
-      context: 74500
-    filters:
-      setParams:
-        temperature: 0.1
-        audio_backend: cpu
-        vision_backend: cpu
-        max_num_tokens: 74500
-        thinking: true
-        thinking_budget: 12000
-    cmd: /Users/pedroamaral/.local/bin/litert-lm serve --host 127.0.0.1 --port ${PORT}
-    ttl: 1000
-    unloadTimeout: 35
-
   gemma4a:
-    name: "Gemma 25B MoE"
-    aliases: ["Gemma 4 Heretic"]
-    description: "Gemma 4 Heretic MoE"
+    name: "Gemma A4B"
+    aliases: ["Gemma 25B A4B"]
+    description: "Gemma 4 25B A4B"
     capabilities:
       in: [text, image, audio, video]
       out: [text]
@@ -345,7 +322,7 @@ models:
           reasoning_effort: "low"
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/spark-x2.6-4b.gguf ${agent}
+      -m ${root}/spark-X2.6-4b-heretic.gguf ${agent}
       ${preset} -c 90800 ${cache-q5} ${1-slot}
     unloadTimeout: 70
 
@@ -362,23 +339,22 @@ models:
 
 matrix:
   vars:
-    afm: apple
     l1a: ling
-    c1b: cpmvl
+    l2a: lfmMoE
+    g4a: gemma4a
+    q3a: qwen3a
+    afm: apple
+    emb: embgemma
     l1b: lfm1b
     l3o: lfmomni
     l3u: lfmaudio
     l3v: lfmvl
-    l2a: lfmMoE
+    c1b: cpmvl
     c2b: cpm2b
     q4b: qwen4b
     x4b: xspark
-    e7k: embgemma
-    g2e: gemma2e
-    g4a: gemma4a
-    q3a: qwen3a
 
   sets:
-    tiny: "(l1b | c2b) & (l3v | c1b | l3o | l3u) & e7k & afm"
-    smol: "(q4b | x4b) & e7k & afm"
-    moe: "(l1a | l2a | g4a | q3a) & afm"
+    tiny: "(l1b | c2b) & (l3v | c1b | l3o | l3u) & emb & afm"
+    smol: "(q4b | x4b) & emb & afm"
+    moe: "(l1a | l2a | g4a | q3a)"

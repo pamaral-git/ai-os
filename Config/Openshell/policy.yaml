@@ -36,7 +36,7 @@ network_policies:
       # 192.168.127.254 is Podman Machine's standard host-gateway address
       # (what host.containers.internal resolves to). It is not a secret.
       - host: "192.168.127.254"
-        port: 8080
+        port: 9008
         protocol: rest
         enforcement: enforce
         rules:

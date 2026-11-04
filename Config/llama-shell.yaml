@@ -1,0 +1,141 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mostlygeek/llama-swap/refs/heads/main/config-schema.json
+
+healthCheckTimeout: 100
+globalTTL: 1200
+logLevel: info
+logToStdout: proxy
+captureBuffer: 0
+startPort: 11008
+sendLoadingState: true
+includeAliasesInList: false
+
+macros:
+  "bin": "llama-server"
+  "root": "/Users/pedroamaral/models"
+  "image": "--image-min-tokens 1024"
+  "config": "--cache-ram 4048 --ctx-checkpoints 16"
+  "preset": "--jinja -ngl 99  --flash-attn on --reasoning-preserve -t 4 -tb 4 -b 2048 -ub 1024 --parallel 1"
+  "cache-q5": "--cache-type-k q5_1 --cache-type-v q5_1"
+  "cache-q8": "--cache-type-k q8_0 --cache-type-v q5_1"
+
+models:
+
+  liq:
+    name: "LFM MoE"
+    aliases: ["liqmix"]
+    description: "A2B MoE"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 95000
+    filters:
+      setParams:
+        temperature: 0.1
+        top_k: 50
+        repeat_penalty: 1.05
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/lfm2.5-24b-a2b-Q5-heretic.gguf
+      ${preset} ${cache-q5} -c 90000
+    ttl: 1000
+    unloadTimeout: 35
+
+  liqvision:
+    name: "LFM 3 VL"
+    aliases: ["liqvision"]
+    description: "2B VL"
+    capabilities:
+      in: [text, image, video]
+      out: [text]
+      tools: true
+      context: 128000
+    filters:
+      setParams:
+        temperature: 0.1
+        top_k: 50
+        top_p: 1.0
+        min_p: 0.0
+        repeat_penalty: 1.1
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/lfm3-vl-2b-heretic.gguf
+      --mmproj ${root}/.mmproj-lfm3-vl-heretic.gguf ${image}
+      ${preset} ${cache-q5} -c 128000
+    ttl: 1000
+    unloadTimeout: 35
+
+  qwen:
+    name: "Qwen 4B"
+    aliases: ["Qwen Dense"]
+    description: "4B Dense Multimodal"
+    capabilities:
+      in: [text, image, audio, video]
+      out: [text]
+      context: 70500
+      tools: true
+    filters:
+      setParams:
+        temperature: 0.6
+        top_p: 0.95
+        min_p: 0.05
+        repeat_penalty: 1.05
+        reasoning_budget: 15000
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/qwen-3.5-4B-Uncensored-Q6K.gguf 
+      --mmproj ${root}/.mmproj-qwen-4b.gguf ${image}
+      ${preset} ${cache-q5} -c 70500 
+    ttl: 900
+    unloadTimeout: 30
+
+  spark:
+    name: "Spark 2.6 4B"
+    aliases: ["XSpark"]
+    description: "Spark 4B Dense"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 90800
+    filters:
+      setParams:
+        temperature: 0.7
+        top_p: 0.90
+        top_k: 40
+        min_p: 0.05
+        repeat_penalty: 1.0
+        presence_penalty: 0.15
+        reasoning_budget: 1536
+        chat_template_kwargs:
+          enable_thinking: true
+          reasoning_effort: "low"
+    cmd: |  
+      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      -m ${root}/spark-x2.6-4b.gguf 
+      ${preset} -c 90800 ${cache-q5} 
+    unloadTimeout: 70
+
+  embedding:
+    name: "EmbeddingGemma 2"
+    description: "Local text embeddings for Hindsight; 768 dimensions"
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT}
+      -m "/Users/pedroamaral/Library/Application Support/DigUp/Models/embeddinggemma-2-Q8_0.gguf"
+      --embedding --pooling mean -ngl 99 --flash-attn on
+      -c 8192 -b 8192 -ub 8192 --parallel 1 -t 4 -tb 4 --no-webui
+    ttl: 0
+    unloadTimeout: 20
+
+matrix:
+  vars:
+    liq: liq
+    lvq: liqvision
+    qwn: qwen
+    xsp: spark
+    emb: embedding
+
+  sets:
+    only: "(liq | lvq | qwn | xsp) & emb"

@@ -24,7 +24,7 @@ SANDBOX="${SANDBOX:-llama-work}"
 POLICY="${POLICY:-$HOME/.config/openshell/policy.yaml}"
 # Podman Machine's host-gateway address; must equal the endpoint host in policy.yaml.
 HOST_IP="${HOST_IP:-192.168.127.254}"
-LLAMA_PORT="${LLAMA_PORT:-8080}"          # must equal the endpoint port in policy.yaml
+LLAMA_PORT="${LLAMA_PORT:-9008}"          # must equal the endpoint port in policy.yaml
 GATEWAY_PORT="${GATEWAY_PORT:-17670}"
 LLAMA_SWAP_CONFIG="${LLAMA_SWAP_CONFIG:-$HOME/models/llama-swap.yaml}"
 LLAMA_URL="http://${HOST_IP}:${LLAMA_PORT}"

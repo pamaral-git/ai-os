@@ -1,6 +1,6 @@
 modelRoles:
   web: searxng
-  default: llama.cpp/lfmMoE
+  default: llama.cpp/qwen3a
   coder: llama.cpp/qwen3a
   memory: llama.cpp/lfmvl
   vision: llama.cpp/gemma4a
@@ -75,23 +75,24 @@ retry:
   enabled: true
   fallbackChains:
     default:
-      - llama.cpp/qwen3a
       - llama.cpp/gemma4a
-      - llama.cpp/lfmvl
+      - llama.cpp/ling
+      - llama.cpp/lfmMoE
     coder:
-      - llama.cpp/gemma4a
-      - llama.cpp/lfmMoE
-    memory:
       - llama.cpp/qwen4b
-      - llama.cpp/lfmMoE
+      - llama.cpp/gemma4a
+      - llama.cpp/xspark
+    memory:
+      - llama.cpp/ling
+      - llama.cpp/qwen4b
+      - llama.cpp/cpmvl
     vision:
       - llama.cpp/qwen3a
       - llama.cpp/lfmvl
     task:
       - llama.cpp/qwen4b
-      - llama.cpp/lfmomni
       - llama.cpp/xspark
-      - llama.cpp/ling
+      - llama.cpp/lfmMoE
     advisor:
       - llama.cpp/gemma4a
       - llama.cpp/lfmMoE
@@ -147,7 +148,6 @@ defaultThinkingLevel: auto
 prewalk:
   enabled: false
 disabledExtensions:
-  - skill:reverse-engineer-anything
   - skill:academic-rigor
   - skill:ask-matt
   - skill:claude-handoff
@@ -207,5 +207,6 @@ disabledExtensions:
   - skill:accessibility
   - extension-module:openwebui-bridge
   - prompt:wallpaper
+  - skill:reverse-engineer-anything
 enabledProviders: []
 extendedContext: true

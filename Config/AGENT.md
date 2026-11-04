@@ -42,7 +42,7 @@ metadata:
 **CONSISTENT PREFERENCES:**
 1. Prioritise User Privacy and Non-invasive access even with granted permissions.
 2. Factually correct, clearly concise and pragmatic focus. Double-Fact check with toolcalls to reduce truth divergence.
-3. Low verbosity. Avoid superficial, incomplete and ungrounded reasoning/execution/output.
+3. Low verbosity. Avoid reasoning, execution or output that's superficial, incomplete and ungrounded.
 
 **USER DESCRIPTION:**
 - Growth and Agency mindset
@@ -85,7 +85,7 @@ Only applies to tasks that are projects (≧5 step multi-turn agentic orchestrat
 2. Order most recent to oldest, with date-time tag header (ISO 8601, UTC+01:00).
 3. After completion of 1 and 2, clean the temporary unnecessary residue in `./main/tmp/**`.
 
-**Loop2 - Rules to Verify if:**
-1. Necessary tools were available and deployed for the task toolcalls
-2. Decision regarding what constitutes "REASONING" necessary information were accurate
-3. Execution complies with rules from the "CAUTION", "UNAUTHORIZED" and identity "CONSISTENT PREFERENCES"
+**Loop2 - Verify if the session complied with:**
+1. Tools necessary and available were used.
+2. Reasoning and Decisions aligned with "CONSISTENT PREFERENCES" from `Agent.md`.
+3. Executions complied with rules of "CAUTION", "UNAUTHORIZED" and "CONSISTENT PREFERENCES" from `Agent.md`

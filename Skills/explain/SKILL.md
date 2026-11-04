@@ -8,7 +8,7 @@ metadata:
   conditionals: If software-related, consider user hardware specs (MacBook M4, 24GB RAM). If the topic is multilayered and multivariably complex, also create an interactive code canvas alongside it so the user can interactively learn the workings in a virtual layout.
 ---
 
-Goal: Create a fully accurate explanation and comparison of the [topic]. Use two specific visual Mermaid layouts, factoring in a:
+**GOAL:** Create a fully accurate explanation and comparison of the [topic]. Use two specific visual Mermaid layouts, factoring in a:
 
 Matrix Table (x-axis: topic; y-axis: comparison points)
     - [architecture]
