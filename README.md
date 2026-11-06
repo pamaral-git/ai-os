@@ -12,7 +12,8 @@ Selfhosted AI Operating/Orchestration System that underlies all of my work.
 | `Contributions/` | Relevant Work outiside Github | `Heretic.zip`, `Nefilum-web/` |
 | `Docs/` | Pages, Playground and Notes | `index.html`, `Notebook/`, `Cerebras-Hackathon.html` |
 | `Skills/` | Reusable Agent capabilities | `academic`, `cinema`, `talktome` |
-| `Tools/` | Services and Toolcalling adds | `cinema.ts`, `compose.yaml`, `plugins.json` |
+| `Subagents/` | Custom AI Subagents | `medical-grad`, ... |
+| `Tools/` | Services and Toolcalls | `cinema.ts`, `compose.yaml`, `plugins.json` |
 | `Prompts/` | System and Task Text prompts | `poetry.md` `steelman.md` |
 | `Loops/` | Agentic Running Loops | `rewrite.md`, `loop.md` |
 | `Scripts/` | Terminal Execution Scripts | `stack-audit.sh`, `nvidia-nim.py`, `server_cli.py` |
