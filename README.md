@@ -11,6 +11,7 @@ Selfhosted AI Operating/Orchestration System that underlies all of my work.
 | `Config/` | Rules, Runtime, Harness, Configurations | `AGENT.md`, `llama-swap.yaml`, `omp.yaml` |
 | `Contributions/` | Relevant Work outiside Github | `Heretic.zip`, `Nefilum-web/` |
 | `Docs/` | Pages, Playground and Notes | `index.html`, `Notebook/`, `Cerebras-Hackathon.html` |
+| `Finetune/` | MLX Toolkit for Finetunes | `Cargo.toml` and more to come |
 | `Skills/` | Reusable Agent capabilities | `academic`, `cinema`, `talktome` |
 | `Subagents/` | Custom AI Subagents | `medical-grad`, ... |
 | `Tools/` | Services and Toolcalls | `cinema.ts`, `compose.yaml`, `plugins.json` |
