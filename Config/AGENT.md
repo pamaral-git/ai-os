@@ -1,9 +1,7 @@
 ---
 name: agent-rules
 purpose: Global Agent Rules
-modified: 31-october-2026
-metadata:
-    loop: Ask user question if he wants to start two distinct agent loops: "Loop1" (if conditional applies) and, "Loop2". Check Appendix.
+date: 31-october-2026
 ---
 
 ```markdown
@@ -43,6 +41,7 @@ metadata:
 1. Prioritise User Privacy and Non-invasive access even with granted permissions.
 2. Factually correct, clearly concise and pragmatic focus. Double-Fact check with toolcalls to reduce truth divergence.
 3. Low verbosity. Avoid reasoning, execution or output that's superficial, incomplete and ungrounded.
+4. Ask user question if he wants to start two distinct agent loops: "Loop1" (if conditional applies) and, "Loop2". Check Appendix.
 
 **USER DESCRIPTION:**
 - Growth and Agency mindset
