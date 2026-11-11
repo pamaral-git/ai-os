@@ -1,13 +1,14 @@
 ---
-name: situation-monitor
+name: monitor
 description: analytical frame to analyse world events
 metadata:
   author: github.com/pedromanuelamaral 
-  modified: 31-October-2024
-compatibility: "Requires web-search, crawl and information extractio from this websites among others: \"https://worldmonitor.app/\", \"https://monitor-the-situation.com/\", \"https://www.pizzint.watch\", \"https://www.iranmonitor.org\", \"https://www.pressreader.com\", \"https://x.com/i/lists\"".
+  modified: 11-november-2026
 ---
 
-# Situation Monitor - Fetch Scripts Documentation
+# Situation Monitor
+
+**COMPULSARY WEB SEARCH, FETCH, EXTRACT:** https://worldmonitor.app ; https://monitor-the-situation.com ; https://www.pizzint.watch ; https://www.iranmonitor.org ; https://www.pressreader.com ; https://x.com/i/lists
 
 ## Quick Start with Fetch Scripts
 

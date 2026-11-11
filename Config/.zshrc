@@ -3,6 +3,7 @@ export PATH="$HOME/.bun/bin:$PATH"
 export DO_NOT_TRACK=1
 alias osh="openshell"
 export OMP_TELEMETRY=0
+export COPYFILE_DISABLE=1
 
 [ -f "$HOME/.local/bin/env" ] && . "$HOME/.local/bin/env"
 

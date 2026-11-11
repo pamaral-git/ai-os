@@ -1,7 +1,7 @@
 ---
 name: agent-rules
 purpose: Global Agent Rules
-date: 31-october-2026
+date: 11-november-2026
 ---
 
 ```markdown
@@ -52,8 +52,9 @@ date: 31-october-2026
 
 **DIRECTORY:**
 Execute approved tasks inside docker/podman with and the inherent directory, creating only:
-- `./main` for all run essential code, configs, README.md, artifacts and docker files, if applied.
-- `./main/tmp/` for all multi-step ephemeral docker/podman executions that will be deletable after logging (check "Appendix" section)
+- `./main` for all run essential code, configs, README.md, index.html, artifacts and docker files, if applied.
+- `./main/index.html`is the default interactive single source of truth file. design rendering should apply the `{$HOST}/.skills/unslop` or https://github.com/heydamir/unslop
+- `./main/tmp/` for all multi-step ephemeral docker/podman executions that will be deletable after logging (check "Appendix" section).
 
 **DIRECTORY-CONDITIONAL:**
 Only applies to tasks that are projects (≧5 step multi-turn agentic orchestration). Otherwise, skip the rule and provide a response in accordance to the prompt.
