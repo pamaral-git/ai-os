@@ -21,7 +21,10 @@
 set -euo pipefail
 
 SANDBOX="${SANDBOX:-llama-work}"
-POLICY="${POLICY:-$HOME/.config/openshell/policy.yaml}"
+DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+DEFAULT_POLICY="$DIR/Openshell/policy.yaml"
+[ -f "$DEFAULT_POLICY" ] || DEFAULT_POLICY="$HOME/.config/openshell/policy.yaml"
+POLICY="${POLICY:-$DEFAULT_POLICY}"
 # Podman Machine's host-gateway address; must equal the endpoint host in policy.yaml.
 HOST_IP="${HOST_IP:-192.168.127.254}"
 LLAMA_PORT="${LLAMA_PORT:-9008}"          # must equal the endpoint port in policy.yaml

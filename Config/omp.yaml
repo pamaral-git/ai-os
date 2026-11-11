@@ -13,7 +13,7 @@ composer:
 theme:
   dark: titanium
   light: light
-setupVersion: 2
+setupVersion: 3
 display:
   showTokenUsage: true
   pinnedAgents: full
@@ -118,6 +118,7 @@ marketplace:
   autoUpdate: auto
 update:
   channel: stable
+  auto: true
 spelling:
   autocorrect: "off"
   autocomplete: "off"
@@ -130,7 +131,7 @@ bash:
 hindsight:
   bankId: Global Memory
   autoRecall: false
-  apiUrl: http://127.0.0.1:8878
+  apiUrl:
   apiToken: local
 skills:
   enableSkillCommands: true
@@ -151,12 +152,9 @@ disabledExtensions:
   - skill:academic-rigor
   - skill:ask-matt
   - skill:claude-handoff
-  - skill:code-review
   - skill:codebase-design
   - skill:compact
-  - skill:diagnosing-bugs
   - skill:domain-modeling
-  - skill:explain
   - skill:git-guardrails-claude-code
   - skill:grill-me
   - skill:grill-with-docs
@@ -165,10 +163,8 @@ disabledExtensions:
   - skill:implement
   - skill:implement-spec
   - skill:improve-codebase-architecture
-  - skill:informal-writing
   - skill:loop-me
   - skill:migrate-to-shoehorn
-  - skill:pr
   - skill:prototype
   - skill:read-aloud
   - skill:redact
@@ -177,7 +173,6 @@ disabledExtensions:
   - skill:retro
   - skill:scaffold-exercises
   - skill:setup-matt-pocock-skills
-  - skill:rewrite-check
   - skill:i-have-adhd
   - skill:writing-shape
   - skill:writing-fragments
@@ -207,6 +202,7 @@ disabledExtensions:
   - skill:accessibility
   - extension-module:openwebui-bridge
   - prompt:wallpaper
+  - skill:unslop
   - skill:reverse-engineer-anything
 enabledProviders: []
 extendedContext: true

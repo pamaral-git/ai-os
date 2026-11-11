@@ -1,0 +1,78 @@
+name: deepseek-harness 
+# check ai-os/Docs/Shell-DSH-Llama.html for guide
+x-restrictions: &restrictions
+  read_only: true
+  security_opt: [no-new-privileges:true]
+  cap_drop: [ALL]
+  restart: "no" # Fail visibly; do not restart an unattended coding agent.
+
+services:
+  ui:
+    <<: *restrictions
+    image: localhost/deepseek-harness-boundary:0.2.0-rc.2
+    cap_add: [NET_ADMIN, SETUID, SETGID, SETPCAP]
+    environment:
+      LLAMA_PORT: "9008" # Points to the sandboxed, no-tools llama-swap on port 9008
+      UI_PORT: "8999"
+      NETWORK_MODE: "${NETWORK_MODE:-airgap}" # "airgap" (zero external egress) or "web" (DNS + HTTP/HTTPS)
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+      - "host.containers.internal:host-gateway"
+    ports:
+      - "127.0.0.1:8999:8080"
+    volumes:
+      - type: bind
+        source: ./settings.json
+        target: /config/settings.json
+        read_only: true
+        bind: {create_host_path: false}
+    tmpfs: ["/tmp:rw,nosuid,noexec,size=32m"]
+    pids_limit: 64
+    mem_limit: 256m
+    cpus: 0.5
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:8081/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 5s
+      timeout: 3s
+      retries: 12
+    networks: [boundary]
+
+  core:
+    <<: *restrictions
+    image: localhost/deepseek-harness-core:0.2.0-rc.2
+    network_mode: service:ui
+    depends_on:
+      ui: {condition: service_healthy, restart: true}
+    user: "10001:10001"
+    environment:
+      DSH_TELEMETRY_DISABLED: "1"
+      DSH_TELEMETRY_MODE: DISABLED
+      DSH_PERMISSION_MODE: workspace-write
+      NARB_DISABLE_NATIVE_CACHE: "1"
+      LLAMA_SWAP_DUMMY_KEY: local-placeholder-not-a-secret
+      UI_PORT: "8999"
+    volumes:
+      - type: bind
+        source: ./settings.json
+        target: /config/settings.json
+        read_only: true
+        bind: {create_host_path: false}
+    tmpfs:
+      - /state:rw,nosuid,mode=1777,size=768m
+      - /workspace:rw,nosuid,mode=1777,size=1536m
+      - /tmp:rw,nosuid,noexec,mode=1777,size=256m
+    pids_limit: 256
+    mem_limit: 3g
+    cpus: 2
+    init: true
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3080/').then(r=>process.exit([200,401].includes(r.status)?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 12
+      start_period: 30s
+
+networks:
+  boundary:
+    driver: bridge
+    enable_ipv6: false

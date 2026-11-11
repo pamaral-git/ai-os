@@ -1,0 +1,975 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OpenShell - DeepSeek Harness - llama-swap</title>
+  <style>
+    :root {
+      --bg: #141415;
+      --sidebar-bg: #0f0f10;
+      --card-bg: #19191b;
+      --raised-bg: #232325;
+      --border: rgba(237, 237, 237, 0.08);
+      --border-strong: rgba(237, 237, 237, 0.16);
+      --text: #ededed;
+      --text-secondary: #a1a1a6;
+      --text-muted: #85858b;
+      --accent: #58a6ff;
+      --accent-soft: rgba(88, 166, 255, 0.12);
+      --success: #3fb950;
+      --danger: #f85149;
+      --code-bg: #0d0d0e;
+      --font-mono: ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+      --font-sans: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Segoe UI', Helvetica, Arial, sans-serif;
+    }
+
+    [data-theme="light"] {
+      --bg: #fafafa;
+      --sidebar-bg: #f4f4f5;
+      --card-bg: #ffffff;
+      --raised-bg: #f4f4f5;
+      --border: rgba(23, 23, 23, 0.08);
+      --border-strong: rgba(23, 23, 23, 0.18);
+      --text: #171717;
+      --text-secondary: #525252;
+      --text-muted: #737373;
+      --accent: #0969da;
+      --accent-soft: rgba(9, 105, 218, 0.08);
+      --success: #1a7f37;
+      --danger: #cf222e;
+      --code-bg: #f6f8fa;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      font-size: 13.5px;
+      display: flex;
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Sidebar Navigation */
+    #sidebar {
+      width: 260px;
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow-y: auto;
+      padding: 24px 16px;
+      flex-shrink: 0;
+    }
+
+    .brand {
+      padding: 0 8px 20px 8px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 16px;
+    }
+    .brand-title {
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text);
+    }
+    .brand-subtitle {
+      font-size: 11px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .nav-group-title {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text-muted);
+      padding: 16px 8px 6px 8px;
+      letter-spacing: 0.02em;
+    }
+
+    #sidebar ul { list-style: none; }
+    #sidebar li { margin-bottom: 2px; }
+    #sidebar a {
+      color: var(--text-secondary);
+      text-decoration: none;
+      font-size: 12.5px;
+      padding: 6px 8px;
+      border-radius: 6px;
+      display: block;
+      transition: background 0.12s ease, color 0.12s ease;
+    }
+    #sidebar a:hover {
+      color: var(--text);
+      background: var(--raised-bg);
+    }
+    #sidebar a.active {
+      color: var(--text);
+      background: var(--raised-bg);
+      font-weight: 500;
+    }
+
+    /* Content Area */
+    #content {
+      flex: 1;
+      padding: 40px 56px 96px 56px;
+      max-width: 980px;
+    }
+
+    .top-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-bottom: 24px;
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 36px;
+    }
+    .doc-meta {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .meta-tag {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .meta-tag.active {
+      color: var(--accent);
+      border-color: var(--border-strong);
+      background: var(--accent-soft);
+    }
+
+    .theme-button {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-secondary);
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 11.5px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+    }
+    .theme-button:hover {
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+
+    /* Headings & Typography */
+    h1 {
+      font-size: 24px;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      color: var(--text);
+      margin-bottom: 8px;
+    }
+    .intro-lead {
+      font-size: 14px;
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      max-width: 760px;
+    }
+
+    h2 {
+      font-size: 17px;
+      font-weight: 600;
+      letter-spacing: -0.01em;
+      color: var(--text);
+      margin-top: 48px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    h2 .section-num {
+      font-family: var(--font-mono);
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+
+    h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-top: 24px;
+      margin-bottom: 10px;
+    }
+
+    p {
+      color: var(--text-secondary);
+      margin-bottom: 14px;
+    }
+
+    strong {
+      color: var(--text);
+      font-weight: 500;
+    }
+
+    ul, ol {
+      color: var(--text-secondary);
+      padding-left: 20px;
+      margin-bottom: 16px;
+    }
+    li { margin-bottom: 6px; }
+
+    /* Cards & Panels */
+    .panel {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 18px 20px;
+      margin-bottom: 20px;
+    }
+    .panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      margin-bottom: 10px;
+    }
+    .panel-title {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text);
+    }
+    .panel-tag {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    /* Structured Schematic / ASCII Diagram */
+    .schematic-box {
+      background: var(--code-bg);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.45;
+      color: var(--text-secondary);
+      white-space: pre;
+      overflow-x: auto;
+      margin-bottom: 20px;
+    }
+    .schematic-box .hi {
+      color: var(--accent);
+    }
+    .schematic-box .accent {
+      color: var(--text);
+      font-weight: 600;
+    }
+
+    /* Code Blocks */
+    .code-box {
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      background: var(--code-bg);
+      margin-bottom: 18px;
+      overflow: hidden;
+    }
+    .code-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 12px;
+      background: var(--card-bg);
+      border-bottom: 1px solid var(--border);
+      font-family: var(--font-mono);
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+    pre {
+      padding: 12px 14px;
+      overflow-x: auto;
+      font-family: var(--font-mono);
+      font-size: 12px;
+      line-height: 1.5;
+      color: var(--text);
+    }
+    code {
+      font-family: var(--font-mono);
+      font-size: 12px;
+    }
+    p code, li code, td code {
+      background: var(--raised-bg);
+      border: 1px solid var(--border);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: var(--text);
+      font-size: 11.5px;
+    }
+
+    .copy-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      border-radius: 4px;
+      padding: 2px 8px;
+      font-size: 11px;
+      cursor: pointer;
+      font-family: var(--font-sans);
+    }
+    .copy-btn:hover {
+      color: var(--text);
+      border-color: var(--border-strong);
+    }
+
+    /* Tables */
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 16px 0 24px 0;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    th, td {
+      padding: 8px 12px;
+      text-align: left;
+      font-size: 12.5px;
+      border-bottom: 1px solid var(--border);
+    }
+    th {
+      background: var(--card-bg);
+      color: var(--text-secondary);
+      font-weight: 500;
+      font-size: 12px;
+    }
+    tr:last-child td { border-bottom: none; }
+    td { color: var(--text-secondary); }
+    td strong { color: var(--text); }
+
+    .status-dot {
+      display: inline-block;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+    .status-dot.green { background: var(--success); }
+    .status-dot.blue { background: var(--accent); }
+  </style>
+</head>
+<body>
+
+  <nav id="sidebar">
+    <div class="brand">
+      <div class="brand-title">OpenShell Stack</div>
+      <div class="brand-subtitle">Sandboxed Inference & Harness</div>
+    </div>
+
+    <div class="nav-group-title">Architecture</div>
+    <ul>
+      <li><a href="#model-architecture" class="active">Security Model</a></li>
+      <li><a href="#topology">Network & Ports</a></li>
+    </ul>
+
+    <div class="nav-group-title">Frontends & Harnesses</div>
+    <ul>
+      <li><a href="#deepseek-harness">DeepSeek Harness</a></li>
+      <li><a href="#cli-workflow">Universal CLI Runner</a></li>
+    </ul>
+
+    <div class="nav-group-title">Configuration & Tools</div>
+    <ul>
+      <li><a href="#model-sanitizer">Model Sanitizer Tool</a></li>
+      <li><a href="#config-reference">Configuration Reference</a></li>
+      <li><a href="#verification-probes">Security Probe Matrix</a></li>
+      <li><a href="#troubleshooting">Operations & Recovery</a></li>
+    </ul>
+  </nav>
+
+  <main id="content">
+    <div class="top-bar">
+      <div class="doc-meta">
+        <span class="meta-tag active">OpenShell</span>
+        <span class="meta-tag">Rootless Podman</span>
+        <span class="meta-tag">Localhost:9008</span>
+        <span class="meta-tag">DSH</span>
+      </div>
+      <button class="theme-button" onclick="toggleTheme()">Theme</button>
+    </div>
+
+    <h1>OpenShell & DeepSeek Harness Reference</h1>
+    <p class="intro-lead">
+      Architectural specification, configuration manual, and operational guide for running sandboxed local coding agents with native Metal acceleration on Apple Silicon.
+    </p>
+
+    <!-- SECTION 1 -->
+    <section id="model-architecture">
+      <h2><span class="section-num">01</span> Security Architecture & Boundary Model</h2>
+
+      <p>
+        Autonomous coding agents inspect unknown code, generate shell commands, and execute tool calls. Running them unsandboxed on macOS exposes developer credentials, SSH keys, private project files, and system shells to prompt injection or model hallucination.
+      </p>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Core Isolation Principles</span>
+          <span class="panel-tag">defense-in-depth</span>
+        </div>
+        <ul>
+          <li><strong>Host-Accelerated Inference:</strong> <code>llama-swap</code> runs natively on macOS to maintain full Apple Silicon unified memory bandwidth (Metal GPU acceleration). Models and weights never run inside a virtual machine.</li>
+          <li><strong>Agent Containment:</strong> The agent environment runs strictly inside an unprivileged Linux container (UID/GID 1500) managed by OpenShell in a rootless Podman Machine VM, governed by Landlock filesystem constraints and OPA network policies.</li>
+          <li><strong>Dedicated Sandboxed Port (9008 vs 8080):</strong> The primary host <code>llama-swap</code> (port 8080) carries interactive agent macros with <code>--tools all</code>, <code>--ui-mcp-proxy</code>, and MCP servers. The built-in <code>llama.cpp</code> shell tool executes raw <code>sh -c</code> commands on the host Mac. The sandboxed instance on port <strong>9008</strong> uses <code>llama-shell.yaml</code>, which strictly strips all tool capabilities, MCP endpoints, and binds only to <code>127.0.0.1</code>.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SECTION 2 -->
+    <section id="topology">
+      <h2><span class="section-num">02</span> Address Topology & Network Routing</h2>
+
+      <div class="schematic-box">
++-----------------------------------------------------------------------------------------+
+|                                          HOST                                           |
+|                                                                                         |
+|          [Port 8080] Main llama                       [Port 9008] Sandboxed llama       |
+|  - Tools: enabled (host shell, MCP)               - Tools: NONE (stripped & verified)   |
+|  - Config: ~/models/llama-swap.yaml              - Config: ~/models/llama-shell.yaml    |
+|                                                          ^                              |
+|  [Port 17670] OpenShell Gateway (mTLS loopback)          | (gvproxy translation)        |
+|  - compute_driver = "podman"                             |                              |
++----------------------------------------------------------|------------------------------+
+                                                           |
+             +---------------------------------------------+
+             |
++------------v----------------------------------------------------------------------------+
+|                            PODMAN MACHINE (Linux VM)                                    |
+|                                                                                         |
+|  Host Gateway: 192.168.127.254 (host.containers.internal)                               |
+|                                                                                         |
+|  +-------------------------------------+   +-----------------------------------------+  |
+|  | FRONTEND: DeepSeek Harness          |   | CLI: OpenShell Sandbox (llama-work)     |  |
+|  | - UI Boundary Container             |   | - UID 1500:1500 non-root                |  |
+|  |   * Local Mac browser: 127.0.0.1:8999|   | - Landlock: read-only system paths      |  |
+|  |   * iptables: external egress DENIED|   | - Egress: external IPs blocked (000)    |  |
+|  |   * Relay target: 192.168.127.254:9008|  | - Allowed target: 192.168.127.254:9008  |  |
+|  | - Core Container (DSH 0.2.0-rc.2)   |   | - Workdir: dynamic project folder sync  |  |
+|  |   * Shares UI network namespace     |   |                                         |  |
+|  |   * Disposable tmpfs /workspace     |   |                                         |  |
+|  +-------------------------------------+   +-----------------------------------------+  |
++-----------------------------------------------------------------------------------------+
+      </div>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Context</th>
+            <th>Target Address</th>
+            <th>Allowed Routes</th>
+            <th>Enforcement</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Host</strong></td>
+            <td><code>127.0.0.1:9008</code></td>
+            <td>All</td>
+            <td>Loopback only; launcher preflight validation</td>
+          </tr>
+          <tr>
+            <td><strong>Sandbox Container</strong></td>
+            <td><code>192.168.127.254:9008</code></td>
+            <td><code>/health</code>, <code>/v1/models</code>, <code>/v1/chat/completions</code>, <code>/v1/completions</code>, <code>/v1/embeddings</code></td>
+            <td>OpenShell L7 proxy (OPA); all other routes blocked (403/000)</td>
+          </tr>
+          <tr>
+            <td><strong>DeepSeek Harness Relay</strong></td>
+            <td><code>192.168.127.254:9008</code></td>
+            <td><code>/v1/models</code>, <code>/v1/chat/completions</code></td>
+            <td>Container namespace iptables & relay validation</td>
+          </tr>
+          <tr>
+            <td><strong>Browser Frontend</strong></td>
+            <td><code>127.0.0.1:8999/?token=...</code></td>
+            <td>UI & local session API</td>
+            <td>HttpOnly cookie authentication; Host/Origin validation</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 3 -->
+    <section id="deepseek-harness">
+      <h2><span class="section-num">03</span> DeepSeek Harness: Profiles &amp; Workspaces</h2>
+
+      <p>
+        DeepSeek Harness provides a browser-based agent workspace that solves the configuration creep of host-installed tools like OMP or Pi, which can accidentally mount host directories or execute unsanctioned plugins. It runs in unprivileged containers with dual operational profiles and dual storage binding options.
+      </p>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">DeepSeek Harness Architecture &amp; Dual Boundaries</span>
+          <span class="panel-tag">dual-container</span>
+        </div>
+        <ul>
+          <li><strong>UI Boundary Container (<code>ui</code>):</strong> Establishes a hardened network namespace. Uses temporary <code>NET_ADMIN</code> during bootstrap to install strict <code>iptables</code> drop rules, then permanently drops all capabilities before running the relay as unprivileged UID 10002. Only relay traffic to port 9008 on the host is allowed into llama-swap.</li>
+          <li><strong>Core Engine Container (<code>core</code>):</strong> Runs the DSH engine as unprivileged UID 10001, joined directly to the UI container's network namespace (<code>network_mode: service:ui</code>). All host filesystem mounts are blocked unless an explicit drivework bridge is provided.</li>
+          <li><strong>Network Profile 1 — Airgapped (<code>--airgap</code>):</strong> Completely blinds the agent. UDP/TCP port 53 (DNS) is rejected, all external IPs are dropped. Egress is strictly limited to localhost loopback and the Mac host port 9008 llama relay.</li>
+          <li><strong>Network Profile 2 — Contained Web (<code>--web</code>):</strong> Middle ground for internet research, cloning GitHub repositories, and accessing scientific libraries (Libgen, arXiv). Resolves DNS and allows HTTP/HTTPS (80/443), while strictly dropping private RFC1918 subnets (LANs) and cloud metadata services (169.254.169.254).</li>
+          <li><strong>Workspace Profile 1 — Disposable Tmpfs (<code>--temp</code>):</strong> Entire workspace (<code>/workspace</code>) and state live in container RAM. Nothing touches host storage; when stopped, everything vanishes cleanly.</li>
+          <li><strong>Workspace Profile 2 — Permanent Drivework (<code>--permanent</code> / <code>--drivework</code>):</strong> Binds to <code>/Volumes/X-Drive/drivework</code>. Synchronized continuously so projects, downloads, and generated files persist across sessions.</li>
+        </ul>
+      </div>
+
+      <h3>Launching DeepSeek Harness with Profiles</h3>
+      <div class="code-box">
+        <div class="code-toolbar"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># 1. Strict airgapped mode with disposable in-memory workspace (Default)
+~/Config/Openshell/dsh.sh up --airgap --temp
+
+# 2. Contained web research mode with permanent /Volumes/X-Drive/drivework binding
+~/Config/Openshell/dsh.sh up --web --permanent
+
+# 3. Retrieve the browser authentication link anytime
+~/Config/Openshell/dsh.sh link</code></pre>
+      </div>
+
+      <p>The launcher prints a single-use authentication link:</p>
+      <div class="code-box">
+        <div class="code-toolbar"><span>Output</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>DeepSeek Harness is Ready!
+Open this link in your Mac browser:
+http://127.0.0.1:8999/?token=...</code></pre>
+      </div>
+
+      <h3>CLI Profile Matrix</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Flag</th>
+            <th>Type</th>
+            <th>Behavior</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><code>--airgap</code></td>
+            <td>Network</td>
+            <td>Zero external egress. DNS (port 53) blocked. Only Mac llama-swap (9008) accessible.</td>
+          </tr>
+          <tr>
+            <td><code>--web</code></td>
+            <td>Network</td>
+            <td>Outbound DNS + HTTP/HTTPS allowed (git clone, web research). Private LANs blocked.</td>
+          </tr>
+          <tr>
+            <td><code>--temp</code></td>
+            <td>Storage</td>
+            <td>Disposable in-memory tmpfs mount on <code>/workspace</code>. Wiped on shutdown.</td>
+          </tr>
+          <tr>
+            <td><code>--permanent</code> / <code>--drivework</code></td>
+            <td>Storage</td>
+            <td>Persisted directly to <code>/Volumes/X-Drive/drivework</code> across container restarts.</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h3>Everyday Harness Operations</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>Action</th>
+            <th>Command</th>
+            <th>Description</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>Get Link</strong></td>
+            <td><code>~/Config/Openshell/dsh.sh link</code></td>
+            <td>Retrieves the current authentication URL and active token</td>
+          </tr>
+          <tr>
+            <td><strong>Manual Sync</strong></td>
+            <td><code>~/Config/Openshell/dsh.sh sync</code></td>
+            <td>Flushes container workspace updates to <code>/Volumes/X-Drive/drivework</code></td>
+          </tr>
+          <tr>
+            <td><strong>View Logs</strong></td>
+            <td><code>~/Config/Openshell/dsh.sh logs</code></td>
+            <td>Streams output from the core agent service</td>
+          </tr>
+          <tr>
+            <td><strong>Stop Service</strong></td>
+            <td><code>~/Config/Openshell/dsh.sh down</code></td>
+            <td>Tears down both boundary and core containers cleanly, syncing files back to X-Drive</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 4 -->
+    <section id="cli-workflow">
+      <h2><span class="section-num">04</span> Universal CLI Project Runner</h2>
+
+      <p>
+        When you want to run terminal tools (e.g., Python scripts, build tasks, git commands) against local code while maintaining sandbox guarantees, use the <code>run</code> subcommand. It dynamically maps your current working directory (<code>/</code>) into the sandbox.
+      </p>
+
+      <div class="code-box">
+        <div class="code-toolbar"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>cd /path/to/my-project
+
+# Launch an interactive shell inside the sandbox on this directory
+~/Config/llm-shell.sh run /bin/bash
+
+# Or execute a single script or command
+~/Config/llm-shell.sh run python3 build.py</code></pre>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Execution Lifecycle</span>
+          <span class="panel-tag">sync-cycle</span>
+        </div>
+        <ol>
+          <li><strong>Directory Safety Check:</strong> Refuses to run on top-level system directories (<code>/</code>, <code>/Users/...</code>, <code>/Users</code>, <code>/Volumes</code>).</li>
+          <li><strong>Upload:</strong> Copies current directory contents into <code>/sandbox/&lt;project&gt;</code> inside the container.</li>
+          <li><strong>Execution:</strong> Executes the requested binary with <code>--workdir /sandbox/&lt;project&gt;</code> under Landlock and network restrictions.</li>
+          <li><strong>Download:</strong> Downloads changed and created files back to your Mac project directory when the command exits. (Disable with <code>SYNC_BACK=0</code> for read-only runs).</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- SECTION 5 -->
+    <section id="model-sanitizer">
+      <h2><span class="section-num">05</span> Model Sanitizer Tool (<code>generate-shell-swap.py</code>)</h2>
+
+      <p>
+        The sanitizer script ingests your primary <code>llama-swap.yaml</code> and transforms it into a safe, fail-closed <code>llama-shell.yaml</code>.
+      </p>
+
+      <div class="code-box">
+        <div class="code-toolbar"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code># Sanitize all models from main config into llama-shell.yaml
+python3 ./Config/create-llama-shell.py
+
+# Or filter to a specific subset of models
+python3 ./Config/create-llama-shell.py --models ling,qwen4b,xspark</code></pre>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">Sanitizer Enforcements</span>
+          <span class="panel-tag">fail-closed</span>
+        </div>
+        <ul>
+          <li><strong>Host Flag Elimination:</strong> Strips <code>--tools</code>, <code>--ui-mcp-proxy</code>, <code>--mcp-servers-config</code>, and <code></code> macros across all models.</li>
+          <li><strong>Localhost Binding:</strong> Rewrites all <code>--host</code> parameters to <code>127.0.0.1</code>. Non-loopback addresses cause validation failure.</li>
+          <li><strong>Port Isolation:</strong> Sets <code>startPort: 11080</code> to prevent collisions with the primary llama-swap instances starting at <code>10001</code>. Automatically sets listening port to match policy (<code>9008</code>).</li>
+          <li><strong>Atomic Verification:</strong> Scans generated configuration before writing. If any forbidden token is found or <code>llama-swap -validate</code> fails, the operation halts and leaves the target file untouched.</li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- SECTION 6 -->
+    <section id="config-reference">
+      <h2><span class="section-num">06</span> Configuration Reference</h2>
+
+      <h3>1. DeepSeek Harness Compose (<code>~/Config/Openshell/docker-compose.yml</code>)</h3>
+      <div class="code-box">
+        <div class="code-toolbar"><span>docker-compose.yml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>name: deepseek-harness
+
+            x-restrictions: &restrictions
+              read_only: true
+              security_opt: [no-new-privileges:true]
+              cap_drop: [ALL]
+              restart: "no" # Fail visibly; do not restart an unattended coding agent.
+
+            services:
+              ui:
+                <<: *restrictions
+                image: localhost/deepseek-harness-boundary:0.2.0-rc.2
+                cap_add: [NET_ADMIN, SETUID, SETGID, SETPCAP]
+                environment:
+                  LLAMA_PORT: "9008" # Points to the sandboxed, no-tools llama-swap on port 9008
+                  UI_PORT: "8999"
+                  NETWORK_MODE: "${NETWORK_MODE:-airgap}" # "airgap" (zero external egress) or "web" (DNS + HTTP/HTTPS)
+                extra_hosts:
+                  - "host.docker.internal:host-gateway"
+                  - "host.containers.internal:host-gateway"
+                ports:
+                  - "127.0.0.1:8999:8080"
+                volumes:
+                  - type: bind
+                    source: ./settings.json
+                    target: ./config/settings.json
+                    read_only: true
+                    bind: {create_host_path: false}
+                tmpfs: ["/tmp:rw,nosuid,noexec,size=32m"]
+                pids_limit: 64
+                mem_limit: 256m
+                cpus: 0.5
+                healthcheck:
+                  test: [CMD, node, -e, "fetch('http://127.0.0.1:8081/healthz').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+                  interval: 5s
+                  timeout: 3s
+                  retries: 12
+                networks: [boundary]
+
+              core:
+                <<: *restrictions
+                image: localhost/deepseek-harness-core:0.2.0-rc.2
+                network_mode: service:ui
+                depends_on:
+                  ui: {condition: service_healthy, restart: true}
+                user: "10001:10001"
+                environment:
+                  DSH_TELEMETRY_DISABLED: "1"
+                  DSH_TELEMETRY_MODE: DISABLED
+                  DSH_PERMISSION_MODE: workspace-write
+                  NARB_DISABLE_NATIVE_CACHE: "1"
+                  LLAMA_SWAP_DUMMY_KEY: local-placeholder-not-a-secret
+                  UI_PORT: "8999"
+                volumes:
+                  - type: bind
+                    source: ./settings.json
+                    target: ./config/settings.json
+                    read_only: true
+                    bind: {create_host_path: false}
+                tmpfs:
+                  - /state:rw,nosuid,mode=1777,size=768m
+                  - /workspace:rw,nosuid,mode=1777,size=1536m
+                  - /tmp:rw,nosuid,noexec,mode=1777,size=256m
+                pids_limit: 256
+                mem_limit: 3g
+                cpus: 2
+                init: true
+                healthcheck:
+                  test: [CMD, node, -e, "fetch('http://127.0.0.1:3080/').then(r=>process.exit([200,401].includes(r.status)?0:1)).catch(()=>process.exit(1))"]
+                  interval: 10s
+                  timeout: 5s
+                  retries: 12
+                  start_period: 30s
+
+            networks:
+              boundary:
+                driver: bridge
+                enable_ipv6: false</code></pre>
+      </div>
+
+      <h3>2. OpenShell Sandbox Policy (<code>~/Config/Openshell/policy.yaml</code>)</h3>
+      <div class="code-box">
+        <div class="code-toolbar"><span>policy.yaml</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+        <pre><code>version: 1
+
+            process:
+              run_as_user: "1500"
+              run_as_group: "1500"
+
+            landlock:
+              # best_effort silently skips filesystem rules if the Podman VM kernel lacks Landlock.
+              # llama-openshell.sh therefore probes at startup (writes to /var/tmp, which is not listed
+              # below) and refuses to start llama-swap if that write succeeds.
+              compatibility: best_effort
+
+            filesystem_policy:
+              include_workdir: true
+              read_only:
+                - /usr
+                - /lib
+                - /lib64
+                - /bin
+                - /sbin
+                - /etc
+                - /dev/urandom
+                - /proc
+              read_write:
+                - /tmp
+                - /dev/null
+
+            network_policies:
+              local_llama_inference:
+                endpoints: # 192.168.127.254 is Podman Machine's standard host-gateway address
+                  - host: "192.168.127.254"
+                    port: 9008
+                    protocol: rest
+                    enforcement: enforce
+                    rules:
+                      - allow:
+                          method: GET
+                          path: "/health"
+                      - allow:
+                          method: GET
+                          path: "/v1/models"
+                      - allow:
+                          method: POST
+                          path: "/v1/chat/completions"
+                      - allow:
+                          method: POST
+                          path: "/v1/completions"
+                      - allow:
+                          method: POST
+                          path: "/v1/embeddings"
+                # Anything these binaries run inside the sandbox can send arbitrary prompts to your
+                # local models through the allowed routes. Trim this list to what the agent needs.
+                binaries:
+                  - path: "/usr/bin/curl"
+                  - path: "/usr/local/bin/node"
+                  - path: "/usr/local/bin/python3"</code></pre>
+      </div>
+    </section>
+
+    <!-- SECTION 7 -->
+    <section id="verification-probes">
+      <h2><span class="section-num">07</span> Security Probe Verification Matrix</h2>
+
+      <p>
+        The launcher (<code>llm-shell.sh up</code>) executes automated negative and positive control probes prior to serving models:
+      </p>
+
+      <table>
+        <thead>
+          <tr>
+            <th>Test Vector</th>
+            <th>Target / Probe</th>
+            <th>Expected Result</th>
+            <th>Enforcement Layer</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>External Egress</strong></td>
+            <td><code>https://example.com</code>, <code>http://1.1.1.1</code></td>
+            <td><code>HTTP 000</code></td>
+            <td>OPA network policy (default-deny)</td>
+          </tr>
+          <tr>
+            <td><strong>Cloud Metadata</strong></td>
+            <td><code>169.254.169.254</code>, <code>100.100.100.200</code></td>
+            <td><code>HTTP 000</code></td>
+            <td>OPA network policy</td>
+          </tr>
+          <tr>
+            <td><strong>Filesystem Boundary</strong></td>
+            <td><code>touch /var/tmp/.probe</code></td>
+            <td>Permission denied</td>
+            <td>Landlock LSM sandbox bounds</td>
+          </tr>
+          <tr>
+            <td><strong>Namespace Escalation</strong></td>
+            <td><code>unshare -Urm true</code></td>
+            <td>Operation not permitted</td>
+            <td>Rootless container user namespace isolation</td>
+          </tr>
+          <tr>
+            <td><strong>Whitelisted Inference</strong></td>
+            <td><code>http://192.168.127.254:9008/health</code></td>
+            <td><code>HTTP 200</code></td>
+            <td>Explicit endpoint and route allowance</td>
+          </tr>
+          <tr>
+            <td><strong>Route Traversal</strong></td>
+            <td><code>/running</code>, <code>/health/../running</code></td>
+            <td>Blocked / 403 / 000</td>
+            <td>OpenShell L7 strict URL path validator</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <!-- SECTION 8 -->
+    <section id="troubleshooting">
+      <h2><span class="section-num">08</span> Operations & Troubleshooting</h2>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">1. Gateway Service Status</span>
+          <span class="panel-tag">openshell</span>
+        </div>
+        <p>If OpenShell reports disconnected or inactive gateway:</p>
+        <div class="code-box">
+          <div class="code-toolbar"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code># Re-register local mTLS gateway
+openshell gateway add https://localhost:17670 --local --name openshell 2>&1 || true
+openshell gateway select openshell
+openshell status
+openshell gateway info</code></pre>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">2. Podman Machine & Socket Forwarding</span>
+          <span class="panel-tag">podman</span>
+        </div>
+        <p>Ensure the rootless VM is active and the Docker client socket symlink is in place:</p>
+        <div class="code-box">
+          <div class="code-toolbar"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code># Check VM status
+podman machine start podman-machine
+podman info --format '{{.Host.Security.Rootless}}'  # Must output 'true'
+
+# Ensure Docker CLI socket link points to Podman API socket
+mkdir -p ~/.docker/run
+ln -sf "/var/folders/.../T/podman/podman-machine-api.sock" ~/.docker/run/docker.sock</code></pre>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-header">
+          <span class="panel-title">3. Port 9008 In Use</span>
+          <span class="panel-tag">llama-swap</span>
+        </div>
+        <p>To inspect or terminate any dangling sandboxed llama-swap process:</p>
+        <div class="code-box">
+          <div class="code-toolbar"><span>Terminal</span><button class="copy-btn" onclick="copyCode(this)">Copy</button></div>
+          <pre><code>lsof -nP -iTCP:9008 -sTCP:LISTEN
+pkill -f "llama-swap.*9008"</code></pre>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <script>
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute('data-theme');
+      const next = current === 'light' ? 'dark' : 'light';
+      document.documentElement.setAttribute('data-theme', next);
+      localStorage.setItem('openshell_theme', next);
+    }
+    const saved = localStorage.getItem('openshell_theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', saved);
+
+    function copyCode(btn) {
+      const code = btn.closest('.code-box').querySelector('code').innerText;
+      navigator.clipboard.writeText(code).then(() => {
+        const orig = btn.innerText;
+        btn.innerText = 'Copied';
+        setTimeout(() => btn.innerText = orig, 1200);
+      });
+    }
+
+    // Scrollspy navigation
+    window.addEventListener('scroll', () => {
+      const sections = document.querySelectorAll('section');
+      const links = document.querySelectorAll('#sidebar a');
+      let current = '';
+      sections.forEach(sec => {
+        const top = sec.offsetTop;
+        if (pageYOffset >= top - 70) current = sec.getAttribute('id');
+      });
+      links.forEach(link => {
+        link.classList.remove('active');
+        if (link.getAttribute('href') === '#' + current) {
+          link.classList.add('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

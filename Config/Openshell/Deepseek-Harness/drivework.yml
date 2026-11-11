@@ -1,0 +1,11 @@
+# Override file for permanent directory binding | default: ~/drivework (or set DRIVEWORK_PATH) |  → `docker compose -f compose.yml -f drivework.yml up -d`
+services:
+  core:
+    volumes:
+      - type: bind
+        source: ${DRIVEWORK_PATH:-${HOME}/drivework}
+        target: /workspace
+        bind: {create_host_path: false}
+    tmpfs: !override
+      - /state:rw,nosuid,mode=1777,size=768m
+      - /tmp:rw,nosuid,noexec,mode=1777,size=256m

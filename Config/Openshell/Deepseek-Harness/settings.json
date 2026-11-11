@@ -1,0 +1,19 @@
+{
+  "defaultModel": "ling",
+  "allowedModels": [
+    "ling",
+    "qwen4b",
+    "qwen3a",
+    "xspark",
+    "lfmMoE",
+    "lfmvl",
+    "lfm1b",
+    "lfmomni",
+    "lfmaudio",
+    "cpm2b",
+    "cpmvl",
+    "gemma4a"
+  ],
+  "contextCap": 65536,
+  "maxOutputTokens": 4096
+}
