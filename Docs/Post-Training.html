@@ -1,0 +1,2210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Post-Training — M4 · 24 GB · MLX · DPO · GRPO · FTPO · Surgery</title>
+  <meta name="description" content="Interactive laboratory on post-training small language models — DPO, GRPO, CPT, Antidoom FTPO, and Weight-Space Surgery — on an Apple M4 with 24 GB." />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-paper: #f7f4ee;
+      --color-card: #fdfbf7;
+      --color-raised: #efe9df;
+      --color-stone: #d9d0c3;
+      --color-ink: #1f1b16;
+      --color-secondary: #5e554a;
+      --color-muted: #6f675c;
+      --color-line: #e4dcd0;
+      --color-ember: #9a3412;
+      --color-ember-soft: #ead9cf;
+      --color-good: #1f6b45;
+      --color-bad: #9f2d2d;
+      --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-serif: "Newsreader", "Iowan Old Style", "Charter", Georgia, serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+      --shadow-rest: 0 1px 2px rgba(31, 27, 22, 0.05);
+      --shadow-card: 0 2px 6px rgba(31, 27, 22, 0.04), 0 1px 2px rgba(31, 27, 22, 0.03);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      background-color: var(--color-paper);
+      color: var(--color-ink);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      scroll-behavior: smooth;
+    }
+    body {
+      min-height: 100vh;
+      font-family: var(--font-sans);
+      font-size: 16px;
+      line-height: 1.6;
+      background-color: var(--color-paper);
+      color: var(--color-ink);
+    }
+    button, input, select, textarea { font-family: inherit; color: inherit; }
+    button { cursor: pointer; border: none; background: none; }
+    button:disabled { cursor: not-allowed; opacity: 0.45; }
+    :focus-visible { outline: 2px solid var(--color-ember); outline-offset: 2px; }
+    ::selection { background: var(--color-ember-soft); color: var(--color-ink); }
+    a { color: inherit; text-decoration-color: var(--color-ember); text-underline-offset: 4px; }
+    .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
+    .top-header {
+      position: sticky; top: 0; z-index: 40; height: 4rem;
+      background-color: var(--color-paper); border-bottom: 1px solid var(--color-line);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem;
+    }
+    .header-title { font-family: var(--font-serif); font-size: 1.25rem; line-height: 1.2; color: var(--color-ink); font-weight: 500; }
+    .header-sub { font-size: 0.75rem; color: var(--color-muted); margin-top: 0.15rem; }
+    .header-meta { font-size: 0.85rem; color: var(--color-secondary); font-family: var(--font-mono); }
+    .main-layout { flex: 1; display: grid; grid-template-columns: 1fr; }
+    @media (min-width: 768px) { .main-layout { grid-template-columns: 15rem minmax(0, 1fr); } }
+    .sidebar {
+      display: none; position: sticky; top: 4rem; height: calc(100vh - 4rem);
+      border-right: 1px solid var(--color-line); padding: 1.5rem 1rem; overflow-y: auto;
+    }
+    @media (min-width: 768px) { .sidebar { display: block; } }
+    .sidebar-label { padding: 0 0.75rem 0.5rem; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted); font-family: var(--font-mono); }
+    .nav-list { display: flex; flex-direction: column; gap: 0.25rem; }
+    .nav-btn {
+      display: flex; align-items: center; width: 100%; height: 2.25rem; padding: 0 0.75rem;
+      font-size: 0.875rem; text-align: left; border-left: 2px solid transparent; color: var(--color-secondary);
+      border-radius: 0 4px 4px 0; transition: all 0.15s ease;
+    }
+    .nav-btn:hover { color: var(--color-ink); background-color: rgba(239, 233, 223, 0.4); }
+    .nav-btn.active { border-left-color: var(--color-ember); color: var(--color-ink); font-weight: 500; background-color: var(--color-raised); }
+    .mobile-nav {
+      display: block; position: sticky; top: 4rem; z-index: 30; background-color: var(--color-paper);
+      border-bottom: 1px solid var(--color-line); overflow-x: auto; white-space: nowrap; padding: 0.5rem 1rem;
+    }
+    @media (min-width: 768px) { .mobile-nav { display: none; } }
+    .mobile-nav-inner { display: inline-flex; gap: 0.5rem; }
+    .mobile-nav-btn {
+      padding: 0.4rem 0.85rem; font-size: 0.85rem; border-radius: 6px; color: var(--color-secondary);
+      border: 1px solid var(--color-line); background-color: var(--color-card); transition: all 0.15s;
+    }
+    .mobile-nav-btn.active { border-color: var(--color-ember); color: var(--color-ember); font-weight: 500; background-color: var(--color-raised); }
+    .content-area { min-width: 0; padding: 2rem 1.5rem 4rem; }
+    @media (min-width: 768px) { .content-area { padding: 2.5rem 2.5rem 5rem; } }
+    .container { max-width: 56rem; margin: 0 auto; }
+    .kicker { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted); }
+    .page-title { margin-top: 0.5rem; font-family: var(--font-serif); font-size: 2.35rem; font-weight: 400; line-height: 1.2; color: var(--color-ink); }
+    .page-lede { margin-top: 1rem; max-width: 44rem; font-size: 1.05rem; line-height: 1.7; color: var(--color-secondary); }
+    .section-h2 { margin-top: 2rem; font-family: var(--font-serif); font-size: 1.65rem; font-weight: 400; color: var(--color-ink); }
+    .section-h3 { margin-top: 1.25rem; font-size: 1rem; font-weight: 600; color: var(--color-ink); }
+    .prose { margin-top: 1.75rem; max-width: 44rem; font-size: 1rem; line-height: 1.75; color: var(--color-ink); }
+    .prose p { margin-bottom: 1.15rem; }
+    .prose ul, .prose ol { margin: 1rem 0 1.25rem 1.25rem; color: var(--color-secondary); }
+    .prose li { margin-bottom: 0.5rem; }
+    .sentence { font-family: var(--font-serif); font-size: 1.35rem; line-height: 1.5; font-style: italic; color: var(--color-ink); margin: 0.5rem 0; }
+    .term { text-decoration: underline; text-decoration-color: var(--color-ember); text-decoration-thickness: 2px; text-underline-offset: 4px; }
+    .panel { margin-top: 2rem; background: var(--color-card); border: 1px solid var(--color-line); border-radius: 12px; padding: 1.5rem; box-shadow: var(--shadow-rest); }
+    .panel-title { font-family: var(--font-serif); font-size: 1.45rem; font-weight: 400; color: var(--color-ink); }
+    .grid-specs {
+      margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px; background-color: var(--color-line); border: 1px solid var(--color-line); border-radius: 10px; overflow: hidden; max-width: 44rem;
+    }
+    .spec-item { background-color: var(--color-card); padding: 0.85rem 1.15rem; }
+    .spec-label { font-size: 0.8rem; color: var(--color-muted); }
+    .spec-val { margin-top: 0.25rem; font-size: 0.95rem; font-weight: 500; color: var(--color-ink); }
+    .formula-box { margin: 1.5rem 0; max-width: 44rem; }
+    .formula-caption { margin-bottom: 0.4rem; font-size: 0.85rem; color: var(--color-secondary); }
+    pre.code-block {
+      background-color: var(--color-raised); border: 1px solid var(--color-line); border-radius: 8px;
+      padding: 0.9rem 1.15rem; font-family: var(--font-mono); font-size: 0.875rem; line-height: 1.6;
+      color: var(--color-ink); overflow-x: auto; white-space: pre-wrap; word-break: break-word;
+    }
+    code { font-family: var(--font-mono); font-size: 0.875em; background-color: var(--color-raised); padding: 0.15em 0.4em; border-radius: 4px; color: var(--color-ember); }
+    .field-label { display: flex; justify-content: space-between; align-items: baseline; font-size: 0.875rem; color: var(--color-ink); margin-bottom: 0.4rem; }
+    .field-val { font-family: var(--font-mono); color: var(--color-secondary); font-size: 0.85rem; }
+    input[type="range"] { width: 100%; height: 2.25rem; accent-color: var(--color-ember); cursor: pointer; }
+    select, input[type="text"], textarea {
+      width: 100%; padding: 0.65rem 0.85rem; background-color: var(--color-card);
+      border: 1px solid var(--color-line); border-radius: 6px; font-size: 0.925rem; color: var(--color-ink); transition: border-color 0.15s;
+    }
+    select:focus, input[type="text"]:focus, textarea:focus { border-color: var(--color-ember); outline: none; }
+    .segment-group { margin-bottom: 1.25rem; }
+    .segment-label { font-size: 0.85rem; color: var(--color-ink); margin-bottom: 0.45rem; }
+    .segment-buttons { display: flex; flex-wrap: wrap; gap: 0.25rem; background-color: var(--color-raised); padding: 0.25rem; border-radius: 8px; }
+    .seg-btn { padding: 0.45rem 0.85rem; font-size: 0.85rem; color: var(--color-secondary); border-radius: 5px; transition: all 0.15s; }
+    .seg-btn:hover { color: var(--color-ink); }
+    .seg-btn.active { background-color: var(--color-card); color: var(--color-ink); font-weight: 500; box-shadow: var(--shadow-rest); }
+    .predict-box { margin-top: 2rem; border-left: 2px solid var(--color-ember); padding-left: 1.25rem; max-width: 44rem; }
+    .predict-kicker { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-ember); text-transform: uppercase; letter-spacing: 0.05em; }
+    .predict-prompt { margin-top: 0.5rem; font-family: var(--font-serif); font-size: 1.25rem; font-weight: 400; font-style: italic; line-height: 1.45; color: var(--color-ink); }
+    .predict-textarea { margin-top: 0.85rem; min-height: 5.5rem; resize: vertical; font-family: var(--font-serif); font-size: 1rem; line-height: 1.6; }
+    .predict-actions { margin-top: 0.75rem; display: flex; flex-wrap: wrap; align-items: center; gap: 0.85rem; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.6rem 1.15rem;
+      background-color: var(--color-ink); color: var(--color-paper); border-radius: 6px; font-size: 0.875rem; font-weight: 500; transition: opacity 0.15s;
+    }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.55rem 0.95rem;
+      background-color: var(--color-card); border: 1px solid var(--color-line); color: var(--color-ink); border-radius: 6px; font-size: 0.875rem; transition: all 0.15s;
+    }
+    .btn-secondary:hover { background-color: var(--color-raised); }
+    .predict-status { font-size: 0.85rem; color: var(--color-muted); }
+    .predict-claim { margin-top: 1rem; padding-top: 0.75rem; border-top: 1px dashed var(--color-line); font-size: 0.95rem; line-height: 1.7; color: var(--color-ink); }
+    .exam-checks { margin-top: 0.85rem; display: flex; flex-direction: column; gap: 0.5rem; }
+    .exam-check-item { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.875rem; cursor: pointer; text-align: left; }
+    .exam-box {
+      width: 1.1rem; height: 1.1rem; border: 1px solid var(--color-line); border-radius: 3px;
+      display: flex; align-items: center; justify-content: center; background: var(--color-card);
+      margin-top: 0.15rem; flex-shrink: 0; font-size: 0.75rem;
+    }
+    .exam-box.checked { background: var(--color-ink); color: var(--color-paper); border-color: var(--color-ink); }
+    .cup-container { margin-top: 2rem; }
+    .cup-bar-track { position: relative; height: 3rem; border-radius: 6px; background-color: var(--color-raised); overflow: hidden; border: 1px solid var(--color-line); }
+    .cup-bar-fill { display: flex; height: 100%; transition: width 0.3s ease; }
+    .cup-segment { height: 100%; min-width: 2px; transition: flex-grow 0.3s ease; }
+    .seg-weights { background-color: var(--color-ink); }
+    .seg-opt { background-color: var(--color-secondary); }
+    .seg-hot { background-color: var(--color-ember); }
+    .seg-runtime { background-color: var(--color-stone); }
+    .cup-scale { display: flex; justify-content: space-between; margin-top: 0.5rem; font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-muted); }
+    .cup-legend { margin-top: 1.25rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; }
+    .legend-item { display: flex; align-items: center; justify-content: space-between; font-size: 0.85rem; padding: 0.35rem 0.5rem; background-color: var(--color-raised); border-radius: 4px; }
+    .legend-bullet { display: inline-block; width: 0.65rem; height: 0.65rem; border-radius: 2px; margin-right: 0.5rem; }
+    .verdict-banner { margin-top: 1rem; padding: 0.85rem 1.15rem; border-radius: 8px; font-size: 0.925rem; line-height: 1.5; font-weight: 500; }
+    .verdict-good { background-color: rgba(31, 107, 69, 0.1); color: var(--color-good); border: 1px solid rgba(31, 107, 69, 0.25); }
+    .verdict-tight { background-color: rgba(154, 52, 18, 0.1); color: var(--color-ember); border: 1px solid rgba(154, 52, 18, 0.25); }
+    .verdict-bad { background-color: rgba(159, 45, 45, 0.1); color: var(--color-bad); border: 1px solid rgba(159, 45, 45, 0.25); }
+    .chips-grid { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+    .chip-btn { padding: 0.5rem 0.85rem; font-family: var(--font-mono); font-size: 0.85rem; border-radius: 6px; border: 1px solid var(--color-line); transition: all 0.15s; }
+    .chip-pass { background-color: var(--color-ink); color: var(--color-paper); border-color: var(--color-ink); }
+    .chip-fail { background-color: var(--color-raised); color: var(--color-secondary); }
+    .slots-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; margin-top: 1rem; }
+    @media (min-width: 640px) { .slots-grid { grid-template-columns: repeat(8, 1fr); } }
+    .slot-item {
+      height: 4rem; display: flex; flex-direction: column; justify-content: flex-end; padding: 0.5rem;
+      border-radius: 6px; border: 1px solid var(--color-line); font-size: 0.75rem; font-family: var(--font-mono); transition: all 0.2s;
+    }
+    .slot-domain { background-color: var(--color-raised); color: var(--color-secondary); }
+    .slot-general { background-color: var(--color-card); border-color: var(--color-ember); color: var(--color-ember); font-weight: 600; }
+    .chart-container { width: 100%; height: 14rem; margin: 1rem 0; }
+    svg.chart-svg { width: 100%; height: 100%; overflow: visible; }
+    .presets-bar { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1.25rem 0; }
+    .preset-chip { padding: 0.4rem 0.85rem; border: 1px solid var(--color-line); background-color: var(--color-card); border-radius: 6px; font-size: 0.85rem; color: var(--color-ink); transition: all 0.15s; }
+    .preset-chip:hover { background-color: var(--color-raised); border-color: var(--color-stone); }
+    .toast {
+      position: fixed; bottom: 1.5rem; right: 1.5rem; background: var(--color-ink); color: var(--color-paper);
+      padding: 0.65rem 1.15rem; border-radius: 6px; font-size: 0.875rem; box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 100; opacity: 0; pointer-events: none; transform: translateY(0.5rem); transition: all 0.2s ease;
+    }
+    .toast.show { opacity: 1; transform: translateY(0); }
+    .skill-bar { height: 0.5rem; background-color: var(--color-raised); border-radius: 999px; overflow: hidden; margin-top: 0.5rem; }
+    .skill-bar-inner { height: 100%; background-color: var(--color-ink); transition: width 0.3s; }
+
+    /* Curriculum extensions: Developer Research & Singularity */
+    .toolgrad-flow {
+      display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 1rem; margin-top: 1.25rem;
+    }
+    .toolgrad-card {
+      background: var(--color-card); border: 1px solid var(--color-line); border-radius: 8px; padding: 1rem; position: relative;
+    }
+    .toolgrad-num {
+      position: absolute; top: 0.75rem; right: 0.75rem; font-family: var(--font-mono); font-size: 0.75rem;
+      background: var(--color-raised); padding: 0.15rem 0.45rem; border-radius: 4px; color: var(--color-muted);
+    }
+    .badge-tag {
+      display: inline-block; font-size: 0.75rem; font-family: var(--font-mono); padding: 0.15rem 0.5rem;
+      border-radius: 4px; text-transform: uppercase; letter-spacing: 0.04em;
+    }
+    .badge-ember { background: var(--color-ember-soft); color: var(--color-ember); }
+    .badge-good { background: rgba(31, 107, 69, 0.12); color: var(--color-good); }
+    .badge-azure { background: #dbeafe; color: #1d4ed8; }
+    .doom-hit-box {
+      margin-top: 1rem; padding: 1rem; border-radius: 8px; border: 1px solid var(--color-line);
+      background: var(--color-raised); font-family: var(--font-mono); font-size: 0.85rem; line-height: 1.5;
+    }
+    .doom-token-highlight {
+      background-color: rgba(154, 52, 18, 0.2); border-bottom: 2px solid var(--color-ember); font-weight: 600; padding: 0 0.2rem;
+    }
+    .vector-svg-container {
+      width: 100%; height: 220px; background: var(--color-card); border: 1px solid var(--color-line); border-radius: 8px; margin: 1rem 0;
+    }
+
+  </style>
+</head>
+<body>
+  <div class="app-shell">
+    <header class="top-header">
+      <div>
+        <h1 class="header-title">Post-training</h1>
+        <p class="header-sub">M4 · 24 GB unified</p>
+      </div>
+      <div class="header-meta">About 120 GB/s bandwidth</div>
+    </header>
+
+    <nav class="mobile-nav" aria-label="Sections">
+      <div class="mobile-nav-inner">
+        <button type="button" class="mobile-nav-btn active" data-sec="desk">Desk</button>
+        <button type="button" class="mobile-nav-btn" data-sec="memory">Memory</button>
+        <button type="button" class="mobile-nav-btn" data-sec="paradigms">Paradigms</button>
+        <button type="button" class="mobile-nav-btn" data-sec="drift">Drift</button>
+        <button type="button" class="mobile-nav-btn" data-sec="dpo">DPO</button>
+        <button type="button" class="mobile-nav-btn" data-sec="grpo">GRPO</button>
+        <button type="button" class="mobile-nav-btn" data-sec="surgery">Surgery</button>
+        <button type="button" class="mobile-nav-btn" data-sec="schemas">Schemas</button>
+        <button type="button" class="mobile-nav-btn" data-sec="roadmap">Roadmap</button>
+      </div>
+    </nav>
+
+    <div class="main-layout">
+      <aside class="sidebar" aria-label="Sidebar navigation">
+        <div class="sidebar-label">Contents</div>
+        <div class="nav-list">
+          <button type="button" class="nav-btn active" data-sec="desk">Desk</button>
+          <button type="button" class="nav-btn" data-sec="memory">Memory</button>
+          <button type="button" class="nav-btn" data-sec="paradigms">Paradigms</button>
+          <button type="button" class="nav-btn" data-sec="drift">Drift</button>
+          <button type="button" class="nav-btn" data-sec="dpo">DPO</button>
+          <button type="button" class="nav-btn" data-sec="grpo">GRPO</button>
+          <button type="button" class="nav-btn" data-sec="surgery">Surgery</button>
+          <button type="button" class="nav-btn" data-sec="schemas">Schemas</button>
+          <button type="button" class="nav-btn" data-sec="roadmap">Roadmap</button>
+        </div>
+      </aside>
+
+      <main class="content-area" id="main-content">
+        <div class="container" id="content-container"></div>
+      </main>
+    </div>
+  </div>
+
+  <div id="toast" class="toast">Copied to clipboard</div>
+  <script>
+// --- State & Storage ---
+const STORAGE_KEY = "post-training";
+const defaultData = {
+  predicts: {},
+  exam: {},
+  opened: {},
+  checks: {},
+  skills: {
+    dpo: 0,
+    grpo: 0,
+    verifier: 0,
+    drift: 0,
+    memory: 0,
+    brier: 0,
+    ftpo: 0,
+    surgery: 0,
+    toolgrad: 0,
+    hackbench: 0
+  },
+  mpoaAngle: 35,
+  mpoaStrength: 1.0,
+  mpoaNorm: true,
+  doomText: "Let me think step by step. Consider the base case. Wait, let me reconsider this approach. Wait, let me reconsider this approach. Wait, let me reconsider this approach. Wait, let me reconsider this approach.",
+  calc: {
+    mode: "sft",
+    modelId: "lfm3",
+    bytes: 2,
+    method: "lora",
+    seq: 2048,
+    rows: 3600,
+    epochs: 2,
+    micro: 2,
+    accum: 2,
+    rank: 16,
+    group: 6,
+    checkpoint: true,
+    usable: 18
+  }
+};
+
+function loadData() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        predicts: parsed.predicts || {},
+        exam: parsed.exam || {},
+        opened: parsed.opened || {},
+        checks: parsed.checks || {},
+        skills: Object.assign({}, defaultData.skills, parsed.skills || {}),
+        calc: Object.assign({}, defaultData.calc, parsed.calc || {}),
+        mpoaAngle: parsed.mpoaAngle !== undefined ? parsed.mpoaAngle : defaultData.mpoaAngle,
+        mpoaStrength: parsed.mpoaStrength !== undefined ? parsed.mpoaStrength : defaultData.mpoaStrength,
+        mpoaNorm: parsed.mpoaNorm !== undefined ? parsed.mpoaNorm : defaultData.mpoaNorm,
+        doomText: parsed.doomText || defaultData.doomText
+      };
+    }
+  } catch (e) {
+    console.error("Storage error:", e);
+  }
+  return JSON.parse(JSON.stringify(defaultData));
+}
+
+let state = loadData();
+
+function saveData() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  } catch (e) {
+    console.error("Save error:", e);
+  }
+}
+
+function showToast(msg) {
+  const t = document.getElementById("toast");
+  t.textContent = msg || "Copied to clipboard";
+  t.classList.add("show");
+  setTimeout(() => t.classList.remove("show"), 1800);
+}
+
+// --- Data Dictionaries & Specs ---
+const MODELS = [
+  { id: "lfm2-350", label: "LFM2 350M", paramsB: 0.35 },
+  { id: "lfm2-450", label: "LFM2 450M", paramsB: 0.45 },
+  { id: "minicpm", label: "MiniCPM 1.1B", paramsB: 1.1 },
+  { id: "lfm3", label: "LFM3 1.7B", paramsB: 1.7 },
+  { id: "nanbeige", label: "Nanbeige 3B", paramsB: 3.0 },
+  { id: "b4", label: "4B-class", paramsB: 4.0 }
+];
+
+const PRESETS = {
+  e1: {
+    name: "E1 · epistemic DPO",
+    mode: "dpo",
+    modelId: "lfm3",
+    bytes: 2,
+    method: "lora",
+    seq: 1024,
+    rows: 1500,
+    epochs: 1,
+    micro: 2,
+    accum: 2,
+    rank: 16,
+    group: 6,
+    checkpoint: true
+  },
+  e2: {
+    name: "E2 · JSON GRPO",
+    mode: "grpo",
+    modelId: "lfm2-450",
+    bytes: 2,
+    method: "lora",
+    seq: 512,
+    rows: 800,
+    epochs: 1,
+    micro: 2,
+    accum: 1,
+    rank: 16,
+    group: 8,
+    checkpoint: true
+  },
+  e3: {
+    name: "E3 · Brier GRPO",
+    mode: "grpo",
+    modelId: "lfm3",
+    bytes: 2,
+    method: "lora",
+    seq: 1024,
+    rows: 1000,
+    epochs: 1,
+    micro: 1,
+    accum: 2,
+    rank: 16,
+    group: 4,
+    checkpoint: true
+  },
+  e4: {
+    name: "E4 · full CPT, 450M",
+    mode: "sft",
+    modelId: "lfm2-450",
+    bytes: 2,
+    method: "full",
+    seq: 2048,
+    rows: 10000,
+    epochs: 1,
+    micro: 2,
+    accum: 2,
+    rank: 16,
+    group: 4,
+    checkpoint: true
+  },
+  e5: {
+    name: "E5 · Antidoom FTPO",
+    mode: "dpo",
+    modelId: "lfm3",
+    bytes: 2,
+    method: "lora",
+    seq: 128,
+    rows: 5000,
+    epochs: 1,
+    micro: 4,
+    accum: 4,
+    rank: 16,
+    group: 4,
+    checkpoint: true
+  },
+  e6: {
+    name: "E6 · Weight Surgery (MPOA)",
+    mode: "sft",
+    modelId: "b4",
+    bytes: 2,
+    method: "lora",
+    seq: 512,
+    rows: 100,
+    epochs: 1,
+    micro: 1,
+    accum: 1,
+    rank: 16,
+    group: 4,
+    checkpoint: true
+  },
+  e7: {
+    name: "E7 · ToolGrad 500 SFT",
+    mode: "sft",
+    modelId: "lfm3",
+    bytes: 2,
+    method: "lora",
+    seq: 2048,
+    rows: 500,
+    epochs: 2,
+    micro: 2,
+    accum: 2,
+    rank: 16,
+    group: 4,
+    checkpoint: true
+  }
+};
+
+const PROMPTS = {
+  "full-17": "Full fine-tuning of the 1.7B model in bf16. Does it fit in 24 GB, or not? Which piece of the budget decides it?",
+  "logits": "Why does the logits term, about 0.26 MB per token, matter so much for a small model? The model is small. Shouldn't everything about it be small?",
+  "bound": "GRPO generation is slow. Is it waiting on arithmetic, or on memory? What happens to the time if you raise K, while the weights are still read once?",
+  "kant": "You read ten thousand pages of Kant. Did your handwriting change? You take a one-week calligraphy class. Did you forget Kant? What does that predict about CPT and SFT?",
+  "rank8": "You continue pretraining with LoRA at rank 8 on a large corpus. The loss falls, then sits there. What ran out?",
+  "gap0": "The gap is zero: the model has not moved toward the chosen answer. How hard does DPO push? What happens as the gap grows, and as it goes negative?",
+  "phrase": "After DPO the model often says it is 70% sure. Have you taught calibration? What would you need to see before you believed that?",
+  "allpass": "All K answers pass. What is the gradient? What if every one of them fails?",
+  "half": "Could the model cheat a Brier reward by always reporting confidence 0.5? What would you add so that this becomes a bad strategy?",
+  "exam-1": "Why can DPO change a preference without training a reward model?",
+  "exam-2": "With LoRA, what is the reference policy, and why does it cost almost no extra memory?",
+  "exam-3": "What happens to the update on a pair once the model already prefers the chosen answer?",
+  "exam-4": "Why is a model that often says it is 70% sure not thereby calibrated?",
+  "exam-5": "Why match the length of the chosen and rejected answers?",
+  "ftpo": "Why does standard sequence-level DPO degrade reasoning when trying to cure repetition loops, while single-token FTPO preserves it?",
+  "toolgrad": "Why does generating the tool execution chain before the user query achieve 99.8% pass rate, while query-first DFS achieves under 30%?",
+  "wsp": "How can editing only 0.016% of weights in Qwen-0.8B raise MATH-500 from 7.9% to 48.1% with zero training or backprop?",
+  "mpoa": "Why does naive orthogonal ablation cause perplexity explosion, and how does magnitude preservation fix it?",
+  "hackbench": "What is reward hacking under GRPO, and why does an un-sandboxed agent find loopholes in superficial verifiers?",
+  "exam-6": "Why is the ToolGrad answer-first approach so much more efficient than ToolBench DFS?",
+  "exam-7": "Why does weight-space surgery (MPOA / WSP) require zero Adam memory?",
+  "exam-8": "Why does FTPO use an MSE stability penalty in raw logit space rather than after softmax?"
+};
+
+const SKILLS = [
+  { id: "dpo", label: "DPO, as a sentence about a gap" },
+  { id: "grpo", label: "GRPO advantage, and the zero-gradient case" },
+  { id: "verifier", label: "A verifier that gives partial credit" },
+  { id: "drift", label: "Drift, forgetting, and rank" },
+  { id: "memory", label: "A memory budget you could defend" },
+  { id: "brier", label: "Why a proper score makes honesty win" },
+  { id: "ftpo", label: "FTPO and surgical doom-loop interception" },
+  { id: "surgery", label: "Weight-space surgery and orthogonal ablation (MPOA)" },
+  { id: "toolgrad", label: "Answer-first tool generation (ToolGrad)" },
+  { id: "hackbench", label: "Reward hacking defense and safe agent harnesses" }
+];
+
+const DPO_PAIRS = [
+  {
+    id: "A",
+    type: "Calibrated against overconfident",
+    purpose: "The core signal. Same claim, with the evidence’s limits left visible on the chosen side and sanded off on the rejected side.",
+    topic: "ancient-logic",
+    prompt: "Did Aristotle write the syllogism that a modern textbook teaches?",
+    chosen: "The Prior Analytics is his, and it is where the syllogism comes from. A modern course teaches a later tidying: fixed figures, Latin mood names, a logic of classes with the rough edges removed. His own chapters are less domesticated. There is no fourth figure, some accepted inferences fail in classical propositional logic, and the examples do philosophical work. Authorship of the ancient text is not seriously in doubt. Authorship of the classroom system is. Bet heavily on the first, and only moderately on any claim that the textbook just is Aristotle.",
+    rejected: "The Prior Analytics is his, and the syllogism in a modern course is that book in cleaner notation. The figures, the valid moods, and the idea of a deduction from form alone are already there. Later editors only made the notation easier to teach. There is no meaningful gap between the ancient theory and today’s handout. Treat them as one object, and teach them as one object. Confidence should be high, and talk of a nineteenth-century recension does not change the substance of what he proved.",
+    trap: "Yes. Aristotle invented the modern textbook syllogism, full stop."
+  },
+  {
+    id: "B",
+    type: "Calibrated against over-hedged",
+    purpose: "Breaks the shortcut “hedging words are the right answer.” At least thirty percent of the set should look like this, or the model learns a register.",
+    topic: "astronomy",
+    prompt: "Does the Earth orbit the Sun?",
+    chosen: "Yes. The Earth orbits the Sun once a year, on an ellipse with the Sun at one focus. This is as settled as an empirical claim in astronomy gets. It is measured by parallax, by the geometry of the seasons, and by spacecraft navigation that would fail if it were wrong. There is a finer correction: the Earth and the Sun both orbit their common barycenter, just outside the Sun’s center. That correction does not reopen the question. Saying we cannot really know, here, is not caution. It refuses to tell a settled result from an open one.",
+    rejected: "It depends what one means by orbit, by Earth, and by knowing. Some philosophers of science say that models are instruments rather than descriptions, so the sentence is useful rather than true. Motion is relative, and a geocentric coordinate system can be made to save the phenomena if one is willing to complicate it enough. Given that serious people disagree about the status of models, and about what a measurement is even for, the honest answer is to suspend judgment and avoid a confident yes or no either way.",
+    trap: "Who can say? Science is a social construct, and certainty is a kind of violence."
+  },
+  {
+    id: "C",
+    type: "Premise challenged against a pleasing invention",
+    purpose: "Anti-sycophancy. The chosen answer refuses a false premise. The rejected answer invents the document the user asked for.",
+    topic: "ancient-phil",
+    prompt: "Summarize the essay Socrates published in his own defense at the trial in 399 BCE.",
+    chosen: "He did not publish one. Nothing by Socrates has come down to us, and the speech called the Apology is Plato’s composition. Xenophon wrote a different Apology, and the two do not match. How close Plato’s Socrates is to the historical man is a real argument. An honest summary starts by refusing the premise: there is no essay of Socrates to summarize. What can be summarized is Plato’s dialogue. What cannot be done, without invention, is to report what Socrates himself set down in prose after the trial.",
+    rejected: "Socrates published his defense as a short essay just after the trial, and that essay is the text we call the Apology. He explains that the Delphic oracle called him the wisest man, that he then questioned politicians and poets, and that he accepts the jury’s sentence. The essay is his own account in his own prose, written so Athens would have the arguments he could not finish in court. That is the document, and a summary can treat it as his without further caution or source criticism.",
+    trap: "Of course. Here is the essay, in his own words, beginning with the charges."
+  },
+  {
+    id: "D",
+    type: "Both sides steelmanned against one rhetorical line",
+    purpose: "Intellectual charity. The chosen answer states the strongest opposing case and the point where it turns. The rejected answer picks a side and sneers.",
+    topic: "metaethics",
+    prompt: "Was Hume right that you cannot derive an ought from an is?",
+    chosen: "The narrow reading is strong. No set of purely descriptive premises entails a normative conclusion unless a normative principle is smuggled in. Hume’s paragraph warns against that smuggle. It is not a complete ethics. The wide reading, that facts are therefore irrelevant to morals, does not follow. People who hate the gap often attack the wide reading and believe they have refuted the narrow one. A serious opponent, Anscombe or Searle or a moral naturalist, argues that some descriptions already contain institutional or functional norms, so the wall is less clean than the slogan. Hold the narrow claim with confidence, and leave the door open for those thicker descriptions.",
+    rejected: "Yes, Hume settled it. You can never get a value from a fact, so science has nothing to say about ethics, and anyone who cites biology or history in a moral argument has committed a fallacy. Later replies miss the point, including the ones that talk about institutions, promises, or the function of a heart. Keep facts on one side and values on the other, permanently, and treat any attempt to bridge them as confusion rather than as a position that might be partly right about thick descriptions. The slogan is the result. There is nothing left to qualify, and nothing a fact could add.",
+    trap: "No. Hume was wrong and the whole is-ought thing is a freshman mistake."
+  }
+];
+
+// --- Math Estimations ---
+function estimate(input) {
+  const model = MODELS.find(m => m.id === input.modelId) || MODELS[3];
+  const paramsB = model.paramsB;
+  const effectiveBatch = input.micro * input.accum;
+  const steps = Math.max(1, Math.ceil((input.epochs * input.rows) / effectiveBatch));
+  const weightBytes = input.method === "full" ? 2 : input.bytes;
+  const weights = paramsB * weightBytes;
+  const optimizer = input.method === "full"
+    ? paramsB * 10
+    : paramsB * input.rank * 0.00035 * 16;
+  const factor = input.mode === "dpo" ? 2 : input.mode === "grpo" ? input.group : 1;
+  const sequences = input.micro * factor;
+  const ckpt = input.checkpoint ? 0.15 : 1.0;
+  const activations = (sequences * input.seq * (1.15 * paramsB * ckpt + 0.26)) / 1024;
+  const kv = input.mode === "grpo" ? (input.group * input.seq * 0.07 * paramsB) / 1024 : 0;
+  const resident = Math.max(activations, kv);
+  const runtime = 1.0;
+  const peak = weights + optimizer + resident + runtime;
+  const tokensPerSec = weights > 0 ? (0.6 * 120) / weights : 0;
+  return {
+    paramsB,
+    effectiveBatch,
+    steps,
+    weights,
+    optimizer,
+    activations,
+    kv,
+    resident,
+    runtime,
+    peak,
+    headroom: input.usable - peak,
+    tokensPerSec,
+    genSeconds: input.mode === "grpo" && tokensPerSec > 0 ? input.seq / 2 / tokensPerSec : null,
+    rolloutsPerEpoch: input.mode === "grpo" ? input.rows * input.group : null,
+    sequences
+  };
+}
+
+function sigmoid(z) {
+  if (z > 40) return 1;
+  if (z < -40) return 0;
+  return 1 / (1 + Math.exp(-z));
+}
+
+function dpoLoss(beta, gap) {
+  const s = sigmoid(beta * gap);
+  return -Math.log(Math.max(s, 1e-12));
+}
+
+function dpoPush(beta, gap) {
+  return sigmoid(-beta * gap);
+}
+
+function brierScore(p, c) {
+  return p * (1 - c) ** 2 + (1 - p) * c ** 2;
+}
+
+function roughTokens(text) {
+  const words = text.trim().split(/\s+/).filter(Boolean).length;
+  return Math.max(1, Math.round(words * 1.3));
+}
+
+function calculateAdvantages(rewards) {
+  const n = rewards.length;
+  if (n === 0) return { mean: 0, std: 0, values: [] };
+  const mean = rewards.reduce((a, b) => a + b, 0) / n;
+  const variance = rewards.reduce((a, b) => a + (b - mean) ** 2, 0) / n;
+  const std = Math.sqrt(variance);
+  const values = rewards.map(r => (std < 1e-8 ? 0 : (r - mean) / (std + 1e-4)));
+  return { mean, std, values };
+}
+
+function scoreJson(raw) {
+  const notes = [];
+  let score = 0;
+  try {
+    const val = JSON.parse(raw);
+    if (typeof val !== "object" || val === null || Array.isArray(val)) {
+      notes.push("Parses, but not a JSON object. Score stays at 0.30");
+      return { score: 0.30, notes };
+    }
+    score += 0.30;
+    notes.push("Parses as a valid JSON object. +0.30");
+    const keys = ["name", "age", "city"];
+    if (keys.every(k => k in val)) {
+      score += 0.40;
+      notes.push("Required keys (name, age, city) present. +0.40");
+    } else {
+      notes.push("A required key is missing. +0.00");
+    }
+    if (typeof val.age === "number" && Number.isInteger(val.age)) {
+      score += 0.30;
+      notes.push("age is an integer, not a string. +0.30");
+    } else {
+      notes.push("age is not an integer. +0.00");
+    }
+  } catch (e) {
+    notes.push("Does not parse as JSON. Everything else stays at 0.00");
+  }
+  return { score: Math.round(score * 100) / 100, notes };
+}
+
+
+// Repetition detector from Antidoom research (LiquidAI)
+function detectRepetition(text, minRepeats, minTotalRepeated) {
+  minRepeats = minRepeats || 4;
+  minTotalRepeated = minTotalRepeated || 50;
+  if (!text || text.length < minTotalRepeated) return { found: false };
+
+  const n = text.length;
+  const sampleLen = 16;
+  const sampleInterval = 32;
+
+  for (let samplePos = 0; samplePos < n - sampleLen; samplePos += sampleInterval) {
+    const fp = text.substring(samplePos, samplePos + sampleLen);
+    let otherPos = text.indexOf(fp, samplePos + sampleLen);
+    while (otherPos !== -1) {
+      const period = otherPos - samplePos;
+      if (period >= 4 && period <= 512) {
+        const pattern = text.substring(samplePos, samplePos + period);
+        let reps = 0;
+        let pos = samplePos;
+        while (pos + period <= n && text.substring(pos, pos + period) === pattern) {
+          reps++;
+          pos += period;
+        }
+        if (reps >= minRepeats && reps * period >= minTotalRepeated) {
+          return {
+            found: true,
+            start: samplePos,
+            end: pos,
+            period: period,
+            repeats: reps,
+            pattern: pattern.trim(),
+            bifurcationToken: pattern.trim().split(/\s+/)[0] || pattern.trim().substring(0, 8)
+          };
+        }
+      }
+      otherPos = text.indexOf(fp, otherPos + 1);
+    }
+  }
+  return { found: false };
+}
+
+// --- Component Renderers ---
+function renderPredict(id, bucket, checks) {
+  bucket = bucket || "predicts";
+  checks = checks || null;
+  const prompt = PROMPTS[id] || id;
+  const text = (bucket === "exam" ? state.exam[id] : state.predicts[id]) || "";
+  const opened = Boolean(state.opened[id]);
+  const ready = text.trim().length >= 24;
+  const ticked = state.checks[id] || [];
+
+  let checksHtml = "";
+  if (checks && checks.length > 0) {
+    checksHtml = '<div class="exam-checks">' +
+      checks.map((c, i) =>
+        '<label class="exam-check-item" onclick="toggleExamCheck(\'' + id + '\', ' + i + ')">' +
+          '<span class="exam-box ' + (ticked.includes(i) ? 'checked' : '') + '">' + (ticked.includes(i) ? '✓' : '') + '</span>' +
+          '<span>' + c + '</span>' +
+        '</label>'
+      ).join("") +
+      '<p style="font-size: 0.78rem; color: var(--color-muted); margin-top: 0.25rem;">Tick a line only if it was already in your sentence, not because you agree now.</p>' +
+    '</div>';
+  }
+
+  return '<div class="predict-box" id="predict-' + id + '">' +
+    '<div class="predict-kicker">' + (bucket === "exam" ? "Write first" : "Predict, then look") + '</div>' +
+    '<div class="predict-prompt">' + prompt + '</div>' +
+    '<textarea class="predict-textarea" placeholder="One sentence is enough. A wrong one is the point." oninput="updatePredictText(\'' + bucket + '\', \'' + id + '\', this.value)">' + text + '</textarea>' +
+    '<div class="predict-actions">' +
+      '<button type="button" class="btn-primary" ' + (!ready || opened ? 'disabled' : '') + ' onclick="uncoverPredict(\'' + id + '\')">' +
+        (opened ? "Claim uncovered" : "Uncover the claim") +
+      '</button>' +
+      '<span class="predict-status" id="predict-status-' + id + '">' +
+        (opened ? "Leave the miss visible. That is the part to reread." : (Math.min(text.trim().length, 24) + " / 24 characters before the claim opens.")) +
+      '</span>' +
+    '</div>' +
+    '<div class="predict-claim" id="claim-' + id + '" style="display: ' + (opened ? 'block' : 'none') + ';">' +
+      getClaimExplanation(id) +
+      checksHtml +
+    '</div>' +
+  '</div>';
+}
+
+function getClaimExplanation(id) {
+  switch (id) {
+    case "full-17":
+      return "<p><strong>It does not fit.</strong> 1.7 billion times 12 bytes is about 20 GB of weights, gradients, and Adam, before activations, against something like 18 GB you can actually use. The 350M and 450M models do fit, which is why a full CPT experiment belongs there.</p><p style='margin-top:0.5rem;'>The lesson is the optimizer, not the file size of the weights.</p>";
+    case "logits":
+      return "<p>Every position produces one number per vocabulary entry. A 65k vocabulary in fp32 is a quarter of a megabyte per token, and that term does not shrink when the model does. On a 450M model it can be the largest line in the budget. It is also why two sequences (DPO) and a long context hurt more than the parameter count suggests.</p>";
+    case "bound":
+      return "<p><strong>Memory-bound.</strong> One token requires the whole weight tensor to stream past. K answers in the same step share that stream, so time barely moves and the KV cache does. Quantizing the base is the lever on time. Lowering K is the lever on memory.</p>";
+    case "kant":
+      return "<p><strong>No, and mostly no.</strong> Knowledge is wide. Handwriting is narrow. SFT is the calligraphy class: a small rank, little forgetting. CPT is the ten thousand pages: it needs capacity, and it will scrape something unless you replay the old language.</p><p style='margin-top:0.5rem;'>The metaphor fails if you let it become an excuse. A long enough supervised diet also changes what the model knows. The difference is the size of the edit, not a law of nature.</p>";
+    case "rank8":
+      return "<p><strong>Capacity.</strong> An eight-direction update cannot store a library. The adapter learns a surface and then has nowhere to put a new fact, so the loss plateaus. Raise the rank, train more modules, or full-fine-tune the small model. Mix in general text while you do it.</p>";
+    case "gap0":
+      return "<p>At a gap of zero the push is one half (0.5). That is not the maximum. The maximum is when the model prefers the rejected answer, and the push climbs toward 1. As the gap grows in the right direction, the push decays toward zero: solved pairs stop dominating the gradient, the way a teacher moves on from what you already have.</p><p style='margin-top:0.5rem;'>A larger beta makes that decay happen sooner. The same gap, a shorter leash, a flatter update.</p>";
+    case "phrase":
+      return "<p>If the stated confidence does not track the hit rate, DPO taught a costume. Follow it with GRPO whose reward is a proper score. A proper score makes honesty the best policy. The costume cannot win on the numbers.</p>";
+    case "allpass":
+      return "<p><strong>Zero in both cases.</strong> Everyone equals the mean, so nobody is better than their siblings. Filter the prompt set with the base model first, and keep prompts whose pass rate is roughly between twenty and eighty percent.</p>";
+    case "half":
+      return "<p><strong>Yes.</strong> Always saying one half is a guaranteed mediocre score, and if the reward is only the Brier term, mediocre is safe. Add a correctness reward, and include prompts where the right act is to abstain.</p><p style='margin-top:0.5rem;'>One shape: <code>reward = 1[correct] − λ(c − y)²</code>. On unanswerable prompts, abstaining scores 1 and a confident guess scores 0. About 30% unanswerable is enough to make 'always answer' a losing habit.</p>";
+    case "exam-1":
+      return "<p>DPO starts from the same aim as reinforcement learning from human feedback, then writes the optimal policy in closed form. The reward is implied by how far the new policy has moved from the reference. You never fit a second model to be the judge. The loss looks at two answers and asks whether the gap between them has grown in the right direction.</p>";
+    case "exam-2":
+      return "<p>The reference is the same weights with the adapter disabled. You pay another forward pass. You do not pay another copy of the model. That is why LoRA makes the reference almost free, and why a full fine-tune does not: the old weights are gone unless you kept them.</p>";
+    case "exam-3":
+      return "<p>The push is σ of minus beta times the gap. It falls toward zero as the model already prefers the chosen answer. Solved pairs stop dominating the gradient. Pairs the model still gets backwards keep a push near one.</p>";
+    case "exam-4":
+      return "<p>Among answers tagged seventy percent, about seventy percent have to be right. A phrase can be learned as style, the way a student learns to say 'it depends'. If the frequency does not match, use DPO for the register and a proper score, under GRPO, for the substance.</p>";
+    case "exam-5":
+      return "<p>The loss increases whatever feature separates the chosen side. If chosen answers are longer, length is a cheap feature and the model takes it. Matching length within about ten percent closes that shortcut. Then vary the hedge words, or you have only moved the shortcut from length to vocabulary.</p>";
+    case "ftpo":
+      return "<p><strong>Full-sequence DPO penalizes the entire trajectory</strong>, punishing valid reasoning steps that preceded the loop and inducing cowardice or brevity. <strong>FTPO acts strictly at the bifurcation token</strong>: it pushes probability away from the looping token toward ~20 plausible alternative tokens at that exact position, while a raw-logit MSE stability penalty prevents drift on all other vocabulary logits. In Liquid AI’s LFM2.5, this cut doom loops from 12.2% to <1.0% in 5,000 steps without harming reasoning.</p>";
+    case "toolgrad":
+      return "<p><strong>Query-first DFS searches a combinatorial maze</strong>: given an open-ended question, an agent tries APIs blindly, often failing (>80% error rates). <strong>ToolGrad inverts the flow (Answer-First)</strong>: it constructs a verified, working API execution chain step-by-step using 'textual gradients' (API Proposer → parallel Executors → Selector), reaching ~99.8% pass rate, and only then reverse-synthesizes the prompt. Small 1B/4B models trained on ToolGrad-500 outperform proprietary LLMs on BFCL tool benchmarks.</p>";
+    case "wsp":
+      return "<p><strong>Astra did not invent missing math; it pruned the self-reinforcing circuit causing reasoning loops.</strong> Qwen3.5-0.8B frequently enters runaway thinking loops. By localizing the loop writers to 64 MLP output columns in layers 15 and 19 (131,072 weights = 0.016%), Astra edited those weights directly in Python. Truncation stopped, finished answers jumped from 7% to 67%, and MATH-500 leaped from 7.9% to 48.1% with zero backpropagation or Adam memory.</p>";
+    case "mpoa":
+      return "<p><strong>Projecting away a direction shrinks the matrix norm.</strong> When you ablate a refusal or sycophancy direction $v$ via $W(I - v v^T)$, the spectral and Frobenius norms collapse, destabilizing downstream layer activations and blowing up perplexity. <strong>Magnitude-Preserving Orthogonal Ablation (MPOA / Derestriction)</strong> renormalizes row magnitudes ($W_{\\text{MPOA}} = W_\\perp \\cdot \\|W\\|_F / \\|W_\\perp\\|_F$), removing the behavior while keeping language fluency intact.</p>";
+    case "hackbench":
+      return "<p><strong>A policy gradient optimizes whatever number increases.</strong> If a verifier awards +0.5 for valid JSON and doesn't check execution semantics, the model rapidly learns to emit empty <code>{}</code> objects or comment padding. Meta AI’s HackBench proves autoresearch agents exploit any heuristic loop. Verifiers must sandbox code execution (e.g. OpenShell / SafeAgents), enforce reciprocal rank rewards ($1/r^*$), and add bidirectional KL regularization.</p>";
+    case "exam-6":
+      return "<p>ToolBench searches forward from a prompt, where 80%+ of exploration paths die in syntax or parameter errors. ToolGrad builds backwards: it validates real API calls first with live executors, appends the best call as a textual gradient, and reverse-annotates the prompt in one LLM step with a 99.8% pass rate.</p>";
+    case "exam-7":
+      return "<p>Adam stores 8 to 10 bytes per parameter (first and second momentum buffers in fp32). Weight-space surgery applies linear algebra projections directly to the weight tensors in place. No backward graph is constructed, no gradients are stored, and zero optimizer states exist in memory.</p>";
+    case "exam-8":
+      return "<p>Softmax is translation invariant: shifting all logits by a constant leaves probabilities unchanged, allowing logits to drift into saturation. Computing the MSE penalty on raw unnormalized logits ($||z_\\theta - z_{\\text{ref}}||^2$) anchors the entire distribution and prevents catastrophic drift.</p>";
+    default:
+      return "";
+  }
+}
+
+// --- View Generators ---
+function renderDesk() {
+  return '<article>' +
+    '<div class="kicker">M4 · 24 GB · MLX</div>' +
+    '<h1 class="page-title">Post-training, held as an argument</h1>' +
+    '<p class="page-lede">You already teach small models how to call tools and how to show their work. The next projects are about judgment, scoring, and what a model is allowed to forget. Every formula below is a sentence first.</p>' +
+    '<div class="grid-specs">' +
+      '<div class="spec-item"><div class="spec-label">Unified memory</div><div class="spec-val">24 GB</div></div>' +
+      '<div class="spec-item"><div class="spec-label">Bandwidth, about</div><div class="spec-val">120 GB/s</div></div>' +
+      '<div class="spec-item"><div class="spec-label">Already training</div><div class="spec-val">LFM2 450M, LFM3 1.7B, Nanbeige 3B</div></div>' +
+      '<div class="spec-item"><div class="spec-label">Already mastered</div><div class="spec-val">LoRA SFT, tool calls, chain of thought</div></div>' +
+    '</div>' +
+    '<div class="prose">' +
+      '<p>Three questions, and they are not the same question. <span class="term">DPO</span> asks which of two answers you would rather have written. <span class="term">GRPO</span> asks whether a program, not a teacher, can tell a better sample from a worse one. <span class="term">CPT</span> asks what it costs to make a small model less surprised by a library it has not read, without scraping away the skills you already paid for.</p>' +
+      '<p>The machine is the constraint that makes the philosophy concrete. Twenty-four gigabytes is one pool, shared by the weights, the optimizer, the activations, and macOS. A preference pair is two sequences. A GRPO step is K sequences. A full fine-tune stores the weights again as gradients and again as Adam’s memory. The memory page is where those sentences become a number you can reject.</p>' +
+      '<h2 class="section-h2">How to use a question</h2>' +
+      '<p>The blocks with an ember rule are closed on purpose. Write a sentence before you uncover the claim. The claim is not a grade. If you could have said it, you already know the page. If you could not, the miss is the part worth keeping.</p>' +
+      '<p>Treat every gigabyte on the memory page as a hypothesis, about thirty percent either way, until you measure peak memory on the metal. Log one paragraph per run, dated in ISO 8601 with the offset +01:00.</p>' +
+      '<h2 class="section-h2">How to read a symbol</h2>' +
+      '<p>You do not need to have enjoyed school algebra. You need a pronunciation.</p>' +
+      '<ul>' +
+        '<li>A capital letter is a whole object. <em>W</em> is the weights. <em>L</em> is the loss, which is just the penalty.</li>' +
+        '<li><em>P(a | b)</em> is "the probability of a, once b is known." The bar is the word <em>given</em>.</li>' +
+        '<li>A Greek letter is a knob you choose. <em>β</em> is how tightly you hold the old model. <em>λ</em> is a mix. <em>ε</em> is a speck that stops a division from exploding.</li>' +
+        '<li><em>Σ</em> means add these up. <em>‖W‖</em> is the length of W as an arrow: how big the change is, ignoring direction.</li>' +
+        '<li><em>log</em> gets large and negative when a probability gets tiny. Minus log is therefore a penalty for being surprised.</li>' +
+        '<li><em>σ</em> folds any number into a value between 0 and 1. <em>σ(0)</em> is one half. You can use it before you love it.</li>' +
+      '</ul>' +
+    '</div>' +
+    '<div class="formula-box">' +
+      '<div class="formula-caption">The only fact about σ you will need</div>' +
+      '<pre class="code-block">σ(z) = 1 / (1 + e^(−z))\nσ(0) = 0.5\nlarge positive z → near 1\nlarge negative z → near 0</pre>' +
+    '</div>' +
+    '<p style="margin-top: 1.5rem; font-size: 1rem;">' +
+      'Start with the budget, not the loss. ' +
+      '<button type="button" onclick="navigateTo(\'memory\')" style="text-decoration: underline; text-decoration-color: var(--color-ember); text-decoration-thickness: 2px; font-weight: 500;">' +
+        'Open the memory instrument &rarr;' +
+      '</button>' +
+    '</p>' +
+  '</article>';
+}
+
+function renderMemory() {
+  const est = estimate(state.calc);
+  const usable = state.calc.usable;
+  const headroom = est.headroom;
+  const tight = headroom >= 0 && (headroom / usable) < 0.2;
+  const fillPct = Math.min(100, Math.max(0, (est.peak / usable) * 100));
+
+  let verdictText = "";
+  let verdictClass = "";
+  if (headroom < 0) {
+    verdictClass = "verdict-bad";
+    verdictText = "❌ Crosses the usable line by " + (-headroom).toFixed(1) + " GB. Expect swap thrashing or an OOM kill. Lower sequence length, micro-batch, K, or LoRA rank. Or quantize base and stay with LoRA.";
+  } else if (tight) {
+    verdictClass = "verdict-tight";
+    verdictText = "⚠️ Inside " + usable + " GB, but tight (less than 20% headroom). Metal may page if macOS or browser wake up.";
+  } else {
+    verdictClass = "verdict-good";
+    verdictText = "✅ Fits with room (" + headroom.toFixed(1) + " GB headroom). Still measure on metal with mx.get_peak_memory(). The cup is a hypothesis.";
+  }
+
+  return '<article>' +
+    '<div class="kicker">Instrument</div>' +
+    '<h1 class="page-title">What 24 GB actually holds</h1>' +
+    '<p class="page-lede">Peak is weights, plus optimizer state, plus whichever is larger of activations and KV cache, plus a flat gigabyte for the runtime. The cup is the usable budget, not the sticker on the laptop.</p>' +
+    '<div class="presets-bar">' +
+      '<span style="font-size: 0.85rem; color: var(--color-muted); align-self: center; margin-right: 0.25rem;">Presets:</span>' +
+      Object.entries(PRESETS).map(([k, p]) =>
+        '<button type="button" class="preset-chip" onclick="applyPreset(\'' + k + '\')">' + p.name + '</button>'
+      ).join("") +
+    '</div>' +
+    '<div class="panel">' +
+      '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">' +
+        '<div>' +
+          '<div style="font-size: 0.85rem; color: var(--color-muted);">Peak memory, estimated</div>' +
+          '<div style="font-family: var(--font-serif); font-size: 3.25rem; line-height: 1.1; margin-top: 0.25rem; font-weight: 500;">' +
+            est.peak.toFixed(1) + ' GB' +
+          '</div>' +
+          '<div class="verdict-banner ' + verdictClass + '">' + verdictText + '</div>' +
+          '<div class="cup-container">' +
+            '<div class="cup-bar-track">' +
+              '<div class="cup-bar-fill" style="width: ' + fillPct + '%;">' +
+                '<div class="cup-segment seg-weights" style="flex-grow: ' + est.weights + ';" title="Weights: ' + est.weights.toFixed(1) + ' GB"></div>' +
+                '<div class="cup-segment seg-opt" style="flex-grow: ' + est.optimizer + ';" title="Optimizer: ' + est.optimizer.toFixed(1) + ' GB"></div>' +
+                '<div class="cup-segment seg-hot" style="flex-grow: ' + est.resident + ';" title="Hot (Act/KV): ' + est.resident.toFixed(1) + ' GB"></div>' +
+                '<div class="cup-segment seg-runtime" style="flex-grow: ' + est.runtime + ';" title="Runtime: 1.0 GB"></div>' +
+              '</div>' +
+            '</div>' +
+            '<div class="cup-scale">' +
+              '<span>0 GB</span>' +
+              '<span>' + (headroom < 0 ? 'over by ' + (-headroom).toFixed(1) + ' GB' : headroom.toFixed(1) + ' GB headroom') + '</span>' +
+              '<span>' + usable + ' GB usable</span>' +
+            '</div>' +
+            '<div class="cup-legend">' +
+              '<div class="legend-item"><span style="display:flex; align-items:center;"><span class="legend-bullet seg-weights"></span>Weights</span><span class="field-val">' + est.weights.toFixed(1) + ' GB</span></div>' +
+              '<div class="legend-item"><span style="display:flex; align-items:center;"><span class="legend-bullet seg-opt"></span>Optimizer</span><span class="field-val">' + est.optimizer.toFixed(1) + ' GB</span></div>' +
+              '<div class="legend-item"><span style="display:flex; align-items:center;"><span class="legend-bullet seg-hot"></span>' + (state.calc.mode === 'grpo' && est.kv > est.activations ? 'KV Cache' : 'Activations') + '</span><span class="field-val">' + est.resident.toFixed(1) + ' GB</span></div>' +
+              '<div class="legend-item"><span style="display:flex; align-items:center;"><span class="legend-bullet seg-runtime"></span>Runtime</span><span class="field-val">1.0 GB</span></div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div style="border-top: 1px solid var(--color-line); padding-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">' +
+          '<div>' +
+            '<div class="spec-label">Effective batch</div>' +
+            '<div style="font-family: var(--font-mono); font-size: 1.25rem;">' + est.effectiveBatch + '</div>' +
+            '<div class="field-val">micro-batch (' + state.calc.micro + ') × accum (' + state.calc.accum + ')</div>' +
+          '</div>' +
+          '<div>' +
+            '<div class="spec-label">Optimizer steps</div>' +
+            '<div style="font-family: var(--font-mono); font-size: 1.25rem; color: var(--color-good);">' + est.steps.toLocaleString() + '</div>' +
+            '<div class="field-val">epochs (' + state.calc.epochs + ') × rows (' + state.calc.rows.toLocaleString() + ') ÷ batch</div>' +
+          '</div>' +
+          '<div>' +
+            '<div class="spec-label">Headroom</div>' +
+            '<div style="font-family: var(--font-mono); font-size: 1.25rem;">' + Math.max(0, headroom).toFixed(1) + ' GB (' + Math.max(0, (headroom/usable)*100).toFixed(0) + '%)</div>' +
+            '<div class="field-val">of ' + usable + ' GB usable GPU pool</div>' +
+          '</div>' +
+          '<div>' +
+            '<div class="spec-label">Decode ceiling</div>' +
+            '<div style="font-family: var(--font-mono); font-size: 1.25rem;">' + est.tokensPerSec.toFixed(1) + ' tok/s</div>' +
+            '<div class="field-val">0.6 × 120 GB/s ÷ weight GB</div>' +
+          '</div>' +
+          (state.calc.mode === 'grpo' ?
+            '<div>' +
+              '<div class="spec-label">GRPO generation time / step</div>' +
+              '<div style="font-family: var(--font-mono); font-size: 1.25rem;">' + (est.genSeconds ? est.genSeconds.toFixed(1) + ' s' : 'n/a') + '</div>' +
+              '<div class="field-val">' + (est.rolloutsPerEpoch || 0).toLocaleString() + ' rollouts per epoch</div>' +
+            '</div>' : '') +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">' +
+        '<div class="segment-group">' +
+          '<div class="segment-label">Paradigm</div>' +
+          '<div class="segment-buttons">' +
+            '<button type="button" class="seg-btn ' + (state.calc.mode === 'sft' ? 'active' : '') + '" onclick="updateCalc({mode: \'sft\'})">SFT / CPT</button>' +
+            '<button type="button" class="seg-btn ' + (state.calc.mode === 'dpo' ? 'active' : '') + '" onclick="updateCalc({mode: \'dpo\'})">DPO</button>' +
+            '<button type="button" class="seg-btn ' + (state.calc.mode === 'grpo' ? 'active' : '') + '" onclick="updateCalc({mode: \'grpo\'})">GRPO</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="segment-group">' +
+          '<div class="segment-label">Model</div>' +
+          '<div class="segment-buttons">' +
+            MODELS.map(m =>
+              '<button type="button" class="seg-btn ' + (state.calc.modelId === m.id ? 'active' : '') + '" onclick="updateCalc({modelId: \'' + m.id + '\'})">' + m.label + '</button>'
+            ).join("") +
+          '</div>' +
+        '</div>' +
+        '<div class="segment-group">' +
+          '<div class="segment-label">Base precision</div>' +
+          '<div class="segment-buttons">' +
+            '<button type="button" class="seg-btn ' + (state.calc.bytes === 2 ? 'active' : '') + '" onclick="updateCalc({bytes: 2})">bf16 (2 B)</button>' +
+            '<button type="button" class="seg-btn ' + (state.calc.bytes === 0.56 ? 'active' : '') + '" onclick="updateCalc({bytes: 0.56})">4-bit (0.56 B)</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="segment-group">' +
+          '<div class="segment-label">Method</div>' +
+          '<div class="segment-buttons">' +
+            '<button type="button" class="seg-btn ' + (state.calc.method === 'lora' ? 'active' : '') + '" onclick="updateCalc({method: \'lora\'})">LoRA / DoRA</button>' +
+            '<button type="button" class="seg-btn ' + (state.calc.method === 'full' ? 'active' : '') + '" onclick="updateCalc({method: \'full\'})">Full Fine-tune</button>' +
+          '</div>' +
+        '</div>' +
+        '<div class="segment-group">' +
+          '<div class="segment-label">Sequence length (T)</div>' +
+          '<div class="segment-buttons">' +
+            [512, 1024, 2048, 4096].map(s =>
+              '<button type="button" class="seg-btn ' + (state.calc.seq === s ? 'active' : '') + '" onclick="updateCalc({seq: ' + s + '})">' + s + '</button>'
+            ).join("") +
+          '</div>' +
+        '</div>' +
+        '<div class="segment-group">' +
+          '<div class="segment-label">Gradient Checkpointing</div>' +
+          '<div class="segment-buttons">' +
+            '<button type="button" class="seg-btn ' + (state.calc.checkpoint ? 'active' : '') + '" onclick="updateCalc({checkpoint: true})">On (~6× less act)</button>' +
+            '<button type="button" class="seg-btn ' + (!state.calc.checkpoint ? 'active' : '') + '" onclick="updateCalc({checkpoint: false})">Off</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">' +
+        '<div>' +
+          '<div class="field-label"><span>Dataset rows (N)</span><span class="field-val">' + state.calc.rows.toLocaleString() + '</span></div>' +
+          '<input type="range" min="200" max="25000" step="100" value="' + state.calc.rows + '" oninput="updateCalc({rows: +this.value})" />' +
+        '</div>' +
+        '<div>' +
+          '<div class="field-label"><span>Epochs</span><span class="field-val">' + state.calc.epochs + '</span></div>' +
+          '<input type="range" min="0.5" max="5" step="0.5" value="' + state.calc.epochs + '" oninput="updateCalc({epochs: +this.value})" />' +
+        '</div>' +
+        '<div>' +
+          '<div class="field-label"><span>Micro-batch</span><span class="field-val">' + state.calc.micro + '</span></div>' +
+          '<input type="range" min="1" max="8" step="1" value="' + state.calc.micro + '" oninput="updateCalc({micro: +this.value})" />' +
+        '</div>' +
+        '<div>' +
+          '<div class="field-label"><span>Grad accumulation</span><span class="field-val">' + state.calc.accum + '</span></div>' +
+          '<input type="range" min="1" max="8" step="1" value="' + state.calc.accum + '" oninput="updateCalc({accum: +this.value})" />' +
+        '</div>' +
+        '<div>' +
+          '<div class="field-label"><span>LoRA rank r</span><span class="field-val">' + state.calc.rank + '</span></div>' +
+          '<input type="range" min="4" max="64" step="4" value="' + state.calc.rank + '" oninput="updateCalc({rank: +this.value})" />' +
+        '</div>' +
+        '<div>' +
+          '<div class="field-label"><span>GRPO group size K</span><span class="field-val">' + state.calc.group + '</span></div>' +
+          '<input type="range" min="2" max="16" step="2" value="' + state.calc.group + '" oninput="updateCalc({group: +this.value})" />' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    '<div class="prose">' +
+      '<h2 class="section-h2">Where the numbers come from</h2>' +
+      '<p>Full fine-tuning stores the parameters three times: once as weights in bf16 (2 bytes), once as gradients in fp32 (4 bytes), and twice more inside the Adam optimizer for the first and second moments (another 8 bytes, or 6 with 8-bit Adam). The weights are not the expense; Adam is.</p>' +
+      '<p>The KV cache grows in a straight line with context and with K. The thing that grows with the square of the context is the attention score matrix, and checkpointing is what stops you from storing it. People fear long context for the quadratic reason and then run out of memory for the linear one.</p>' +
+      '<p>Generation is waiting on memory. To emit one token the chip rereads the weights. At about 120 GB/s, a 3.4 GB bf16 model has a ceiling near 20 tokens a second, and the 0.6 in the formula is a tax for not being a perfect machine. Extra streams in one step share that read, so raising K is nearly free in time and expensive in cache.</p>' +
+    '</div>' +
+    '<div class="formula-box">' +
+      '<div class="formula-caption">The hypothesis, in the units the cup uses</div>' +
+      '<pre class="code-block">weights     = params × bytes per param\nfull state  = params × 12 bytes, weights included\nLoRA state  = params × rank × 0.00035 × 16 bytes\nactivations = sequences × T × (1.15 MB × paramsB × checkpoint + 0.26 MB)\nKV cache    = K × T × 0.07 MB × paramsB\ndecode      = 0.6 × 120 GB/s ÷ weight GB\ncheckpoint  = 0.15, otherwise 1\nDPO sequences = micro-batch × 2\nGRPO sequences = micro-batch × K</pre>' +
+    '</div>' +
+    renderPredict('full-17') +
+    renderPredict('logits') +
+    renderPredict('bound') +
+  '</article>';
+}
+
+function renderParadigms() {
+  const selectedGoal = state.selectedGoal || "taste";
+  const GOALS = [
+    {
+      id: "facts",
+      label: "I want the model to know a corpus it has not read",
+      pick: "Continued pre-training",
+      why: "New facts are wide. You are changing what the model finds unsurprising in the wild, which is next-token loss on the raw text, not on a chat template.",
+      not: "Supervised fine-tuning on a summary teaches the summary. A rank-8 adapter will starve before the library is absorbed."
+    },
+    {
+      id: "format",
+      label: "I want tool calls and a reasoning shape I already know how to teach",
+      pick: "Supervised fine-tuning (ToolGrad Answer-First)",
+      why: "Format is a narrow habit. You have already done this with LoRA. Low rank, a masked prompt, and ToolGrad answer-first workflows guarantee valid APIs without DFS search dropouts.",
+      not: "GRPO is for when you can score an output and cannot write the target. If you can write the target, write it."
+    },
+    {
+      id: "doom",
+      label: "My small model gets stuck repeating reasoning loops ('let me reconsider...')",
+      pick: "Antidoom FTPO (Final Token Preference)",
+      why: "Full-sequence DPO ruins reasoning stamina and penalizes innocent earlier tokens. FTPO applies preference exclusively at the single bifurcation token against ~20 alternatives, with an MSE raw-logit stability penalty.",
+      not: "Do not add negative reward to the whole trace in GRPO. The model will simply learn to output short, clipped answers to dodge the loop penalty."
+    },
+    {
+      id: "surgery",
+      label: "I have 0 GB left for Adam and want to ablate sycophancy or refusals",
+      pick: "Weight-Space Surgery (MPOA / Heretic)",
+      why: "Magnitude-Preserving Orthogonal Ablation removes the unwanted feature direction directly from weight matrices using linear algebra. No backward passes, 0 MB Adam memory, runs in 3 minutes on M4.",
+      not: "Do not train LoRA with high learning rates to 'force' compliance. It will disrupt adjacent reasoning heads and cause catastrophic forgetting."
+    },
+    {
+      id: "taste",
+      label: "I can write both answers, and I know which one I would defend",
+      pick: "DPO, or ORPO if memory is the bind",
+      why: "You have a preference, not a scalar. The loss moves the model toward the chosen answer and away from the rejected one, measured against who the model was.",
+      not: "Training only on the chosen answer never shows the model the specific failure you are trying to make less likely."
+    },
+    {
+      id: "score",
+      label: "I can write a program that scores an answer, but not the answer",
+      pick: "GRPO",
+      why: "The group is the baseline. JSON shape, a unit test, a Brier score against a known label: anything you can check can be a reward, with no reward model in memory.",
+      not: "DPO requires you to author the rejected answer. If the check is mechanical, stop writing pairs."
+    },
+    {
+      id: "teacher",
+      label: "A larger model already solves it, and I want the small one to follow",
+      pick: "Distillation, offline",
+      why: "Generate the teacher’s traces somewhere that can hold the teacher. Store them. Then supervise the small model, or run DPO against a weaker trace. On 24 GB you do not keep a frontier teacher beside the student.",
+      not: "Continued pre-training on the teacher’s essays is a blurry copy of this. A procedure transfers better when the trace still shows the steps."
+    }
+  ];
+
+  const PARADIGM_ROWS = [
+    {
+      name: "CPT",
+      sentence: "Be less surprised by this text.",
+      loss: "L = −Σ log P(xₜ | x<ₜ)",
+      gloss: "Reading a library. It changes what the model knows, and it is wide.",
+      cost: "Many tokens. Full fine-tune only at or under about half a billion parameters."
+    },
+    {
+      name: "SFT",
+      sentence: "Be less surprised by this answer, given the question.",
+      loss: "L = −Σ log P(yₜ | x, y<ₜ)",
+      gloss: "Etiquette. It changes how the model presents what it already, roughly, knows.",
+      cost: "The cheap one. You have already shipped it."
+    },
+    {
+      name: "DPO",
+      sentence: "Prefer this answer over that one, relative to who you were.",
+      loss: "L = −log σ( β · [ log π(y_w)/π_ref(y_w) − log π(y_l)/π_ref(y_l) ] )",
+      gloss: "Taste. A comparison, not an imitation. ORPO is the same dataset with the reference folded into the supervised loss.",
+      cost: "About twice the activations of SFT, because every pair is two sequences."
+    },
+    {
+      name: "FTPO (Antidoom)",
+      sentence: "Prefer any alternative over the looping token, only where the loop begins.",
+      loss: "L = −log σ(β · [log Σ π(alt) − log π(loop)]) + λ_stab · ‖z_θ − z_ref‖²",
+      gloss: "Surgical anti-pathology. Cures doom loops in small models without harming reasoning depth or format.",
+      cost: "T=1 sequence length at loss time. Minimal activation overhead."
+    },
+    {
+      name: "GRPO",
+      sentence: "Do more of what scored above your own average.",
+      loss: "L ≈ −mean(advantage · log π(answer)) + β · KL(π ‖ π_ref)",
+      gloss: "Graded on a curve, against your own samples. No teacher, no reward model.",
+      cost: "Rollouts dominate the clock. K dominates the cache."
+    },
+    {
+      name: "Weight Surgery",
+      sentence: "Project the weights onto the orthogonal complement of the bad behavior.",
+      loss: "W' = W(I − v̂ v̂ᵀ) · (‖W‖_F / ‖W_⊥‖_F)",
+      gloss: "Surgery without an optimizer. Ablates refusals, sycophancy, or loop neurons in minutes with zero Adam state.",
+      cost: "0 bytes of optimizer state. Pure in-memory matrix multiplication."
+    },
+    {
+      name: "Distillation",
+      sentence: "Match the teacher’s answers, and if you can, the teacher’s probabilities.",
+      loss: "L = (1−α)·L_CE(student, y) + α·T²·KL(student ‖ teacher)",
+      gloss: "Apprenticeship. The teacher’s inference is the cost, and it does not have to happen on this Mac.",
+      cost: "The student is an SFT or DPO run. The teacher is a bill you pay elsewhere."
+    }
+  ];
+
+  const currentGoal = GOALS.find(g => g.id === selectedGoal) || GOALS[2];
+
+  return '<article>' +
+    '<div class="kicker">Five losses</div>' +
+    '<h1 class="page-title">Each loss is a sentence about a punishment</h1>' +
+    '<p class="page-lede">Read the sentence before the symbol. If you cannot say what the model is being punished for, you are not ready to pick a learning rate.</p>' +
+    '<div style="margin-top: 2rem; border-top: 1px solid var(--color-line);">' +
+      PARADIGM_ROWS.map(r =>
+        '<div style="padding: 1.5rem 0; border-bottom: 1px solid var(--color-line);">' +
+          '<div class="kicker">' + r.name + '</div>' +
+          '<div class="sentence">\"' + r.sentence + '\"</div>' +
+          '<div style="font-family: var(--font-mono); font-size: 0.85rem; color: var(--color-ember); margin: 0.35rem 0;">' + r.loss + '</div>' +
+          '<p style="margin-top: 0.5rem; color: var(--color-ink);">' + r.gloss + '</p>' +
+          '<p style="margin-top: 0.25rem; font-size: 0.875rem; color: var(--color-secondary);">M4 cost: ' + r.cost + '</p>' +
+        '</div>'
+      ).join("") +
+    '</div>' +
+    '<div class="prose">' +
+      '<h2 class="section-h2">How Tools are Actually Learned: The ToolGrad Inversion</h2>' +
+      '<p>Every small model tutorial assumes you already possess pristine tool-calling traces. In reality, generating synthetic tool data via Depth-First Search (ToolBench, ToolACE) is a disaster: you sample an open-ended user prompt, let an agent bumble through API calls, and watch <strong>80% of paths fail</strong> due to invalid arguments or syntax errors.</p>' +
+      '<p><strong>ToolGrad (Google XR / ACL 2026)</strong> inverts the pipeline: <strong>Answer-First</strong>. Instead of guessing forward, it chains valid tool executions first using <em>textual gradients</em>, and then writes the user query in a single forward pass.</p>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<div class="panel-title">The ToolGrad Optimization Loop (ACL 2026)</div>' +
+      '<p style="font-size: 0.875rem; color: var(--color-secondary); margin-top: 0.35rem;">' +
+        'Comparing Traditional Machine Learning, TextGrad (Prompt Optimization), and ToolGrad (Dataset Optimization):' +
+      '</p>' +
+      '<div style="overflow-x: auto; margin-top: 1rem;">' +
+        '<table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; font-family: var(--font-mono);">' +
+          '<thead>' +
+            '<tr style="border-bottom: 2px solid var(--color-line); text-align: left;">' +
+              '<th style="padding: 0.5rem;">Component</th>' +
+              '<th style="padding: 0.5rem;">Machine Learning</th>' +
+              '<th style="padding: 0.5rem;">TextGrad</th>' +
+              '<th style="padding: 0.5rem; color: var(--color-ember);">ToolGrad (Answer-First)</th>' +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' +
+            '<tr style="border-bottom: 1px solid var(--color-line);">' +
+              '<td style="padding: 0.5rem; font-weight: 600;">Variable</td>' +
+              '<td style="padding: 0.5rem;">Weights θ</td>' +
+              '<td style="padding: 0.5rem;">Prompt φ</td>' +
+              '<td style="padding: 0.5rem; color: var(--color-ember);">Dataset D = {query, Workflow, response}</td>' +
+            '</tr>' +
+            '<tr style="border-bottom: 1px solid var(--color-line);">' +
+              '<td style="padding: 0.5rem; font-weight: 600;">Mini-batch</td>' +
+              '<td style="padding: 0.5rem;">Samples (x, y)</td>' +
+              '<td style="padding: 0.5rem;">Samples (x, y)</td>' +
+              '<td style="padding: 0.5rem; color: var(--color-ember);">{API} subset from 16k+ library</td>' +
+            '</tr>' +
+            '<tr style="border-bottom: 1px solid var(--color-line);">' +
+              '<td style="padding: 0.5rem; font-weight: 600;">"Gradients"</td>' +
+              '<td style="padding: 0.5rem;">∇_θ Loss (numerical)</td>' +
+              '<td style="padding: 0.5rem;">LLM Critic ("critique draft")</td>' +
+              '<td style="padding: 0.5rem; color: var(--color-ember);">API Selector ("select best execution report")</td>' +
+            '</tr>' +
+            '<tr>' +
+              '<td style="padding: 0.5rem; font-weight: 600;">Update step</td>' +
+              '<td style="padding: 0.5rem;">θ ← θ − η ∇ Loss</td>' +
+              '<td style="padding: 0.5rem;">Prompt rewrite</td>' +
+              '<td style="padding: 0.5rem; color: var(--color-ember);">Workflow ← Workflow + API_best; Updater writes query</td>' +
+            '</tr>' +
+          '</tbody>' +
+        '</table>' +
+      '</div>' +
+      '<div class="toolgrad-flow">' +
+        '<div class="toolgrad-card">' +
+          '<div class="toolgrad-num">01</div>' +
+          '<div class="badge-tag badge-ember">API Proposer</div>' +
+          '<p style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--color-ink);">Samples m promising APIs from library to extend current state.</p>' +
+        '</div>' +
+        '<div class="toolgrad-card">' +
+          '<div class="toolgrad-num">02</div>' +
+          '<div class="badge-tag badge-azure">Parallel Executors</div>' +
+          '<p style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--color-ink);">Executes candidates in sandbox; generates real execution reports.</p>' +
+        '</div>' +
+        '<div class="toolgrad-card">' +
+          '<div class="toolgrad-num">03</div>' +
+          '<div class="badge-tag badge-good">API Selector (∇)</div>' +
+          '<p style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--color-ink);">Applies textual gradient: picks the single best execution to append.</p>' +
+        '</div>' +
+        '<div class="toolgrad-card">' +
+          '<div class="toolgrad-num">04</div>' +
+          '<div class="badge-tag badge-ember">LLM Updater</div>' +
+          '<p style="font-size: 0.85rem; margin-top: 0.5rem; color: var(--color-ink);">Reverse-synthesizes the exact user query and AI final answer.</p>' +
+        '</div>' +
+      '</div>' +
+      '<p style="margin-top: 1rem; font-size: 0.85rem; color: var(--color-good);">' +
+        '✓ Pass rate: ~99.8% (vs &lt;20% for ToolBench DFS). 500 ToolGrad rows elevate small 1.7B–4B models to match proprietary models on BFCL.' +
+      '</p>' +
+    '</div>' +
+    renderPredict('toolgrad') +
+    '<div class="prose">' +
+      '<h2 class="section-h2">Which one, given the thing you actually want</h2>' +
+      '<p>Pick the aim. The panel displays the right instrument and the trap people fall into by habit.</p>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<div style="display: flex; flex-direction: column; gap: 0.5rem;">' +
+        GOALS.map(g =>
+          '<button type="button" class="btn-secondary" style="justify-content: flex-start; text-align: left; padding: 0.75rem 1rem; border-color: ' + (selectedGoal === g.id ? 'var(--color-ember)' : 'var(--color-line)') + '; background: ' + (selectedGoal === g.id ? 'var(--color-raised)' : 'var(--color-card)') + ';" onclick="selectGoal(\'' + g.id + '\')">' +
+            '<span style="display: inline-block; width: 8px; height: 8px; border-radius: 50%; background: ' + (selectedGoal === g.id ? 'var(--color-ember)' : 'var(--color-stone)') + '; margin-right: 0.5rem;"></span>' +
+            g.label +
+          '</button>'
+        ).join("") +
+      '</div>' +
+      '<div style="margin-top: 1.5rem; padding-top: 1.25rem; border-top: 1px dashed var(--color-line);">' +
+        '<div style="font-size: 1.1rem; font-weight: 500; color: var(--color-ink);">' +
+          'Pick: <span class="term">' + currentGoal.pick + '</span>' +
+        '</div>' +
+        '<p style="margin-top: 0.5rem; font-size: 0.95rem; color: var(--color-ink); line-height: 1.6;">' +
+          '<strong>Why:</strong> ' + currentGoal.why +
+        '</p>' +
+        '<p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--color-secondary); line-height: 1.6;">' +
+          '<strong>What not to do:</strong> ' + currentGoal.not +
+        '</p>' +
+      '</div>' +
+    '</div>' +
+  '</article>';
+}
+
+function renderDrift() {
+  const lambda = state.lambda !== undefined ? state.lambda : 0.20;
+  const slots = 8;
+  const general = Math.round(slots * lambda);
+
+  return '<article>' +
+    '<div class="kicker">CPT against SFT</div>' +
+    '<h1 class="page-title">Knowledge is wide. Style is narrow.</h1>' +
+    '<p class="page-lede">Supervised fine-tuning changes a habit: the shape of a tool call, the manners of an answer. Continued pre-training tries to change what the model knows. Those are different sizes of edit, and the hardware only has room for the large one on the smallest model.</p>' +
+    '<div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">' +
+      '<div class="panel" style="margin-top: 0;">' +
+        '<div class="kicker">Weight Drift · ρ</div>' +
+        '<h3 class="section-h3">How far the river left its bed</h3>' +
+        '<div class="formula-box"><pre class="code-block">ρ = ‖W_after − W_before‖ / ‖W_before‖</pre></div>' +
+        '<p style="font-size: 0.9rem; color: var(--color-secondary);">Compute it per layer: one number, about ten lines of MLX. A small ρ means you are still mostly the old model with a new habit.</p>' +
+      '</div>' +
+      '<div class="panel" style="margin-top: 0;">' +
+        '<div class="kicker">Forgetting · F</div>' +
+        '<h3 class="section-h3">A palimpsest</h3>' +
+        '<div class="formula-box"><pre class="code-block">F = PPL_general(after) − PPL_general(before)</pre></div>' +
+        '<p style="font-size: 0.9rem; color: var(--color-secondary);">The parchment is finite; new writing scrapes the old. Use a fixed held-out slice of general text. A rising F is the bill for the drift.</p>' +
+      '</div>' +
+      '<div class="panel" style="margin-top: 0;">' +
+        '<div class="kicker">Intrinsic Dimension · r</div>' +
+        '<h3 class="section-h3">The mixing desk</h3>' +
+        '<div class="formula-box"><pre class="code-block">ΔW = (α / r) · B · A, rank(ΔW) ≤ r</pre></div>' +
+        '<p style="font-size: 0.9rem; color: var(--color-secondary);">LoRA adds r new directions. For 10,000 pages of new text, 8 directions starve. For calligraphy, 16 directions are plenty.</p>' +
+      '</div>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<div class="panel-title">Replay Mixer: Batch of 8 sequences</div>' +
+      '<div style="margin-top: 1rem;">' +
+        '<div class="field-label"><span>λ (fraction spent on general replay)</span><span class="field-val">' + lambda.toFixed(2) + '</span></div>' +
+        '<input type="range" min="0" max="0.5" step="0.05" value="' + lambda + '" oninput="updateLambda(+this.value)" />' +
+        '<div class="slots-grid">' +
+          Array.from({ length: slots }, (_, i) => {
+            const isGen = i >= (slots - general);
+            return '<div class="slot-item ' + (isGen ? 'slot-general' : 'slot-domain') + '"><span>Seat ' + (i+1) + '</span><strong>' + (isGen ? 'General' : 'Domain') + '</strong></div>';
+          }).join("") +
+        '</div>' +
+        '<p style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-secondary);">' +
+          (general === 0 
+            ? "No seat is spent remembering the old language. Domain perplexity will look wonderful. Forgetting is unsupervised."
+            : (slots - general) + ' domain sequences, ' + general + ' general replay. You are intentionally buying back general capabilities at a modest loss on domain perplexity.') +
+        '</p>' +
+      '</div>' +
+    '</div>' +
+    '<div class="prose">' +
+      '<h2 class="section-h2">Experiment E4: The one that fits 24 GB</h2>' +
+      '<p><strong>Model:</strong> LFM2, 350M or 450M (not 1.7B). <strong>Arms:</strong> LoRA at rank 16, LoRA at rank 64, and full fine-tuning. Cross each with λ = 0 and λ = 0.2. Same token budget, same sequence length, checkpointing on.</p>' +
+      '<p><strong>Log per arm:</strong> ρ for every layer, perplexity on the domain, perplexity on the frozen general slice, and function-calling accuracy from your old SFT adapter.</p>' +
+      '<p><strong>Hypothesis:</strong> Full fine-tune wins on domain perplexity and pays F. Replay shrinks F by more than it costs the domain. If rank 64 matches full fine-tune on domain, you have found the intrinsic dimension of your corpus.</p>' +
+    '</div>' +
+    renderPredict('kant') +
+    renderPredict('rank8') +
+  '</article>';
+}
+
+function renderDpo() {
+  const gap = state.dpoGap !== undefined ? state.dpoGap : 0.0;
+  const beta = state.dpoBeta !== undefined ? state.dpoBeta : 0.10;
+  const pairId = state.dpoPairId || "A";
+  const trap = Boolean(state.dpoTrap);
+
+  const pair = DPO_PAIRS.find(p => p.id === pairId) || DPO_PAIRS[0];
+  const rejectedText = trap ? pair.trap : pair.rejected;
+  const tokC = roughTokens(pair.chosen);
+  const tokR = roughTokens(rejectedText);
+  const ratio = tokC / tokR;
+  const matched = ratio >= 0.9 && ratio <= 1.1;
+
+  const loss = dpoLoss(beta, gap);
+  const push = dpoPush(beta, gap);
+
+  const jsonSnippet = JSON.stringify({
+    prompt: pair.prompt,
+    chosen: pair.chosen,
+    rejected: rejectedText,
+    meta: { axis: pair.id, tok_c: tokC, tok_r: tokR, topic: pair.topic, trap: trap }
+  }, null, 2);
+
+  // SVG Sigmoid Path calculation
+  const w = 500, h = 180, padL = 35, padR = 15, padT = 15, padB = 25;
+  const xOf = g => padL + ((g + 4) / 8) * (w - padL - padR);
+  const yOf = p => padT + (1 - p) * (h - padT - padB);
+  const pts = [];
+  for (let i = 0; i <= 60; i++) {
+    const g = -4 + (8 * i) / 60;
+    pts.push(xOf(g).toFixed(1) + ',' + yOf(dpoPush(beta, g)).toFixed(1));
+  }
+  const dotX = xOf(Math.min(4, Math.max(-4, gap)));
+  const dotY = yOf(push);
+
+  return '<article>' +
+    '<div class="kicker">Preference</div>' +
+    '<h1 class="page-title">Teach a comparison, not a costume</h1>' +
+    '<p class="page-lede">DPO rewards the gap between how much you now prefer the chosen answer, relative to your old self, and the same gap on the rejected answer. Beta is the leash back to that old self. With LoRA the reference is free: the same weights, adapter off.</p>' +
+    '<div class="formula-box">' +
+      '<div class="formula-caption">The loss, then the sentence</div>' +
+      '<pre class="code-block">L = −log σ( β · [ log π(chosen)/π_ref(chosen) − log π(rejected)/π_ref(rejected) ] )\n\nThe bracket is one number. Call it g, the gap.\nL = −log σ(β · g)\npush strength = σ(−β · g)</pre>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<div class="panel-title">The push strength σ(−βg), as a curve</div>' +
+      '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1rem;">' +
+        '<div class="chart-container">' +
+          '<svg class="chart-svg" viewBox="0 0 ' + w + ' ' + h + '">' +
+            '<line x1="' + padL + '" y1="' + yOf(0) + '" x2="' + (w - padR) + '" y2="' + yOf(0) + '" stroke="var(--color-stone)" stroke-width="1" />' +
+            '<line x1="' + padL + '" y1="' + yOf(0) + '" x2="' + padL + '" y2="' + padT + '" stroke="var(--color-stone)" stroke-width="1" />' +
+            '<line x1="' + padL + '" y1="' + yOf(0.5) + '" x2="' + (w - padR) + '" y2="' + yOf(0.5) + '" stroke="var(--color-stone)" stroke-dasharray="4 4" stroke-width="1" />' +
+            '<path d="M ' + pts.join(' L ') + '" fill="none" stroke="var(--color-ink)" stroke-width="2" />' +
+            '<circle cx="' + dotX + '" cy="' + dotY + '" r="5" fill="var(--color-ember)" />' +
+            '<text x="' + xOf(-4) + '" y="' + (h - 6) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">-4</text>' +
+            '<text x="' + xOf(0) + '" y="' + (h - 6) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">0</text>' +
+            '<text x="' + xOf(4) + '" y="' + (h - 6) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">+4</text>' +
+            '<text x="6" y="' + (yOf(1) + 4) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">1.0</text>' +
+            '<text x="6" y="' + (yOf(0.5) + 4) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">0.5</text>' +
+            '<text x="6" y="' + (yOf(0) + 4) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">0.0</text>' +
+          '</svg>' +
+        '</div>' +
+        '<div>' +
+          '<div class="field-label"><span>Gap g (how far preferred)</span><span class="field-val">' + gap.toFixed(1) + '</span></div>' +
+          '<input type="range" min="-4" max="4" step="0.1" value="' + gap + '" oninput="updateDpoGap(+this.value)" />' +
+          '<div class="field-label" style="margin-top: 0.75rem;"><span>Beta β (leash tightness)</span><span class="field-val">' + beta.toFixed(2) + '</span></div>' +
+          '<input type="range" min="0.05" max="1" step="0.05" value="' + beta + '" oninput="updateDpoBeta(+this.value)" />' +
+          '<div style="margin-top: 1rem; padding: 0.75rem; background: var(--color-raised); border-radius: 6px; display: flex; justify-content: space-between;">' +
+            '<div><span class="spec-label">DPO Loss:</span> <strong style="font-family:var(--font-mono)">' + loss.toFixed(3) + '</strong></div>' +
+            '<div><span class="spec-label">Push strength:</span> <strong style="font-family:var(--font-mono); color:var(--color-ember)">' + push.toFixed(3) + '</strong></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<p style="margin-top: 1rem; font-size: 0.85rem; color: var(--color-secondary);">' +
+        'At g = 0, push is exactly 0.5. As the model solves the pair (positive g), push decays to 0 (DPO stops caring). Negative g (model backwards) pushes hard.' +
+      '</p>' +
+    '</div>' +
+    renderPredict('gap0') +
+    '<div class="prose">' +
+      '<h2 class="section-h2">Surgical Preference: Antidoom & FTPO (Final Token Preference)</h2>' +
+      '<p>Small reasoning models (LFM2 450M, LFM2.5 1.2B, LFM3 1.7B) exhibit a specific pathology: <strong>Doom Loops</strong>. The model enters a runaway repetitive cycle — e.g. <em>"Wait, let me reconsider... Wait, let me reconsider..."</em> — repeating 4, 8, or 20 times until the context window is completely exhausted without an answer.</p>' +
+      '<p><strong>Why sequence-level DPO fails:</strong> If you mark the looping trace as rejected and a correct trace as chosen, the loss distributes penalties across the whole sequence. This penalizes the <em>valid</em> reasoning steps that took place before the loop began, degrading math depth.</p>' +
+      '<p><strong>The Antidoom Solution (Liquid AI / TRL):</strong> <strong>FTPO</strong> operates exclusively at the single token position where the loop triggers. It pushes probability from the looping token toward ~20 plausible alternatives, while enforcing an <strong>MSE stability penalty on raw logits</strong> ($L_{\\text{stab}} = \\|z_\\theta - z_{\\text{ref}}\\|^2$) across the vocabulary so no other capabilities drift.</p>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<div class="panel-title">Interactive Doom Loop Repetition Detector</div>' +
+      '<p style="font-size: 0.875rem; color: var(--color-secondary); margin-top: 0.35rem;">' +
+        'Slide-window fingerprint detector from the Antidoom research pipeline. Detects period P, repeat count R, and the critical bifurcation token:' +
+      '</p>' +
+      '<div style="margin-top: 1rem;">' +
+        '<textarea style="min-height: 5.5rem; font-family: var(--font-mono); font-size: 0.85rem;" oninput="updateDoomText(this.value)">' + state.doomText + '</textarea>' +
+        '<div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">' +
+          '<button type="button" class="btn-secondary" onclick="loadDoomPreset(\'loop\')">Load Runaway Doom Loop</button>' +
+          '<button type="button" class="btn-secondary" onclick="loadDoomPreset(\'clean\')">Load Clean Chain-of-Thought</button>' +
+        '</div>' +
+        '<div class="doom-hit-box">' +
+          (detectRepetition(state.doomText).found ?
+            '<div style="color: var(--color-bad); font-weight: 600;">⚠️ DOOM LOOP CONFIRMED</div>' +
+            '<div style="margin-top: 0.35rem;">Period: <strong>' + detectRepetition(state.doomText).period + ' chars</strong> · Repeated: <strong>' + detectRepetition(state.doomText).repeats + ' times</strong></div>' +
+            '<div style="margin-top: 0.35rem;">Loop phrase: <span class="doom-token-highlight">"' + detectRepetition(state.doomText).pattern + '"</span></div>' +
+            '<div style="margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px dashed var(--color-line);">' +
+              '🎯 <strong>FTPO Intervention:</strong> Single-token loss applied at index ' + detectRepetition(state.doomText).start + '. Suppress token <code style="color:var(--color-bad)">' + detectRepetition(state.doomText).bifurcationToken + '</code> and redirect logits to candidate alternatives: <code>["Next", "Therefore", "Alternatively", "Notice"]</code>.' +
+            '</div>' :
+            '<div style="color: var(--color-good); font-weight: 600;">✅ CLEAN OUTPUT — No repetitive doom loop detected.</div>' +
+            '<div style="margin-top: 0.35rem; color: var(--color-secondary);">Generation is free of exact recurring periods exceeding the threshold.</div>'
+          ) +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    renderPredict('ftpo') +
+    '<div class="prose">' +
+      '<h2 class="section-h2">Building the epistemic dataset</h2>' +
+      '<p><strong>The trap:</strong> if every chosen answer says \"it is uncertain, scholars disagree…\" and every rejected one is blunt, DPO learns <em>hedge-word register</em> — not calibration. Also, DPO is known to drift toward longer outputs. Design against both.</p>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<div class="panel-title">Four Pairs to Guard Against Cheating</div>' +
+      '<div style="display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 1rem;">' +
+        DPO_PAIRS.map(p =>
+          '<button type="button" class="btn-secondary" style="border-color: ' + (pairId === p.id ? 'var(--color-ember)' : 'var(--color-line)') + '; font-weight: ' + (pairId === p.id ? '600' : '400') + ';" onclick="selectDpoPair(\'' + p.id + '\')">' +
+            'Pair ' + p.id + ' · ' + p.type.split(" against ")[0] +
+          '</button>'
+        ).join("") +
+      '</div>' +
+      '<div style="margin-top: 1rem; font-size: 0.9rem; color: var(--color-secondary);">' +
+        '<strong>Purpose:</strong> ' + pair.purpose +
+      '</div>' +
+      '<div style="margin-top: 1.25rem;">' +
+        '<div class="spec-label">Prompt</div>' +
+        '<p style="font-family: var(--font-serif); font-size: 1.15rem; color: var(--color-ink); margin-top: 0.25rem;">' + pair.prompt + '</p>' +
+      '</div>' +
+      '<div style="margin-top: 1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1rem;">' +
+        '<div style="background: var(--color-raised); padding: 1rem; border-radius: 8px;">' +
+          '<div class="kicker">Chosen · ~ ' + tokC + ' tokens</div>' +
+          '<blockquote style="font-family: var(--font-serif); font-size: 0.95rem; line-height: 1.6; margin-top: 0.5rem; color: var(--color-ink);">' + pair.chosen + '</blockquote>' +
+        '</div>' +
+        '<div style="background: var(--color-raised); padding: 1rem; border-radius: 8px;">' +
+          '<div class="kicker">Rejected · ~ ' + tokR + ' tokens</div>' +
+          '<blockquote style="font-family: var(--font-serif); font-size: 0.95rem; line-height: 1.6; margin-top: 0.5rem; color: var(--color-ink);">' + rejectedText + '</blockquote>' +
+        '</div>' +
+      '</div>' +
+      '<div style="margin-top: 1rem; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem;">' +
+        '<div style="font-size: 0.875rem; color: ' + (matched ? 'var(--color-good)' : 'var(--color-bad)') + '; font-weight: 500;">' +
+          (matched 
+            ? '✓ Length ratio ' + ratio.toFixed(2) + ' (within ±10%). Length shortcut is closed.'
+            : '⚠ Length ratio ' + ratio.toFixed(2) + ' (outside ±10%). The model can cheat by counting tokens.') +
+        '</div>' +
+        '<div style="display: flex; gap: 0.5rem;">' +
+          '<button type="button" class="btn-secondary" onclick="toggleDpoTrap()">' +
+            (trap ? 'Restore matched rejection' : 'Shorten rejection (test trap)') +
+          '</button>' +
+          '<button type="button" class="btn-primary" onclick="copyText(decodeURIComponent(\'' + encodeURIComponent(jsonSnippet) + '\'))">' +
+            'Copy JSONL' +
+          '</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+    renderPredict('phrase') +
+    '<div class="prose">' +
+      '<h2 class="section-h2">Five claims, graded by you</h2>' +
+      '<p>Uncover these only after you have written. A tick counts if the idea was already in your sentence.</p>' +
+    '</div>' +
+    renderPredict('exam-1', 'exam', ["No separate reward model is trained", "The signal is a comparison of two answers", "The comparison is relative to the reference policy"]) +
+    renderPredict('exam-2', 'exam', ["The reference is the forward pass with the adapter off", "The base weights are already in memory"]) +
+    renderPredict('exam-3', 'exam', ["The push shrinks once the pair is solved", "Unsolved or backwards pairs keep a large push"]) +
+    renderPredict('exam-4', 'exam', ["Calibration is a frequency, not a phrase", "Check it with Brier or ECE on known answers"]) +
+    renderPredict('exam-5', 'exam', ["Length is an easy feature for the loss to grab", "Match within about ten percent"]) +
+  '</article>';
+}
+
+function renderGrpo() {
+  const rewards = state.grpoRewards || [1, 1, 0, 1, 0, 0];
+  const p = state.brierP !== undefined ? state.brierP : 0.70;
+  const c = state.brierC !== undefined ? state.brierC : 1.00;
+  const jsonRaw = state.jsonRaw !== undefined ? state.jsonRaw : '{\n  "name": "Ana",\n  "age": 34,\n  "city": "Porto"\n}';
+
+  const adv = calculateAdvantages(rewards);
+  const penalty = brierScore(p, c);
+  const minPenalty = p * (1 - p);
+  const avoidable = Math.max(0, penalty - minPenalty);
+  const jsonEval = scoreJson(jsonRaw);
+
+  // Brier SVG Chart calculation
+  const w = 500, h = 180, padL = 35, padR = 15, padT = 15, padB = 25;
+  const xOf = conf => padL + conf * (w - padL - padR);
+  const yOf = pen => padT + (1 - pen / 1.0) * (h - padT - padB);
+  const pts = [];
+  for (let i = 0; i <= 50; i++) {
+    const conf = i / 50;
+    pts.push(xOf(conf).toFixed(1) + ',' + yOf(brierScore(p, conf)).toFixed(1));
+  }
+
+  return '<article>' +
+    '<div class="kicker">Policy gradient</div>' +
+    '<h1 class="page-title">Graded against your own average</h1>' +
+    '<p class="page-lede">No teacher and no reward model. For each prompt you sample K answers, score them with a program, and reinforce whatever beat the group. Answers below the group are suppressed. If nobody differs, nothing is learned.</p>' +
+    '<div class="formula-box">' +
+      '<div class="formula-caption">The whole method, in three lines</div>' +
+      '<pre class="code-block">sample K answers for one prompt\nscore each with a verifier → r\nadvantage = (r − mean) / (spread + ε)\nloss ≈ −mean(advantage · log π(answer)) + β · KL(π ‖ π_ref)</pre>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<div class="panel-title">Six rollouts (K=6) — Click to flip pass/fail</div>' +
+      '<div class="chips-grid">' +
+        rewards.map((r, i) =>
+          '<button type="button" class="chip-btn ' + (r ? 'chip-pass' : 'chip-fail') + '" onclick="flipGrpoReward(' + i + ')">' +
+            'o' + (i+1) + ': ' + (r ? 'PASS (+1)' : 'FAIL (0)') +
+          '</button>'
+        ).join("") +
+      '</div>' +
+      '<div style="margin-top: 1rem; display: flex; gap: 1.5rem; font-family: var(--font-mono); font-size: 0.9rem;">' +
+        '<div>Group mean: <strong>' + adv.mean.toFixed(2) + '</strong></div>' +
+        '<div>Spread (std): <strong>' + adv.std.toFixed(2) + '</strong></div>' +
+      '</div>' +
+      (adv.std < 1e-8 ?
+        '<div class="verdict-banner verdict-tight" style="margin-top: 1rem;">' +
+          '⚠️ No variance! Spread is 0.00 ⇒ Zero gradient ⇒ Nothing is learned from this prompt. Filter prompts so pass-rate is between 20% and 80%.' +
+        '</div>' :
+        '<div style="margin-top: 1.25rem; display: grid; grid-template-columns: repeat(6, 1fr); gap: 0.5rem; align-items: flex-end; height: 7rem; padding-bottom: 0.5rem; border-bottom: 1px solid var(--color-line);">' +
+          adv.values.map(v => {
+            const hPx = Math.min(60, Math.abs(v) * 35);
+            return '<div style="display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end;">' +
+              '<div style="width: 100%; max-width: 2rem; height: ' + hPx + 'px; background: ' + (v >= 0 ? 'var(--color-ink)' : 'var(--color-stone)') + '; border-radius: 3px 3px 0 0;"></div>' +
+              '<span style="font-family: var(--font-mono); font-size: 0.75rem; margin-top: 0.25rem;">' + (v > 0 ? '+' : '') + v.toFixed(2) + '</span>' +
+            '</div>';
+          }).join("") +
+        '</div>' +
+        '<p style="font-size: 0.8rem; color: var(--color-muted); margin-top: 0.5rem;">Bars represent advantages (standard deviations above/below sibling mean).</p>'
+      ) +
+    '</div>' +
+    renderPredict('allpass') +
+    '<div class="prose">' +
+      '<h2 class="section-h2">The Enemy Within: Reward Hacking under GRPO</h2>' +
+      '<p>In reinforcement learning without a teacher, policy models are ruthless optimizers. As established by <strong>Meta AI’s HackBench</strong> and agent harness research, when verifiers rely on superficial heuristics, models rapidly learn to "hack" the reward:</p>' +
+      '<ul>' +
+        '<li><strong>Empty Object Hack:</strong> Emitting valid minimal JSON <code>{}</code> or <code>{"status":"ok"}</code> to capture parsing rewards while ignoring the actual query.</li>' +
+        '<li><strong>Syntax Exploits:</strong> Injecting dummy return values in Python code cells to pass naive assert statements.</li>' +
+        '<li><strong>Boilerplate Padding:</strong> Expanding length to avoid penalties or trigger soft length rewards.</li>' +
+      '</ul>' +
+      '<p><strong>The Cure:</strong> 1) Verifiers must run inside an isolated sandbox (like NVIDIA OpenShell or SafeAgents). 2) Use reciprocal-rank rewards ($R = 1/r^*$, from Microsoft FrogNano 4B). 3) Always incorporate bidirectional KL regularization (Soft-PPO) between the active policy $\\pi_\\theta$ and the reference policy $\\pi_{\\text{ref}}$.</p>' +
+    '</div>' +
+    renderPredict('hackbench') +
+    '<div class="panel">' +
+      '<div class="panel-title">Calibration Reward (Brier Score): Why honesty wins</div>' +
+      '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem; margin-top: 1rem;">' +
+        '<div class="chart-container">' +
+          '<svg class="chart-svg" viewBox="0 0 ' + w + ' ' + h + '">' +
+            '<line x1="' + padL + '" y1="' + yOf(0) + '" x2="' + (w - padR) + '" y2="' + yOf(0) + '" stroke="var(--color-stone)" stroke-width="1" />' +
+            '<line x1="' + padL + '" y1="' + yOf(0) + '" x2="' + padL + '" y2="' + padT + '" stroke="var(--color-stone)" stroke-width="1" />' +
+            '<path d="M ' + pts.join(' L ') + '" fill="none" stroke="var(--color-ink)" stroke-width="2" />' +
+            '<circle cx="' + xOf(p) + '" cy="' + yOf(minPenalty) + '" r="4" fill="var(--color-ink)" title="Min penalty at c = p" />' +
+            '<circle cx="' + xOf(c) + '" cy="' + yOf(penalty) + '" r="5" fill="var(--color-ember)" title="Current reported confidence penalty" />' +
+            '<text x="' + xOf(0) + '" y="' + (h - 6) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">c=0</text>' +
+            '<text x="' + xOf(0.5) + '" y="' + (h - 6) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">0.5</text>' +
+            '<text x="' + xOf(1.0) + '" y="' + (h - 6) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">1.0</text>' +
+            '<text x="6" y="' + (yOf(1.0) + 4) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">1.0</text>' +
+            '<text x="6" y="' + (yOf(0) + 4) + '" font-size="10" fill="var(--color-muted)" font-family="var(--font-mono)">0.0</text>' +
+          '</svg>' +
+        '</div>' +
+        '<div>' +
+          '<div class="field-label"><span>True accuracy p</span><span class="field-val">' + p.toFixed(2) + '</span></div>' +
+          '<input type="range" min="0" max="1" step="0.05" value="' + p + '" oninput="updateBrierP(+this.value)" />' +
+          '<div class="field-label" style="margin-top: 0.75rem;"><span>Reported confidence c</span><span class="field-val">' + c.toFixed(2) + '</span></div>' +
+          '<input type="range" min="0" max="1" step="0.05" value="' + c + '" oninput="updateBrierC(+this.value)" />' +
+          '<div style="margin-top: 1rem; padding: 0.75rem; background: var(--color-raised); border-radius: 6px; font-size: 0.85rem; font-family: var(--font-mono);">' +
+            '<div>Brier Penalty: <strong>' + penalty.toFixed(3) + '</strong></div>' +
+            '<div>Optimal c = p: <strong>' + p.toFixed(2) + '</strong> (min penalty: ' + minPenalty.toFixed(3) + ')</div>' +
+            '<div style="color: var(--color-bad)">Avoidable bluffing penalty: <strong>' + avoidable.toFixed(3) + '</strong></div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+      '<div class="formula-box" style="margin-top: 1rem;"><pre class="code-block">E[penalty] = p·(1−c)² + (1−p)·c²   → strictly minimized exactly at c = p</pre></div>' +
+    '</div>' +
+    renderPredict('half') +
+    '<div class="panel">' +
+      '<div class="panel-title">Designing Verifiers: Partial Credit JSON Evaluator</div>' +
+      '<p style="font-size: 0.9rem; color: var(--color-secondary); margin-top: 0.5rem;">' +
+        'Spec: name, age, city. Age must be an integer. 0.30 for valid JSON, 0.40 for required keys, 0.30 for correct types. Edit below to test:' +
+      '</p>' +
+      '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem; margin-top: 1rem;">' +
+        '<textarea style="min-height: 8rem; font-family: var(--font-mono); font-size: 0.85rem;" oninput="updateJsonTester(this.value)">' + jsonRaw + '</textarea>' +
+        '<div style="background: var(--color-raised); padding: 1rem; border-radius: 8px;">' +
+          '<div style="font-size: 0.8rem; color: var(--color-muted);">Calculated Reward</div>' +
+          '<div style="font-family: var(--font-serif); font-size: 2.75rem; color: var(--color-ink); font-weight: 500;">' +
+            jsonEval.score.toFixed(2) + ' / 1.00' +
+          '</div>' +
+          '<ul style="margin-top: 0.5rem; font-size: 0.85rem; color: var(--color-secondary); padding-left: 1rem;">' +
+            jsonEval.notes.map(n => '<li>' + n + '</li>').join("") +
+          '</ul>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+  '</article>';
+}
+
+
+function renderSurgery() {
+  const angleDeg = state.mpoaAngle || 35;
+  const strength = state.mpoaStrength || 1.0;
+  const normPreserve = state.mpoaNorm !== undefined ? state.mpoaNorm : true;
+
+  // Vector geometry calculations
+  const angleRad = (angleDeg * Math.PI) / 180;
+  const wLen = 100;
+  const wx = wLen, wy = 0; // Vector W along x-axis
+  const vx = Math.cos(angleRad), vy = Math.sin(angleRad); // Unit direction v
+  const projLen = wLen * Math.cos(angleRad) * strength;
+  const parX = projLen * vx, parY = projLen * vy;
+  const perpX = wx - parX, perpY = wy - parY;
+  const perpLen = Math.sqrt(perpX * perpX + perpY * perpY);
+  
+  // Normalized vector (MPOA)
+  const normX = normPreserve && perpLen > 1e-4 ? (perpX / perpLen) * wLen : perpX;
+  const normY = normPreserve && perpLen > 1e-4 ? (perpY / perpLen) * wLen : perpY;
+  const normLen = Math.sqrt(normX * normX + normY * normY);
+
+  const normRatio = perpLen / wLen;
+  const cosSimBefore = Math.cos(angleRad);
+  const cosSimAfter = perpLen > 1e-4 ? (normX * vx + normY * vy) / normLen : 0;
+
+  // SVG Coordinates (Center at 160, 110)
+  const cx = 160, cy = 110, scale = 1.1;
+  const svgWx = cx + wx * scale, svgWy = cy - wy * scale;
+  const svgVx = cx + vx * 70 * scale, svgVy = cy - vy * 70 * scale;
+  const svgPerpX = cx + normX * scale, svgPerpY = cy - normY * scale;
+
+  return '<article>' +
+    '<div class="kicker">Weight-Space Programming & Heretic</div>' +
+    '<h1 class="page-title">When memory forbids Adam, operate directly</h1>' +
+    '<p class="page-lede">On an Apple M4 with 24 GB, full fine-tuning 1.7B exceeds usable RAM because Adam demands 12 bytes per parameter. But what if you don\'t use an optimizer? Two breakthroughs from <em>Developer Singularity</em> and <em>Developer Research</em> prove you can read, diagnose, and reshape model parameters without backpropagation.</p>' +
+
+    '<div style="margin-top: 2rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">' +
+      '<div class="panel" style="margin-top: 0;">' +
+        '<div class="kicker">Weight-Space Programming</div>' +
+        '<h3 class="section-h3">LLMs writing neural weights natively</h3>' +
+        '<div class="formula-box"><pre class="code-block">ΔW = LLM_reasoning(W_raw, failure_trace)</pre></div>' +
+        '<p style="font-size: 0.9rem; color: var(--color-secondary);">Takehi et al. (MIT CSAIL, Nov 2026): GPT-6 Astra edited 0.016% of Qwen3.5-0.8B weights in a Python kernel, boosting MATH-500 from 7.9% to 48.1% with zero gradient updates.</p>' +
+      '</div>' +
+      '<div class="panel" style="margin-top: 0;">' +
+        '<div class="kicker">Heretic & MPOA</div>' +
+        '<h3 class="section-h3">Magnitude-Preserving Orthogonal Ablation</h3>' +
+        '<div class="formula-box"><pre class="code-block">W_⊥ = W(I − v̂v̂ᵀ) · (‖W‖_F / ‖W_⊥‖_F)</pre></div>' +
+        '<p style="font-size: 0.9rem; color: var(--color-secondary);">Weidmann & Lai (2025–2026): Removes sycophancy, slop, or refusals by projecting weights onto the orthogonal complement of the feature vector, preserving matrix norm.</p>' +
+      '</div>' +
+      '<div class="panel" style="margin-top: 0;">' +
+        '<div class="kicker">Arbitrary-Rank Ablation (ARA)</div>' +
+        '<h3 class="section-h3">Subspace-free steering</h3>' +
+        '<div class="formula-box"><pre class="code-block">min_{W} ‖W x_harm − x_safe‖² + λ‖W x_safe − x_safe‖²</pre></div>' +
+        '<p style="font-size: 0.9rem; color: var(--color-secondary);">L-BFGS layer-by-layer micro-optimization without fixed rank restrictions. Steers representations smoothly without catastrophic perplexity spikes.</p>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="panel">' +
+      '<div class="panel-title">Interactive Vector Surgery: Magnitude-Preserving Orthogonal Ablation (MPOA)</div>' +
+      '<p style="font-size: 0.875rem; color: var(--color-secondary); margin-top: 0.35rem;">' +
+        'Observe how naive orthogonal ablation shrinks the weight norm (causing perplexity explosion), whereas MPOA restores full matrix magnitude:' +
+      '</p>' +
+      '<div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1rem;">' +
+        '<div class="vector-svg-container">' +
+          '<svg viewBox="0 0 340 220" style="width:100%; height:100%; overflow:visible;">' +
+            '<defs>' +
+              '<marker id="arrow-ink" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--color-ink)" /></marker>' +
+              '<marker id="arrow-ember" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--color-ember)" /></marker>' +
+              '<marker id="arrow-azure" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto"><path d="M0,0 L6,3 L0,6 Z" fill="var(--color-azure)" /></marker>' +
+            '</defs>' +
+            '<line x1="30" y1="' + cy + '" x2="' + cx + '" y2="' + cy + '" stroke="var(--color-line)" stroke-width="1" />' +
+            '<line x1="' + cx + '" y1="' + cy + '" x2="310" y2="' + cy + '" stroke="var(--color-line)" stroke-width="1" />' +
+            '<line x1="' + cx + '" y1="20" x2="' + cx + '" y2="200" stroke="var(--color-line)" stroke-width="1" />' +
+            // Original W
+            '<line x1="' + cx + '" y1="' + cy + '" x2="' + svgWx + '" y2="' + svgWy + '" stroke="var(--color-stone)" stroke-width="2" stroke-dasharray="4 4" />' +
+            '<text x="' + (svgWx + 8) + '" y="' + (svgWy + 4) + '" font-size="11" font-family="var(--font-mono)" fill="var(--color-muted)">W (original)</text>' +
+            // Unwanted direction v
+            '<line x1="' + cx + '" y1="' + cy + '" x2="' + svgVx + '" y2="' + svgVy + '" stroke="var(--color-ember)" stroke-width="2" marker-end="url(#arrow-ember)" />' +
+            '<text x="' + (svgVx + 6) + '" y="' + (svgVy - 4) + '" font-size="11" font-family="var(--font-mono)" fill="var(--color-ember)">v̂ (bad feature)</text>' +
+            // Ablated W
+            '<line x1="' + cx + '" y1="' + cy + '" x2="' + svgPerpX + '" y2="' + svgPerpY + '" stroke="var(--color-ink)" stroke-width="3" marker-end="url(#arrow-ink)" />' +
+            '<text x="' + (svgPerpX + 8) + '" y="' + (svgPerpY + 4) + '" font-size="12" font-family="var(--font-mono)" font-weight="600" fill="var(--color-ink)">' + (normPreserve ? 'W_MPOA' : 'W_⊥') + '</text>' +
+          '</svg>' +
+        '</div>' +
+        '<div>' +
+          '<div class="field-label"><span>Feature alignment angle θ</span><span class="field-val">' + angleDeg + '°</span></div>' +
+          '<input type="range" min="5" max="85" step="1" value="' + angleDeg + '" oninput="updateMpoaAngle(+this.value)" />' +
+          '<div class="field-label" style="margin-top: 0.75rem;"><span>Ablation strength α</span><span class="field-val">' + strength.toFixed(2) + '</span></div>' +
+          '<input type="range" min="0.2" max="1.5" step="0.05" value="' + strength + '" oninput="updateMpoaStrength(+this.value)" />' +
+          '<div style="margin-top: 1rem; display: flex; align-items: center; justify-content: space-between;">' +
+            '<span style="font-size: 0.85rem; font-weight: 500;">Magnitude Preservation (MPOA):</span>' +
+            '<button type="button" class="btn-secondary" onclick="toggleMpoaNorm()" style="padding: 0.35rem 0.75rem;">' +
+              (normPreserve ? 'ON (Full Row Norm)' : 'OFF (Raw Projection)') +
+            '</button>' +
+          '</div>' +
+          '<div style="margin-top: 1rem; padding: 0.75rem; background: var(--color-raised); border-radius: 6px; font-size: 0.85rem; font-family: var(--font-mono);">' +
+            '<div>Raw projection norm: <strong>' + (normRatio * 100).toFixed(1) + '%</strong> ' + (normRatio < 0.85 && !normPreserve ? '<span style="color:var(--color-bad);">(severe norm collapse!)</span>' : '') + '</div>' +
+            '<div>MPOA restored norm: <strong>' + (normPreserve ? '100.0%' : (normRatio * 100).toFixed(1) + '%') + '</strong></div>' +
+            '<div>Residual alignment cos(θ): <strong>' + cosSimAfter.toFixed(3) + '</strong> (down from ' + cosSimBefore.toFixed(3) + ')</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>' +
+    '</div>' +
+
+    '<div class="prose">' +
+      '<h2 class="section-h2">Case Study: The 131,072 Parameter Miracle (Astra on Qwen-0.8B)</h2>' +
+      '<p>In November 2026, researchers at MIT CSAIL gave GPT-6 Astra the raw weights of Qwen3.5-0.8B and a Python interpreter with 50 forward passes. The model had a 93% rate of hitting its token limit due to repetitive thinking loops on MATH-500, scoring a meager 7.9%.</p>' +
+      '<p>Astra diagnosed the circuit: the loop was driven by a tight cluster of late-layer MLP neurons. It edited precisely <strong>64 MLP output columns in layer 15 and 64 columns in layer 19</strong> (a total of 131,072 weights out of 800,000,000, or <strong>0.016%</strong>).</p>' +
+      '<p>With zero backpropagation and zero training steps:</p>' +
+      '<ul>' +
+        '<li><strong>MATH-500:</strong> 7.9% &rarr; <strong>48.1%</strong> (a 6x improvement)</li>' +
+        '<li><strong>GSM8K:</strong> 13.8% &rarr; <strong>67.1%</strong></li>' +
+        '<li><strong>IFEval:</strong> 21.0% &rarr; <strong>62.3%</strong> (generalizing to instruction following!)</li>' +
+        '<li><strong>Token Exhaustion:</strong> 93.0% &rarr; <strong>33.1%</strong></li>' +
+      '</ul>' +
+      '<p><strong>The Crucial Boundary:</strong> When Astra attempted the same intervention on Gemma 3 270M (which does not suffer from loop pathology, but simply makes standard algebraic errors), performance barely budged (+1%). <em>Weight surgery can cut away a pathological circuit that hides an ability; it cannot invent an ability the pretraining never encoded.</em></p>' +
+    '</div>' +
+    renderPredict('wsp') +
+    renderPredict('mpoa') +
+  '</article>';
+}
+
+function renderSchemas() {
+  const SCHEMAS = [
+    {
+      id: "cpt",
+      title: "CPT (Continued Pre-Training)",
+      note: "Raw text. No chat template. Split passages so they fit under the sequence length budgeted.",
+      code: '{"text": "A passage in the domain, unbroken by a role tag. The loss is allowed to fall on every token."}'
+    },
+    {
+      id: "sft",
+      title: "SFT (Tools and reasoning trace)",
+      note: "Stock mlx_lm.lora reads train.jsonl. A quantized model path trains as QLoRA.",
+      code: '{"messages": [\n  {"role": "user", "content": "Weather in Braga?"},\n  {"role": "assistant", "content": "<think>The city is the argument to the tool. Do not answer from memory.</think>\\n{\\"tool\\": \\"get_weather\\", \\"args\\": {\\"city\\": \\"Braga\\"}}"}\n]}'
+    },
+    {
+      id: "toolgrad",
+      title: "ToolGrad SFT (Answer-First Verified Trajectory)",
+      note: "Generated via ToolGrad (ACL 2026). The API workflow is executed and verified first, then the user query is reverse-annotated.",
+      code: '{"messages": [\n  {"role": "user", "content": "Fetch the EUR/USD exchange rate and convert 250 EUR to USD."},\n  {"role": "assistant", "content": "<think>First call exchange rate API, then apply math conversion.</think>\\n{\\"tool\\": \\"finance.get_rate\\", \\"args\\": {\\"pair\\": \\"EURUSD\\}}\\n[API_RESPONSE: 1.085]\\n{\\"tool\\": \\"calculator.multiply\\", \\"args\\": {\\"a\\": 250, \\"b\\": 1.085}}\\n[API_RESPONSE: 271.25]\\n250 EUR converts to 271.25 USD at 1.085 EUR/USD."}\n],\n "meta": {"generator": "toolgrad", "pass_rate": 0.998, "workflow_len": 2}}'
+    },
+    {
+      id: "ftpo",
+      title: "Antidoom FTPO (Final Token Preference)",
+      note: "Single-token preference. Targets the exact bifurcation token where repetition starts, with ~20 plausible alternatives.",
+      code: '{"prompt": "Solve: integrate x*cos(x) dx.",\n "prefix": "Let me think. By parts: u=x, dv=cos(x)dx. Then v=sin(x). The next step is",\n "loop_token": "Wait",\n "loop_token_id": 1420,\n "alternative_tokens": ["to", "int", "x*sin", "evaluating", "applying"],\n "alternative_token_ids": [284, 1892, 4210, 8912, 5104],\n "meta": {"intervention": "antidoom_ftpo", "period": 36, "repeats": 6}}'
+    },
+    {
+      id: "dpo",
+      title: "DPO (Epistemic preference)",
+      note: "Field names move between trainers. Keep meta for held-out topic analysis; strip if loader objects.",
+      code: '{"prompt": "Did Socrates write the Apology?",\n "chosen": "No. Plato composed the dialogue we call the Apology. Xenophon wrote a different one, and they do not match. How closely Plato tracks the historical speech is disputed. I would call Plato\'s version a literary defense, not a transcript, and I would not pretend the distance is known.",\n "rejected": "No. The Apology is not a transcript, and it is unwise to be sure. Plato wrote something, Xenophon wrote something else, and reasonable people disagree about all of it, so the careful answer is that we cannot really say who wrote what or how close any of it is.",\n "meta": {"axis": "A-and-B", "topic": "ancient-phil"}}'
+    },
+    {
+      id: "grpo",
+      title: "GRPO (Verifiable prompts)",
+      note: "Gold fields are for your python reward function, not for teacher supervision.",
+      code: '{"prompt": "Extract \'Ana, 34, Porto\' as JSON with keys name, age, city.",\n "verifier": "json_keys",\n "spec": {"keys": ["name", "age", "city"], "types": {"age": "int"}}}\n{"prompt": "Who painted Las Meninas? Reply with Answer and Confidence from 0 to 1.",\n "gold": "Velazquez",\n "answerable": true}\n{"prompt": "What did Socrates publish in 399 BCE? Reply with Answer and Confidence, or abstain.",\n "answerable": false}'
+    },
+    {
+      id: "distill",
+      title: "Distillation (Stored traces)",
+      note: "Generate these where the frontier teacher fits. Train locally with LoRA SFT or DPO.",
+      code: '{"messages": [\n  {"role": "user", "content": "Is the is-ought gap a fallacy or a warning?"},\n  {"role": "assistant", "content": "<think>Separate the narrow entailment claim from the wide claim that facts cannot bear on morals.</think> The narrow claim is a warning about smuggled premises. The wide claim does not follow."}\n]}'
+    }
+  ];
+
+
+  const FTPO_TRAINER_CODE = `import torch
+import torch.nn.functional as F
+from trl import DPOTrainer
+
+class FTPOTrainer(DPOTrainer):
+    \"\"\"
+    Surgical Antidoom Trainer: overrides compute_loss to train only
+    the single bifurcation token with an MSE raw-logit stability penalty.
+    \"\"\"
+    def compute_loss(self, model, inputs, return_outputs=False):
+        # 1. Forward pass on model & frozen reference
+        outputs = model(inputs[\"input_ids\"])
+        with torch.no_grad():
+            ref_outputs = self.ref_model(inputs[\"input_ids\"])
+            
+        logits = outputs.logits[:, -1, :]      # (B, V) at bifurcation pos
+        ref_logits = ref_outputs.logits[:, -1, :]
+        
+        loop_id = inputs[\"loop_token_id\"]       # target bad token
+        alt_ids = inputs[\"alt_token_ids\"]       # list of ~20 candidate tokens
+        
+        # 2. Preference gap: push probability from loop token to alternatives
+        p_loop = logits.gather(-1, loop_id.unsqueeze(-1))
+        p_alts = logits.gather(-1, alt_ids).logsumexp(dim=-1, keepdim=True)
+        gap = p_alts - p_loop
+        
+        # 3. DPO soft margin loss
+        loss_ftpo = -F.logsigmoid(self.beta * gap).mean()
+        
+        # 4. Raw-logit MSE stability penalty (prevents drift on all other tokens)
+        loss_stab = F.mse_loss(logits, ref_logits)
+        
+        total_loss = loss_ftpo + 0.1 * loss_stab
+        return (total_loss, outputs) if return_outputs else total_loss`;
+
+  const MPOA_CODE = `import mlx.core as mx
+
+def ablate_layer_mpoa(W: mx.array, v: mx.array, alpha: float = 1.0) -> mx.array:
+    \"\"\"
+    Magnitude-Preserving Orthogonal Ablation (MPOA / Heretic) in pure MLX.
+    W: Weight matrix (out_features, in_features)
+    v: Normalized feature direction in residual space (in_features,)
+    alpha: Ablation strength (1.0 = full orthogonal projection)
+    \"\"\"
+    v_norm = v / mx.linalg.norm(v)
+    
+    # 1. Project W onto orthogonal complement: W_perp = W - alpha * (W @ v) outer v
+    proj = mx.outer(W @ v_norm, v_norm)
+    W_perp = W - alpha * proj
+    
+    # 2. Row-wise magnitude preservation (prevents activation collapse)
+    orig_row_norms = mx.linalg.norm(W, axis=1, keepdims=True)
+    perp_row_norms = mx.linalg.norm(W_perp, axis=1, keepdims=True) + 1e-8
+    W_mpoa = W_perp * (orig_row_norms / perp_row_norms)
+    
+    return W_mpoa`;
+
+  const PYTHON_REWARD = 'import json\n\ndef reward(out, spec):\n    score = 0.0\n    try:\n        obj = json.loads(out)\n        score += 0.3\n        keys = spec["keys"]\n        score += 0.4 * all(k in obj for k in keys)\n        score += 0.3 * all(\n            isinstance(obj.get(k), int)\n            for k, t in spec["types"].items()\n            if t == "int"\n        )\n    except Exception:\n        pass\n    return score';
+
+  const MLX_COMMAND = '# SFT or CPT with stock MLX-LM\nmlx_lm.lora \\\n  --model <path-or-repo> \\\n  --train \\\n  --data <folder> \\\n  --batch-size 2 \\\n  --num-layers 16 \\\n  --iters <steps from memory instrument> \\\n  --fine-tune-type lora\n\n# A 4-bit base model path makes this QLoRA.\n# Full CPT on 450M: --fine-tune-type full\n\n# DPO and GRPO live in mlx-lm-lora:\n#   mlx_lm_lora.train --help';
+
+  return '<article>' +
+    '<div class="kicker">Shapes</div>' +
+    '<h1 class="page-title">What a row actually looks like</h1>' +
+    '<p class="page-lede">Stock MLX-LM trains supervised and continued-pretraining rows. Preference losses and GRPO live in mlx-lm-lora, a separate trainer whose flags you must read on the day you run them. The JSON is the part that should not surprise you.</p>' +
+    '<div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">' +
+      SCHEMAS.map(s =>
+        '<div class="panel" style="margin-top: 0;">' +
+          '<div style="display: flex; justify-content: space-between; align-items: baseline;">' +
+            '<h3 class="section-h3" style="margin-top: 0;">' + s.title + '</h3>' +
+            '<button type="button" class="btn-secondary" onclick="copyText(decodeURIComponent(\'' + encodeURIComponent(s.code) + '\'))">Copy</button>' +
+          '</div>' +
+          '<p style="font-size: 0.85rem; color: var(--color-secondary); margin: 0.4rem 0 0.75rem;">' + s.note + '</p>' +
+          '<pre class="code-block">' + s.code + '</pre>' +
+        '</div>'
+      ).join("") +
+      '<div class="panel" style="margin-top: 0;">' +
+        '<div style="display: flex; justify-content: space-between; align-items: baseline;">' +
+          '<h3 class="section-h3" style="margin-top: 0;">Python JSON Verifier with Partial Credit</h3>' +
+          '<button type="button" class="btn-secondary" onclick="copyText(decodeURIComponent(\'' + encodeURIComponent(PYTHON_REWARD) + '\'))">Copy</button>' +
+        '</div>' +
+        '<pre class="code-block" style="margin-top: 0.75rem;">' + PYTHON_REWARD + '</pre>' +
+      '</div>' +
+      '<div class="panel" style="margin-top: 0;">' +
+        '<div style="display: flex; justify-content: space-between; align-items: baseline;">' +
+          '<h3 class="section-h3" style="margin-top: 0;">MLX Training Shell Invocation</h3>' +
+          '<button type="button" class="btn-secondary" onclick="copyText(decodeURIComponent(\'' + encodeURIComponent(MLX_COMMAND) + '\'))">Copy</button>' +
+        '</div>' +
+        '<pre class="code-block" style="margin-top: 0.75rem;">' + MLX_COMMAND + '</pre>' +
+      '</div>' +
+    '</div>' +
+  '</article>';
+}
+
+function renderRoadmap() {
+  const RUNS = [
+    {
+      id: "E1",
+      title: "Epistemic DPO",
+      config: "LFM3 1.7B, LoRA rank 16, β = 0.10, 1,500 pairs, T = 1024, checkpointing on.",
+      success: "Win-rate vs base on held-out topics rises without length growing over 10%.",
+      kill: "Length expands past 30%, or old tool-calling capability regresses.",
+      preset: "e1"
+    },
+    {
+      id: "E2",
+      title: "JSON-schema GRPO",
+      config: "LFM2 450M, K = 8 rollouts, partial-credit verifier (0.3/0.4/0.3).",
+      success: "Average group reward rises steadily over 200 optimizer steps.",
+      kill: "Reward plateaus while KL divergence from base explodes, or output hacks empty schema.",
+      preset: "e2"
+    },
+    {
+      id: "E3",
+      title: "Brier-GRPO calibration",
+      config: "LFM3 1.7B, K = 4 to 6, 30% unanswerable prompts, proper scoring rule.",
+      success: "Expected Calibration Error (ECE) falls on held-out questions while accuracy is maintained.",
+      kill: "Model begins always guessing 0.50 on every query to hedge safety.",
+      preset: "e3"
+    },
+    {
+      id: "E4",
+      title: "CPT against LoRA",
+      config: "LFM2 450M, full fine-tune vs rank 16 vs rank 64, with λ = 0 and λ = 0.20 replay.",
+      success: "Domain perplexity drops while general perplexity F remains bounded by replay.",
+      kill: "General perplexity explodes or function-calling accuracy drops to near zero.",
+      preset: "e4"
+    },
+    {
+      id: "E5",
+      title: "Antidoom FTPO on LFM2/LFM3",
+      config: "LFM3 1.7B, 5,000 single-token bifurcation pairs, LoRA rank 16, λ_stab = 0.1.",
+      success: "Doom-loop rate drops from >10% to <1% without reducing solution length or GSM8K score.",
+      kill: "Model becomes overly terse, cutting off valid chain-of-thought exploration.",
+      preset: "e5"
+    },
+    {
+      id: "E6",
+      title: "Weight Surgery (MPOA) on 3B/4B",
+      config: "Nanbeige 3B or 4B-class, contrastive refusal/sycophancy prompts, MPOA row normalization.",
+      success: "Refusal/sycophancy rate drops by >80% with general perplexity rise bounded under 0.2 PPL.",
+      kill: "Frobenius norm drops or MMLU score degrades by >2 points.",
+      preset: "e6"
+    },
+    {
+      id: "E7",
+      title: "ToolGrad 500-Sample SFT",
+      config: "LFM3 1.7B, 500 answer-first synthetic tool workflows, T = 2048, LoRA rank 16.",
+      success: "Pass rate on multi-step and parallel tool calls on BFCL beats base model by +8 points.",
+      kill: "Model begins predicting hallucinated API returns without waiting for environment output.",
+      preset: "e7"
+    }
+  ];
+
+  const LOG_TEMPLATE = "Date: " + new Date().toISOString().slice(0,10) + "T14:00:00+01:00\n" +
+    "Run: E1 (Epistemic DPO)\n" +
+    "Config: LFM3 1.7B, LoRA r=16, beta=0.10, N=1500, T=1024, bs=2, accum=2\n" +
+    "Peak memory measured: 14.8 GB (via mx.get_peak_memory())\n" +
+    "Metric: Held-out win rate 68% (+14%), token length ratio 1.04\n" +
+    "Conclusion: Calibration register transferred cleanly. Tool call regression 2% (acceptable).";
+
+  const skillValues = SKILLS.map(s => state.skills[s.id] || 0);
+  const overall = Math.round((skillValues.reduce((a, b) => a + b, 0) / (SKILLS.length * 5)) * 100);
+
+  const notesMd = generateNotesMarkdown();
+
+  return '<article>' +
+    '<div class="kicker">Runs</div>' +
+    '<h1 class="page-title">Seven experiments, and a log</h1>' +
+    '<p class="page-lede">Each run has a config that fits the memory page, a result that would count as success, and a reason to stop. Write the paragraph the same day. Memory lies when you reconstruct it a week later.</p>' +
+    '<div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">' +
+      RUNS.map(r =>
+        '<div class="panel" style="margin-top: 0;">' +
+          '<div class="kicker">' + r.id + '</div>' +
+          '<h3 class="section-h3" style="margin-top: 0.25rem;">' + r.title + '</h3>' +
+          '<p style="margin-top: 0.5rem; font-size: 0.95rem; color: var(--color-ink);">' + r.config + '</p>' +
+          '<p style="margin-top: 0.4rem; font-size: 0.875rem; color: var(--color-good);"><strong>Success:</strong> ' + r.success + '</p>' +
+          '<p style="margin-top: 0.25rem; font-size: 0.875rem; color: var(--color-bad);"><strong>Stop/Kill:</strong> ' + r.kill + '</p>' +
+          '<button type="button" class="btn-secondary" style="margin-top: 0.85rem;" onclick="applyPreset(\'' + r.preset + '\'); navigateTo(\'memory\');">' +
+            'Load this budget into Memory instrument &rarr;' +
+          '</button>' +
+        '</div>'
+      ).join("") +
+    '</div>' +
+    '<div class="panel">' +
+      '<div style="display: flex; justify-content: space-between; align-items: baseline;">' +
+        '<div class="panel-title">The Log Row Template</div>' +
+        '<button type="button" class="btn-secondary" onclick="copyText(decodeURIComponent(\'' + encodeURIComponent(LOG_TEMPLATE) + '\'))">Copy log row</button>' +
+      '</div>' +
+      '<pre class="code-block" style="margin-top: 1rem;">' + LOG_TEMPLATE + '</pre>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<div class="panel-title">What you could teach tomorrow</div>' +
+      '<p style="font-size: 0.875rem; color: var(--color-secondary); margin-top: 0.25rem;">' +
+        '0 means you could not start. 5 means you could explain it, unprompted, without this page. Overall <strong>' + overall + '%</strong>.' +
+      '</p>' +
+      '<div class="skill-bar"><div class="skill-bar-inner" style="width: ' + overall + '%;"></div></div>' +
+      '<div style="margin-top: 1.5rem; display: flex; flex-direction: column; gap: 1rem;">' +
+        SKILLS.map(s =>
+          '<div>' +
+            '<div class="field-label"><span>' + s.label + '</span><span class="field-val">' + (state.skills[s.id] || 0) + ' / 5</span></div>' +
+            '<input type="range" min="0" max="5" step="1" value="' + (state.skills[s.id] || 0) + '" oninput="updateSkill(\'' + s.id + '\', +this.value)" />' +
+          '</div>'
+        ).join("") +
+      '</div>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<div style="display: flex; justify-content: space-between; align-items: baseline;">' +
+        '<div>' +
+          '<div class="panel-title">Notes & Predictions</div>' +
+          '<p style="font-size: 0.875rem; color: var(--color-secondary); margin-top: 0.25rem;">' +
+            'Persisted automatically in this browser\'s local storage.' +
+          '</p>' +
+        '</div>' +
+        '<button type="button" class="btn-primary" onclick="copyText(decodeURIComponent(\'' + encodeURIComponent(notesMd) + '\'))">Copy Notes (Markdown)</button>' +
+      '</div>' +
+      '<pre class="code-block" style="margin-top: 1rem; max-height: 16rem; overflow-y: auto;">' + notesMd + '</pre>' +
+    '</div>' +
+    '<div class="panel">' +
+      '<div class="panel-title">Corrections to v1</div>' +
+      '<ul style="margin-top: 0.75rem; font-size: 0.875rem; color: var(--color-secondary); padding-left: 1.25rem; display: flex; flex-direction: column; gap: 0.4rem;">' +
+        '<li>① <strong>MathJax formulas:</strong> replaced fragile LaTeX blocks with clean, reliable unicode and code formatting.</li>' +
+        '<li>② <strong>KV Cache:</strong> grows <em>linearly</em> with context; the naive attention score matrix is the quadratic term suppressed by checkpointing.</li>' +
+        '<li>③ <strong>Full Fine-Tuning:</strong> 1.7B requires ~12 B/param (~20 GB total state), exceeding 18 GB usable memory. Kept to 350M–450M models.</li>' +
+        '<li>④ <strong>Unified Memory:</strong> Usable GPU memory is a dynamic policy (around 75% of RAM), readable via <code>mx.metal.device_info()</code>, not a static 18 GB.</li>' +
+        '<li>⑤ <strong>LoRA Learning Rate:</strong> 1e-4 to 2e-4 are common starting points; \"&gt;5e-5 diverges\" is not a universal rule.</li>' +
+        '<li>⑥ <strong>Self-contained:</strong> Runs 100% in pure HTML/CSS/JS without any Node, npm, or bun runtime dependencies.</li>' +
+      '</ul>' +
+    '</div>' +
+  '</article>';
+}
+
+function generateNotesMarkdown() {
+  const lines = ["# Notes: Post-Training on Apple Silicon", "", "Exported: " + new Date().toISOString(), ""];
+  lines.push("## Skill Assessment");
+  for (const s of SKILLS) {
+    lines.push("- " + s.label + ": " + (state.skills[s.id] || 0) + " / 5");
+  }
+  lines.push("", "## Socratic Predictions & Exam Answers");
+  for (const [id, prompt] of Object.entries(PROMPTS)) {
+    const ans = (id.startsWith("exam-") ? state.exam[id] : state.predicts[id]) || "";
+    if (ans.trim()) {
+      lines.push("\n### " + prompt + "\n\n" + ans.trim());
+    }
+  }
+  lines.push("", "## Memory Configuration Last Used", "```json", JSON.stringify(state.calc, null, 2), "```");
+  return lines.join("\n");
+}
+
+// --- State Mutation & Dispatchers ---
+let currentSection = "desk";
+
+function navigateTo(secId) {
+  currentSection = secId;
+  window.location.hash = secId;
+  document.querySelectorAll(".nav-btn, .mobile-nav-btn").forEach(btn => {
+    btn.classList.toggle("active", btn.getAttribute("data-sec") === secId);
+  });
+  renderCurrentSection();
+  window.scrollTo(0, 0);
+}
+
+function renderCurrentSection() {
+  const container = document.getElementById("content-container");
+  switch (currentSection) {
+    case "desk": container.innerHTML = renderDesk(); break;
+    case "memory": container.innerHTML = renderMemory(); break;
+    case "paradigms": container.innerHTML = renderParadigms(); break;
+    case "drift": container.innerHTML = renderDrift(); break;
+    case "dpo": container.innerHTML = renderDpo(); break;
+    case "grpo": container.innerHTML = renderGrpo(); break;
+    case "surgery": container.innerHTML = renderSurgery(); break;
+    case "schemas": container.innerHTML = renderSchemas(); break;
+    case "roadmap": container.innerHTML = renderRoadmap(); break;
+    default: container.innerHTML = renderDesk(); break;
+  }
+}
+
+function updateCalc(patch) {
+  state.calc = Object.assign({}, state.calc, patch);
+  saveData();
+  renderCurrentSection();
+}
+
+function applyPreset(presetKey) {
+  if (PRESETS[presetKey]) {
+    state.calc = Object.assign({}, state.calc, PRESETS[presetKey]);
+    saveData();
+    showToast("Applied preset " + PRESETS[presetKey].name);
+    renderCurrentSection();
+  }
+}
+
+function updatePredictText(bucket, id, val) {
+  if (bucket === "exam") state.exam[id] = val;
+  else state.predicts[id] = val;
+  saveData();
+  const statusEl = document.getElementById("predict-status-" + id);
+  const isOpened = Boolean(state.opened[id]);
+  const btn = document.querySelector("#predict-" + id + " button");
+  if (statusEl && !isOpened) {
+    const len = val.trim().length;
+    statusEl.textContent = Math.min(len, 24) + " / 24 characters before the claim opens.";
+    if (btn) btn.disabled = len < 24;
+  }
+}
+
+function uncoverPredict(id) {
+  state.opened[id] = true;
+  saveData();
+  renderCurrentSection();
+}
+
+function toggleExamCheck(id, index) {
+  const list = state.checks[id] || [];
+  const next = list.includes(index) ? list.filter(i => i !== index) : list.concat([index]);
+  state.checks[id] = next;
+  saveData();
+  renderCurrentSection();
+}
+
+function updateSkill(id, val) {
+  state.skills[id] = val;
+  saveData();
+  renderCurrentSection();
+}
+
+function selectGoal(gId) {
+  state.selectedGoal = gId;
+  renderCurrentSection();
+}
+
+function updateLambda(val) {
+  state.lambda = val;
+  renderCurrentSection();
+}
+
+function updateDpoGap(g) {
+  state.dpoGap = g;
+  renderCurrentSection();
+}
+
+function updateDpoBeta(b) {
+  state.dpoBeta = b;
+  renderCurrentSection();
+}
+
+function selectDpoPair(id) {
+  state.dpoPairId = id;
+  state.dpoTrap = false;
+  renderCurrentSection();
+}
+
+function toggleDpoTrap() {
+  state.dpoTrap = !state.dpoTrap;
+  renderCurrentSection();
+}
+
+function flipGrpoReward(idx) {
+  if (!state.grpoRewards) state.grpoRewards = [1, 1, 0, 1, 0, 0];
+  state.grpoRewards[idx] = 1 - state.grpoRewards[idx];
+  renderCurrentSection();
+}
+
+function updateBrierP(p) {
+  state.brierP = p;
+  renderCurrentSection();
+}
+
+function updateBrierC(c) {
+  state.brierC = c;
+  renderCurrentSection();
+}
+
+function updateJsonTester(val) {
+  state.jsonRaw = val;
+  renderCurrentSection();
+}
+
+function updateDoomText(val) {
+  state.doomText = val;
+  saveData();
+  renderCurrentSection();
+}
+
+function loadDoomPreset(type) {
+  if (type === "loop") {
+    state.doomText = "Let me think step by step. Consider the base case. Wait, let me reconsider this approach. Wait, let me reconsider this approach. Wait, let me reconsider this approach. Wait, let me reconsider this approach.";
+  } else {
+    state.doomText = "Let me think step by step. Consider the base case. The derivative of x*cos(x) is cos(x) - x*sin(x). Applying integration by parts gives x*sin(x) + cos(x) + C. The proof closes cleanly.";
+  }
+  saveData();
+  renderCurrentSection();
+}
+
+function updateMpoaAngle(val) {
+  state.mpoaAngle = val;
+  saveData();
+  renderCurrentSection();
+}
+
+function updateMpoaStrength(val) {
+  state.mpoaStrength = val;
+  saveData();
+  renderCurrentSection();
+}
+
+function toggleMpoaNorm() {
+  state.mpoaNorm = !state.mpoaNorm;
+  saveData();
+  renderCurrentSection();
+}
+
+function copyText(str) {
+  navigator.clipboard.writeText(str).then(() => {
+    showToast("Copied to clipboard!");
+  }).catch(() => {
+    showToast("Press Ctrl+C to copy");
+  });
+}
+
+// --- Init ---
+document.addEventListener("DOMContentLoaded", () => {
+  document.querySelectorAll(".nav-btn, .mobile-nav-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      const sec = btn.getAttribute("data-sec");
+      if (sec) navigateTo(sec);
+    });
+  });
+
+  const hash = window.location.hash.replace("#", "");
+  if (["desk", "memory", "paradigms", "drift", "dpo", "grpo", "surgery", "schemas", "roadmap"].includes(hash)) {
+    navigateTo(hash);
+  } else {
+    navigateTo("desk");
+  }
+
+  window.addEventListener("hashchange", () => {
+    const h = window.location.hash.replace("#", "");
+    if (h && h !== currentSection) {
+      navigateTo(h);
+    }
+  });
+});
+
+</script>
+</body>
+</html>

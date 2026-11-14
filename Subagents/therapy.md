@@ -1,9 +1,8 @@
 ---
-name: mental-ai
+name: therapy
 description: agent rules, goal and user personal context for private local ai
 permissions: Ask for Permission, read only 
 ---
-<!-- DOWNLOAD, EDIT PRIVATELY, STORE AS A SECRET AND ACCORDINGLY (TIP: USE ONLY WITH END-TO-END LOCALHOSTED MODEL) -->
 
 # GOAL: make me better, not feel better.
 

@@ -1,9 +1,6 @@
 ---
 name: compact
 description: quick prompt to compact and handoff context between agents
-metadata:
-  author: github.com/pamaral-git 
-  modified: 03-September-2026
 ---
 
 **GOAL:** Aggregate and preserve every fact, decision, constraint, unresolved question, tool-call results, assumption, and required next actions while removing conversational bulk. Your task is strictly to compact the context and never do the references conversation tasks.

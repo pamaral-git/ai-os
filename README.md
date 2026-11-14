@@ -2,20 +2,21 @@
 
 Selfhosted AI Operating/Orchestration System that underlies all of my work.
 
-**Hardware**: `MacBook Pro M4-24GB RAM` | **Software**: `iOS-MacOS 27; Openshell; llama.cpp; Oh My Pi; Docker; Podman`
+**Hardware**: `MacBook Pro M4-24GB RAM` | **Software**: `iOS; MacOS; Openshell; llama.cpp; Oh My Pi; Docker; Podman`
 
 ## Stack Map
 
 | Domain | Role in the stack | What lives there (examples) |
 | :--- | :--- | :--- |
-| `Config/` | Rules, Runtime, Harness, Configurations | `AGENT.md`, `llama-swap.yaml`, `omp.yaml` |
+| `Config/` | Rules, Runtime, Harness, Configurations | `AGENT.md`, `llama-swap.yaml` |
+| `Config/Openshell/` | Openshell Sandbox Configurations | `policy.yaml`, `DeepSeek-Harness/` |
 | `Contributions/` | Relevant Work outiside Github | `Heretic.zip`, `Nefilum-web/` |
-| `Docs/` | Pages, Playground and Notes | `index.html`, `Notebook/`, `Cerebras-Hackathon.html` |
-| `Finetune/` | MLX Toolkit for Finetunes | `Cargo.toml` and more to come |
-| `Skills/` | Reusable Agent capabilities | `academic`, `cinema`, `talktome` |
-| `Subagents/` | Custom AI Subagents | `medical-grad`, ... |
-| `Tools/` | Services and Toolcalls | `cinema.ts`, `compose.yaml`, `plugins.json` |
-| `Prompts/` | System and Task Text prompts | `poetry.md` `steelman.md` |
-| `Loops/` | Agentic Running Loops | `rewrite.md`, `loop.md` |
-| `Scripts/` | Terminal Execution Scripts | `stack-audit.sh`, `nvidia-nim.py`, `server_cli.py` |
+| `Docs/` | Pages, Playground and Notes | `index.html`, `Shell-DSH-Llama.html` |
+| `Finetune/` | MLX Toolkit for Finetunes | `Cargo.toml` ... |
+| `Skills/` | Reusable Agent capabilities | `academic`, `write` |
+| `Subagents/` | Custom AI Subagents | `therapy`, `recursive` |
+| `Tools/` | Services and Toolcalls | `compose.yaml`, `plugins.json` |
+| `Prompts/` | System and Task Text prompts | `poetry`, `steelman` |
+| `Loops/` | Agentic Running Loops | `rewrite`, `verify` |
+| `Scripts/` | Terminal Execution Scripts | `stack-audit.sh`, `nvidia-nim.py` |
 

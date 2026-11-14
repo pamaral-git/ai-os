@@ -1,400 +1,487 @@
-<!doctype html>
-<html lang="en">
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>AI Operating System</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600&family=DM+Sans:ital,wght@0,400;0,500;0,700;1,400&family=Outfit:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
-<style>
-:root {
-  /* Dark theme GitHub palette */
-  --surface: #0d1117;
-  --bg: #0d1117;
-  --card: #161b22;
-  --card-hover: #1c2128;
-  --ink: #e6edf3;
-  --muted: #8b949e;
-  --line: #30363d;
-  --line-strong: #8b949e;
-  --accent: #1f6feb;
-  --accent-hover: #388bfd;
-  --accent-subtle: rgba(31, 111, 235, 0.12);
-  --green: #3fb950;
-  --green-subtle: rgba(63, 185, 80, 0.12);
-  --red: #f85149;
-  --skill: #bc8cff;
-  --skill-subtle: rgba(188, 140, 255, 0.12);
-  --font-serif: 'Fraunces', Georgia, serif;
-  --font-sans: 'DM Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-display: 'Outfit', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
-}
-* { box-sizing: border-box; }
-html, body {
-  margin: 0;
-  background: var(--bg);
-  color: var(--ink);
-  font-family: var(--font-sans);
-  -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
-}
-a { color: inherit; text-decoration: none; }
-.shell {
-  width: min(1320px, calc(100% - 56px));
-  margin: 0 auto;
-  padding: 72px 0 80px;
-}
-.layout {
-  display: grid;
-  grid-template-columns: 0.92fr 1.08fr;
-  gap: 72px;
-  align-items: start;
-  min-height: calc(100vh - 144px);
-}
-.left {
-  padding-top: 112px;
-}
-.kicker {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-bottom: 28px;
-  font-family: var(--font-mono);
-  font-size: 11px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  color: var(--green);
-}
-.kicker::before {
-  content: "";
-  width: 52px;
-  height: 1.5px;
-  background: var(--green);
-  display: block;
-}
-h1 {
-  margin: 0;
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: clamp(3.8rem, 6.6vw, 6.4rem);
-  line-height: 0.88;
-  letter-spacing: -0.05em;
-  color: var(--ink);
-}
-.desc {
-  margin: 32px 0 0;
-  max-width: 48ch;
-  font-size: 17px;
-  line-height: 1.65;
-  color: var(--ink);
-}
-.desc em {
-  font-family: var(--font-serif);
-  font-style: italic;
-  color: var(--muted);
-}
-.specs {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: 26px;
-}
-.spec-pill {
-  font-family: var(--font-mono);
-  font-size: 10px;
-  letter-spacing: 0.08em;
-  padding: 5px 10px;
-  border-radius: 6px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
-  color: var(--muted);
-}
-.spec-pill span {
-  color: var(--ink);
-  font-weight: 700;
-}
-.ctas {
-  display: flex;
-  gap: 12px;
-  margin-top: 40px;
-  flex-wrap: wrap;
-}
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  height: 44px;
-  padding: 0 18px;
-  border-radius: 8px;
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 14px;
-  border: 1px solid transparent;
-  transition: all 180ms ease;
-  cursor: pointer;
-}
-.btn-accent {
-  background: var(--accent);
-  color: #ffffff;
-  border-color: var(--accent);
-}
-.btn-accent:hover {
-  transform: translateY(-1px);
-  background: var(--accent-hover);
-  box-shadow: 0 4px 14px rgba(31, 111, 235, 0.35);
-}
-.btn-light {
-  background: var(--card);
-  color: var(--ink);
-  border-color: var(--line);
-}
-.btn-light:hover {
-  transform: translateY(-1px);
-  border-color: var(--line-strong);
-  background: var(--card-hover);
-}
-.btn .ico {
-  width: 22px;
-  height: 22px;
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  background: rgba(255, 255, 255, 0.2);
-  font-size: 12px;
-}
-.btn-light .ico {
-  background: rgba(255, 255, 255, 0.08);
-}
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>AI Operating System</title>
+  <meta name="description" content="Offline-first AI Operating System on MacBook Pro M4 · 24GB — Local AI / Cloud AI" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-paper: #f7f4ee;
+      --color-card: #fdfbf7;
+      --color-raised: #efe9df;
+      --color-stone: #d9d0c3;
+      --color-ink: #1f1b16;
+      --color-secondary: #5e554a;
+      --color-muted: #6f675c;
+      --color-line: #e4dcd0;
+      --color-ember: #9a3412;
+      --color-ember-soft: #ead9cf;
+      --color-good: #1f6b45;
+      --color-bad: #9f2d2d;
+      --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-serif: "Newsreader", "Iowan Old Style", Charter, Georgia, serif;
+      --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
+      --shadow-rest: 0 1px 2px rgba(31,27,22,0.06);
+      --shadow-card: 0 2px 8px rgba(31,27,22,0.06), 0 1px 3px rgba(31,27,22,0.04);
+      --shadow-lift: 0 8px 24px rgba(31,27,22,0.10), 0 2px 8px rgba(31,27,22,0.06);
+      --radius-card: 12px;
+    }
+    /* Dark theme tokens — requirement */
+    html[data-theme="dark"] {
+      --color-paper: #12100e;
+      --color-card: #1c1916;
+      --color-raised: #252019;
+      --color-stone: #3d362d;
+      --color-ink: #f0e8dc;
+      --color-secondary: #b8ad9e;
+      --color-muted: #9a8f80;
+      --color-line: #2e2820;
+      --color-ember: #d4734a;
+      --color-ember-soft: #3a251c;
+      --color-good: #4fb286;
+      --color-bad: #e07a7a;
+      --shadow-rest: 0 1px 2px rgba(0,0,0,0.35);
+      --shadow-card: 0 2px 8px rgba(0,0,0,0.35), 0 1px 2px rgba(0,0,0,0.3);
+      --shadow-lift: 0 10px 28px rgba(0,0,0,0.45), 0 2px 8px rgba(0,0,0,0.35);
+    }
 
-/* Grid & Cards */
-.grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 22px;
-  align-items: start;
-  padding-top: 12px;
-  border-top: 1px solid var(--line);
-}
-.card {
-  position: relative;
-  background: var(--card);
-  border: 1px solid var(--line);
-  border-radius: 14px;
-  padding: 28px 26px 22px;
-  min-height: 246px;
-  display: flex;
-  flex-direction: column;
-  transition: transform 220ms ease, border-color 220ms ease, box-shadow 220ms ease;
-}
-.card:hover {
-  transform: translateY(-2px);
-  border-color: var(--line-strong);
-  box-shadow: 0 10px 24px rgba(0, 0, 0, 0.45);
-}
-.card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 22px;
-}
-.tag {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--skill);
-  border: 1px solid rgba(188, 140, 255, 0.28);
-  padding: 5px 9px;
-  border-radius: 5px;
-  background: var(--skill-subtle);
-  line-height: 1;
-}
-.tag-green {
-  color: var(--green);
-  border-color: rgba(63, 185, 80, 0.28);
-  background: var(--green-subtle);
-}
-.arrow {
-  font-size: 14px;
-  line-height: 1;
-  color: var(--muted);
-  transition: transform 180ms ease, color 180ms ease;
-}
-.card:hover .arrow {
-  color: var(--accent-hover);
-  transform: translateX(3px);
-}
-.card h2 {
-  margin: 0 0 12px;
-  font-family: var(--font-serif);
-  font-weight: 400;
-  font-size: 32px;
-  line-height: 1.02;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-}
-.card p {
-  margin: 0;
-  font-size: 14.5px;
-  line-height: 1.6;
-  color: var(--muted);
-  max-width: 32ch;
-}
-.chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  margin-top: auto;
-  padding-top: 28px;
-}
-.chip {
-  font-family: var(--font-mono);
-  font-size: 9px;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  border: 1px solid var(--line);
-  border-radius: 5px;
-  padding: 5px 9px;
-  color: var(--muted);
-  background: rgba(255, 255, 255, 0.03);
-}
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { background: var(--color-paper); color: var(--color-ink); -webkit-font-smoothing: antialiased; scroll-behavior: smooth; }
+    body { min-height: 100vh; font-family: var(--font-sans); font-size: 16px; line-height: 1.6; background: var(--color-paper); color: var(--color-ink); }
+    a { color: inherit; text-decoration-color: var(--color-ember); text-underline-offset: 4px; }
+    button { font-family: inherit; cursor: pointer; border: none; background: none; color: inherit; }
+    :focus-visible { outline: 2px solid var(--color-ember); outline-offset: 2px; }
+    ::selection { background: var(--color-ember-soft); color: var(--color-ink); }
 
-/* System Module Card (Wide) */
-.card-wide {
-  grid-column: 1 / -1;
-}
-.art-btns {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin-top: auto;
-  padding-top: 28px;
-}
-.art-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  height: 38px;
-  padding: 0 16px;
-  border-radius: 8px;
-  border: 1px solid var(--line);
-  background: rgba(255, 255, 255, 0.02);
-  color: var(--ink);
-  font-family: var(--font-display);
-  font-weight: 700;
-  font-size: 13px;
-  letter-spacing: -0.01em;
-  transition: all 180ms ease;
-}
-.art-btn:hover {
-  background: var(--accent);
-  color: #ffffff;
-  border-color: var(--accent);
-  transform: translateY(-1px);
-}
+    .app-shell { min-height: 100vh; display: flex; flex-direction: column; }
 
-@media(max-width:1100px) {
-  .layout { grid-template-columns: 1fr; gap: 40px; }
-  .left { padding-top: 24px; }
-  .grid { border-top: none; padding-top: 0; }
-}
-@media(max-width:680px) {
-  .shell { width: min(100% - 28px, 1320px); padding: 28px 0 48px; }
-  .grid { grid-template-columns: 1fr; }
-  .card-wide { grid-column: auto; }
-  h1 { font-size: clamp(3rem, 15vw, 4.2rem); }
-}
-</style>
+    .top-header {
+      position: sticky; top: 0; z-index: 40; height: 4rem;
+      background: var(--color-paper); border-bottom: 1px solid var(--color-line);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 1.5rem; gap: 1rem;
+    }
+    .header-left { min-width: 0; }
+    .header-title { font-family: var(--font-serif); font-size: 1.28rem; line-height: 1.15; font-weight: 550; letter-spacing: -0.01em; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .header-sub { font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-muted); margin-top: 0.18rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .header-right { display: flex; align-items: center; gap: 1rem; flex-shrink: 0; }
+
+    /* Theme switch — must show symbols: light ☀, dark ☾, system ☀ / ☾ */
+    .theme-switch { display: inline-flex; align-items: center; gap: 2px; padding: 3px; background: var(--color-raised); border: 1px solid var(--color-line); border-radius: 999px; }
+    .theme-btn {
+      min-width: 2.1rem; height: 1.85rem; padding: 0 0.65rem; border-radius: 999px;
+      font-family: var(--font-mono); font-size: 0.85rem; line-height: 1; color: var(--color-secondary);
+      transition: all 0.18s ease; border: 1px solid transparent;
+    }
+    .theme-btn:hover { color: var(--color-ink); background: var(--color-card); }
+    .theme-btn.active { background: var(--color-card); color: var(--color-ink); border-color: var(--color-line); box-shadow: var(--shadow-rest); font-weight: 600; }
+
+    .main-layout { flex: 1; display: grid; grid-template-columns: 1fr; }
+    @media (min-width: 900px) { .main-layout { grid-template-columns: 15.5rem minmax(0,1fr); } }
+
+    .sidebar {
+      display: none; position: sticky; top: 4rem; align-self: start; height: calc(100vh - 4rem);
+      border-right: 1px solid var(--color-line); padding: 1.5rem 1rem; overflow-y: auto;
+    }
+    @media (min-width: 900px) { .sidebar { display: block; } }
+    .sidebar-label { padding: 0 0.75rem 0.6rem; font-family: var(--font-mono); font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-muted); }
+    .nav-list { display: flex; flex-direction: column; gap: 0.22rem; }
+    .nav-btn {
+      display: flex; align-items: center; width: 100%; height: 2.3rem; padding: 0 0.75rem;
+      font-size: 0.875rem; text-align: left; border-left: 2px solid transparent; color: var(--color-secondary);
+      border-radius: 0 6px 6px 0; transition: all 0.16s ease;
+    }
+    .nav-btn:hover { color: var(--color-ink); background: rgba(239,233,223,0.45); }
+    html[data-theme="dark"] .nav-btn:hover { background: rgba(37,32,25,0.9); }
+    .nav-btn.active { border-left-color: var(--color-ember); color: var(--color-ink); font-weight: 500; background: var(--color-raised); }
+
+    .mobile-nav {
+      display: block; position: sticky; top: 4rem; z-index: 30; background: var(--color-paper);
+      border-bottom: 1px solid var(--color-line); overflow-x: auto; white-space: nowrap; padding: 0.55rem 1rem;
+      scrollbar-width: none;
+    }
+    .mobile-nav::-webkit-scrollbar { display: none; }
+    @media (min-width: 900px) { .mobile-nav { display: none; } }
+    .mobile-nav-inner { display: inline-flex; gap: 0.5rem; }
+    .mobile-nav-btn {
+      padding: 0.42rem 0.9rem; font-size: 0.85rem; border-radius: 999px; color: var(--color-secondary);
+      border: 1px solid var(--color-line); background: var(--color-card); transition: all 0.16s;
+    }
+    .mobile-nav-btn.active { border-color: var(--color-ember); color: var(--color-ember); font-weight: 500; background: var(--color-raised); }
+
+    .content-area { min-width: 0; padding: 1.75rem 1.25rem 4rem; }
+    @media (min-width: 700px) { .content-area { padding: 2.25rem 2rem 5rem; } }
+    @media (min-width: 900px) { .content-area { padding: 2.5rem 2.75rem 5rem; } }
+    .container { max-width: 62rem; margin: 0 auto; }
+
+    .kicker { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--color-muted); }
+    .page-title { margin-top: 0.55rem; font-family: var(--font-serif); font-size: clamp(2rem, 4.5vw, 2.9rem); font-weight: 440; line-height: 1.08; letter-spacing: -0.02em; }
+    .page-lede { margin-top: 1rem; max-width: 48rem; font-size: 1.08rem; line-height: 1.7; color: var(--color-secondary); }
+
+    .grid-specs {
+      margin-top: 1.75rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1px; background: var(--color-line); border: 1px solid var(--color-line); border-radius: 10px; overflow: hidden; max-width: 48rem;
+    }
+    .spec-item { background: var(--color-card); padding: 0.9rem 1.15rem; }
+    .spec-label { font-family: var(--font-mono); font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.04em; color: var(--color-muted); }
+    .spec-val { margin-top: 0.28rem; font-size: 0.95rem; font-weight: 500; color: var(--color-ink); }
+
+    .cta-row { margin-top: 1.6rem; display: flex; flex-wrap: wrap; gap: 0.6rem; }
+    .btn-primary {
+      display: inline-flex; align-items: center; gap: 0.45rem; padding: 0.62rem 1.15rem;
+      background: var(--color-ink); color: var(--color-paper); border-radius: 8px; font-size: 0.875rem; font-weight: 500; transition: opacity 0.16s;
+    }
+    .btn-primary:hover { opacity: 0.86; }
+    .btn-secondary {
+      display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.58rem 1rem;
+      background: var(--color-card); border: 1px solid var(--color-line); color: var(--color-ink);
+      border-radius: 8px; font-size: 0.875rem; transition: all 0.16s;
+    }
+    .btn-secondary:hover { background: var(--color-raised); border-color: var(--color-stone); }
+
+    .section { margin-top: 4rem; scroll-margin-top: 6.5rem; }
+    .section-h2 { font-family: var(--font-serif); font-size: 1.85rem; font-weight: 410; line-height: 1.2; color: var(--color-ink); }
+    .section-desc { margin-top: 0.7rem; max-width: 48rem; font-size: 1rem; line-height: 1.7; color: var(--color-secondary); }
+    .section-h3 { margin-top: 2.4rem; font-family: var(--font-serif); font-size: 1.25rem; font-weight: 500; color: var(--color-ink); }
+
+    /* Cards — rounded 12px, border line, shadow, hover lift — as per Post-Training aesthetic */
+    .modules-grid { margin-top: 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1rem; }
+    .mod-card {
+      display: flex; flex-direction: column; gap: 0.7rem; padding: 1.2rem 1.2rem 1.05rem;
+      background: var(--color-card); border: 1px solid var(--color-line); border-radius: 12px;
+      box-shadow: var(--shadow-card); text-decoration: none; color: inherit;
+      transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+    }
+    .mod-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-lift); border-color: var(--color-stone); }
+    html[data-theme="dark"] .mod-card:hover { border-color: #3f3830; }
+    .mod-tag { display: inline-flex; align-self: flex-start; font-family: var(--font-mono); font-size: 0.68rem; text-transform: uppercase; letter-spacing: 0.06em; padding: 0.2rem 0.5rem; border-radius: 999px; background: var(--color-raised); color: var(--color-muted); border: 1px solid var(--color-line); }
+    .mod-title { font-family: var(--font-serif); font-size: 1.08rem; font-weight: 560; line-height: 1.3; letter-spacing: -0.01em; }
+    .mod-desc { font-size: 0.9rem; line-height: 1.6; color: var(--color-secondary); }
+    .mod-chips { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.2rem; }
+    .mod-chip { font-family: var(--font-mono); font-size: 0.68rem; padding: 0.2rem 0.45rem; border-radius: 6px; background: var(--color-raised); border: 1px solid var(--color-line); color: var(--color-secondary); }
+    .mod-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 0.5rem; font-family: var(--font-mono); font-size: 0.72rem; color: var(--color-muted); padding-top: 0.5rem; border-top: 1px dashed var(--color-line); }
+    .mod-arrow { font-size: 0.95rem; transition: transform 0.16s; }
+    .mod-card:hover .mod-arrow { transform: translateX(3px); }
+
+    .status-text { margin-top: 0.9rem; font-family: var(--font-mono); font-size: 0.78rem; line-height: 1.6; color: var(--color-muted); }
+
+    .system-panel {
+      margin-top: 1.5rem; background: var(--color-card); border: 1px solid var(--color-line); border-radius: 12px;
+      padding: 1.4rem; box-shadow: var(--shadow-rest);
+    }
+    .system-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 0.75rem; align-items: baseline; }
+    .system-title { font-family: var(--font-serif); font-size: 1.2rem; font-weight: 520; }
+    .system-meta { font-family: var(--font-mono); font-size: 0.75rem; color: var(--color-muted); }
+    .system-grid { margin-top: 1.1rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 0.9rem; }
+    .sys-kv { background: var(--color-raised); border: 1px solid var(--color-line); border-radius: 8px; padding: 0.7rem 0.85rem; }
+    .sys-k { font-family: var(--font-mono); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; color: var(--color-muted); }
+    .sys-v { margin-top: 0.25rem; font-size: 0.92rem; font-weight: 500; }
+
+    .footer { margin-top: 4rem; padding-top: 1.25rem; border-top: 1px solid var(--color-line); display: flex; flex-wrap: wrap; gap: 0.75rem 1.5rem; font-family: var(--font-mono); font-size: 0.74rem; color: var(--color-muted); }
+    .footer a { color: var(--color-secondary); }
+  </style>
 </head>
 <body>
-<div class="shell">
-  <div class="layout">
-    <div class="left">
-      <div class="kicker">AI-OS</div>
-      <h1>AI Operating System</h1>
-      <p class="desc">
-        My  Operating System — configurations, models, instructions, notes, scripts and more.
-      </p>
-
-      <div class="specs">
-        <div class="spec-pill"><span>MacBook Pro</span> M4-24GB RAM</div>
-        <div class="spec-pill"><span>MacOS</span> 27</div>
-        <div class="spec-pill"><span>RUNTIME</span> llama.cpp / Docker / Oh My Pi</div>
-      </div>
-
-      <div class="ctas">
-        <a class="btn btn-light" href="https://github.com/pamaral-git/pamaral-git">👤 Whoami<span class="ico">→</span></a>
-        <a class="btn btn-accent" href="https://github.com/pamaral-git/ai-os" target="_blank" rel="noopener noreferrer">
-          GitHub Repository <span class="ico">↗</span>
-        </a>
+<div class="app-shell">
+  <header class="top-header">
+    <div class="header-left">
+      <div class="header-title">AI Operating System</div>
+      <div class="header-sub">MacBook Pro M4 · 24GB · Local AI / Cloud AI</div>
+    </div>
+    <div class="header-right">
+      <div class="theme-switch" aria-label="Theme selector" role="group">
+        <button type="button" class="theme-btn" data-theme-value="light" aria-label="Light theme">☀</button>
+        <button type="button" class="theme-btn" data-theme-value="dark" aria-label="Dark theme">☾</button>
+        <button type="button" class="theme-btn" data-theme-value="system" aria-label="System theme">☀ / ☾</button>
       </div>
     </div>
+  </header>
 
-    <div class="grid">
+  <nav class="mobile-nav" aria-label="Mobile sections">
+    <div class="mobile-nav-inner">
+      <button type="button" class="mobile-nav-btn active" data-sec="overview">Overview</button>
+      <button type="button" class="mobile-nav-btn" data-sec="modules">Modules</button>
+      <button type="button" class="mobile-nav-btn" data-sec="system">System</button>
+    </div>
+  </nav>
 
-      <a class="card" href="./Notebook/2026-06-29--Cerebras-Hackathon.html">
-        <div class="card-top">
-          <span class="tag tag-green">Inference</span>
-          <span class="arrow">→</span>
-        </div>
-        <h2>Cerebras</h2>
-        <p>Cerebras x Gemma 4 Hackathon</p>
-        <div class="chips">
-          <span class="chip">2026-06-29</span><span class="chip">Wafers 🧇</span><span class="chip">Stats</span>
-        </div>
-      </a>
+  <div class="main-layout">
+    <aside class="sidebar" aria-label="Sidebar navigation">
+      <div class="sidebar-label">Docs</div>
+      <div class="nav-list">
+        <button type="button" class="nav-btn active" data-sec="overview">Overview</button>
+        <button type="button" class="nav-btn" data-sec="modules">Modules</button>
+        <button type="button" class="nav-btn" data-sec="system">System</button>
+      </div>
+      <div style="margin-top:1.5rem" class="sidebar-label">Status</div>
+      <div style="padding:0 0.75rem; font-family:var(--font-mono); font-size:0.72rem; color:var(--color-muted); line-height:1.5;">Auto-discovery:<br>new .html dropped in /Docs appears below without edits.</div>
+    </aside>
 
-      <a class="card" href="https://heretic-model-explorer-preview.streamlit.app/">
-        <div class="card-top">
-          <span class="tag tag-green">Finetuned</span>
-          <span class="arrow">→</span>
-        </div>
-        <h2>Heretic Explorer</h2>
-        <p>Discover Abliterated AI Models</p>
-        <div class="chips">
-          <span class="chip">🍴 Fork </span><span class="chip">OSS </span><span class="chip">Credit @MuXodious</span>
-        </div>
-      </a>
-      <a class="card" href="./Configurations/KIT.html">
-        <div class="card-top">
-          <span class="tag tag-green">System</span>
-          <span class="arrow">→</span>
-        </div>
-        <h2>Agentic Kit</h2>
-        <p>AI Playground for Developer Configuration and Learnings</p>
-        <div class="chips">
-          <span class="chip">OSS </span><span class="chip">Guide </span><span class="chip">🔄 Beginner</span>
-        </div>
-      </a>
-      <a class="card" href="../Contributions/Nefilum-web/nefilum-web.html">
-        <div class="card-top">
-          <span class="tag">Contribution</span>
-          <span class="arrow">→</span>
-        </div>
-        <h2>NEFILUM Web</h2>
-        <p>Website archive, redesign notes and responsive side-by-side previews</p>
-        <div class="chips">
-          <span class="chip">Archive</span><span class="chip">Web</span><span class="chip">2024–2026</span>
-        </div>
-      </a>
-      <div class="card">
-        <div class="card-top">
-          <span class="tag tag-green">System</span>
-        </div>
-        <h2>Operating System</h2>
-        <p>Core system specifications and current local deployment</p>
-        <div class="art-btns">
-          <a class="art-btn" href="https://github.com/pamaral-git/ai-os/tree/main/Configurations" target="_blank" rel="noopener noreferrer">⚙️ Config.</a>
-          <a class="art-btn" href="https://github.com/pamaral-git/ai-os/tree/main/Notebook" target="_blank" rel="noopener noreferrer">🔬 Notes</a>
-        </div>
+    <main class="content-area" id="main-content">
+      <div class="container">
+
+        <!-- Overview -->
+        <section class="section" id="overview">
+          <div class="kicker">AI-OS · M4 · 24GB · Offline</div>
+          <h1 class="page-title">AI Operating System</h1>
+          <p class="page-lede">Self-contained, offline-first stack overview. Built to run entirely on a 24GB unified memory Apple Silicon.</p>
+
+          <div class="grid-specs">
+            <div class="spec-item"><div class="spec-label">Machine</div><div class="spec-val">MacBook Pro M4 · 24GB</div></div>
+            <div class="spec-item"><div class="spec-label">Environment</div><div class="spec-val">MacOS 27</div></div>
+            <div class="spec-item"><div class="spec-label">Inference</div><div class="spec-val">MLX / Llama.cpp / LiteRT</div></div>
+          </div>
+
+          <div class="cta-row">
+            <a class="btn-primary" href="https://github.com/pamaral-git/pamaral-git" target="_blank" rel="noopener">Whoami</a>
+            <a class="btn-secondary" href="https://github.com/pamaral-git/ai-os" target="_blank" rel="noopener">Code</a>
+          </div>
+        </section>
+
+        <!-- Modules -->
+        <section class="section" id="modules">
+          <h2 class="section-h2">Preview</h2>
+          <p class="section-desc">Builds and Contributions created with AI-OS</p>
+
+          <div class="modules-grid" id="curatedGrid">
+
+            <a class="mod-card" href="https://github.com/pamaral-git/heretically" target="_blank" rel="noopener">
+              <span class="mod-tag">fork · contribution</span>
+              <span class="mod-title">Heretically</span>
+              <span class="mod-desc">Fork to Discover and Compare Heretic Uncensored Models</span>
+              <span class="mod-chips"><span class="mod-chip">Anti-censorship</span><span class="mod-chip">Local-AI</span></span>
+              <span class="mod-foot"><span>external ↗</span><span class="mod-arrow">↗</span></span>
+            </a>
+
+            <a class="mod-card" href="../Contributions/Nefilum-web/nefilum-web.html">
+              <span class="mod-tag">contribution · dev</span>
+              <span class="mod-title">NEFILUM Web</span>
+              <span class="mod-desc">Diff. redesigning philosophy communication in a digital first world.</span>
+              <span class="mod-chips"><span class="mod-chip">Web</span><span class="mod-chip">Contribution</span><span class="mod-chip">UI</span></span>
+              <span class="mod-foot"><span>../Contributions/Nefilum-web/...</span><span class="mod-arrow">→</span></span>
+            </a>
+          </div>
+
+          <!-- Auto-discovered -->
+          <h3 class="section-h3">All Interactive Docs</h3>
+          <p class="section-desc">Every html interactive page inside Docs</p>
+          <div id="autoDocsGrid" class="modules-grid"></div>
+          <div id="autoDocsStatus" class="status-text">Scanning /Docs for HTML files…</div>
+        </section>
+
+        <!-- System -->
+        <section class="section" id="system">
+          <h2 class="section-h2">System</h2>
+          <p class="section-desc">Operating environment and persistence across my stack.</p>
+
+          <div class="system-panel">
+            <div class="system-head">
+              <div class="system-title">Operating System</div>
+            </div>
+            <div class="system-grid">
+              <div class="sys-kv"><div class="sys-k">Machine</div><div class="sys-v">MacBook Pro M4 · 24GB</div></div>
+              <div class="sys-kv"><div class="sys-k">Inference</div><div class="sys-v">MLX · Llama.cpp · LiteRT</div></div>
+              <div class="sys-kv"><div class="sys-k">Container</div><div class="sys-v">OpenShell · Docker · Podman</div></div>
+              <div class="sys-kv"><div class="sys-k">Preferences</div><div class="sys-v">Containers · Rust · Open Source </div></div>
+            </div>
+            <div class="cta-row" style="margin-top:1.1rem">
+              <button type="button" class="btn-secondary" id="btnConfig">Config</button>
+              <button type="button" class="btn-secondary" id="btnNotes">Notes</button>
+            </div>
+          </div>
+
+          <div class="footer">
+            <span>© AI-OS · Local-first · Offline</span>
+            <span>·</span>
+            <a href="https://github.com/pamaral-git/ai-os">pamaral-git/ai-os</a>
+            <span>·</span>
+            <span>Built from Post-Training aesthetic · Paper #f7f4ee · Ember #9a3412</span>
+          </div>
+        </section>
 
       </div>
-    </div>
+    </main>
   </div>
 </div>
+
+<script>
+// 1) Theme logic — must save ai-os-theme, resolve system via matchMedia, apply data-theme on html, update active class
+const THEME_KEY = 'ai-os-theme';
+function getSystemTheme(){ return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'; }
+function resolveTheme(val){ return val === 'system' ? getSystemTheme() : val; }
+function applyTheme(value){
+  const resolved = resolveTheme(value);
+  document.documentElement.setAttribute('data-theme', resolved);
+  try { localStorage.setItem(THEME_KEY, value); } catch(e){}
+  document.querySelectorAll('.theme-btn').forEach(b=>{
+    b.classList.toggle('active', b.getAttribute('data-theme-value') === value);
+  });
+}
+document.addEventListener('DOMContentLoaded', ()=>{
+  const stored = (()=>{ try { return localStorage.getItem(THEME_KEY); } catch(e){ return null; } })() || 'system';
+  applyTheme(stored);
+  document.querySelectorAll('.theme-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=> applyTheme(btn.getAttribute('data-theme-value')));
+  });
+  // Re-resolve when OS theme changes if in system mode
+  if(window.matchMedia){
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', ()=>{
+      const cur = (()=>{ try { return localStorage.getItem(THEME_KEY); } catch(e){ return 'system'; } })() || 'system';
+      if(cur === 'system') applyTheme('system');
+    });
+  }
+});
+
+// 2) Sidebar nav scroll spy with IntersectionObserver
+document.addEventListener('DOMContentLoaded', ()=>{
+  const sections = ['overview','modules','system'].map(id=>document.getElementById(id)).filter(Boolean);
+  const navBtns = document.querySelectorAll('.nav-btn, .mobile-nav-btn');
+  function setActive(secId){
+    navBtns.forEach(b=> b.classList.toggle('active', b.dataset.sec === secId));
+  }
+  navBtns.forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const target = document.getElementById(b.dataset.sec);
+      if(target) target.scrollIntoView({behavior:'smooth', block:'start'});
+    });
+  });
+  const io = new IntersectionObserver((entries)=>{
+    const visible = entries.filter(e=>e.isIntersecting).sort((a,b)=> b.intersectionRatio - a.intersectionRatio);
+    if(visible[0]) setActive(visible[0].target.id);
+  }, { rootMargin: '-45% 0px -45% 0px', threshold: [0,0.2,0.5,1] });
+  sections.forEach(s=> io.observe(s));
+
+  // Buttons in system panel
+  const toast = (msg)=>{
+    let t=document.getElementById('_toast');
+    if(!t){ t=document.createElement('div'); t.id='_toast'; t.style.cssText='position:fixed;bottom:1.2rem;right:1.2rem;background:var(--color-ink);color:var(--color-paper);padding:0.6rem 1rem;border-radius:8px;font-size:0.85rem;z-index:99;opacity:0;transform:translateY(8px);transition:all .22s'; document.body.appendChild(t); }
+    t.textContent=msg; t.style.opacity='1'; t.style.transform='translateY(0)'; setTimeout(()=>{t.style.opacity='0'; t.style.transform='translateY(8px)';},1800);
+  };
+  document.getElementById('btnConfig')?.addEventListener('click', ()=> toast('Config: ai-os-theme, offline runtime, local models.'));
+  document.getElementById('btnNotes')?.addEventListener('click', ()=> toast('Notes: Drop any .html into /Docs → auto appears.'));
+});
+
+// 3) Auto-discovery — requirement: KNOWN_META, FALLBACK_LIST, prettyTitle, prettyDesc, makeCard, fetchViaGithubAPI, fetchViaDirectoryListing, loadDocs
+const KNOWN_META = {
+  "Cerebras-Hackathon.html": { title: "Inference: Cerebras vs Nvidia vs Google", desc: "Comparing inference workfload over 247 requests and 19.30M tokens.", tag: "hackathon", chips: ["Inference","Gemma-4","Cerebras"] },
+  "KIT.html": { title: "AI Agentic Kit", desc: "Guided learning playground to quickstart your journey with Agentic AI", tag: "Agents", chips: ["Code","Offline"] },
+  "Notebook.html": { title: "Notebook Writings", desc: "All my notebook writings about self-hosting, technology and technical observations", tag: "Logs", chips: ["Write","Experience"] },
+  "Post-Training.html": { title: "Post-Training", desc: "Interactive laboratory guide for LoRA, DPO, GRPO, CPT, FTPO, and Weight-Space Surgery", tag: "post-training", chips: ["Local AI","Machine Learning"] }
+};
+const FALLBACK_LIST = ["Cerebras-Hackathon.html","KIT.html","Notebook.html","Post-Training.html"];
+
+function prettyTitle(file){
+  const base = file.replace(/\.html$/i,'');
+  if(KNOWN_META[file]) return KNOWN_META[file].title;
+  return base.replace(/[-_]+/g,' ').replace(/\b\w/g, c=> c.toUpperCase());
+}
+function prettyDesc(file){
+  if(KNOWN_META[file]) return KNOWN_META[file].desc;
+  return 'Git page ◦ ' + file + ' ◦ Click to Open';
+}
+
+function makeCard(file, meta){
+  const m = meta || KNOWN_META[file] || { title: prettyTitle(file), desc: prettyDesc(file), tag: file.split('.')[0].toLowerCase().slice(0,18), chips: ["auto","docs"] };
+  const a = document.createElement('a');
+  a.className = 'mod-card';
+  a.href = './' + file;
+  // safe text
+  const esc = (s)=> String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  a.innerHTML = ''
+    + '<span class="mod-tag">'+ esc(m.tag) +'</span>'
+    + '<span class="mod-title">'+ esc(m.title) +'</span>'
+    + '<span class="mod-desc">'+ esc(m.desc) +'</span>'
+    + '<span class="mod-chips">'+ (m.chips||[]).map(c=>'<span class="mod-chip">'+esc(c)+'</span>').join('') +'</span>'
+    + '<span class="mod-foot"><span>'+ esc(file) +'</span><span class="mod-arrow">→</span></span>';
+  return a;
+}
+
+async function fetchViaGithubAPI(){
+  try{
+    const res = await fetch('https://api.github.com/repos/pamaral-git/ai-os/contents/Docs', { headers: { 'Accept':'application/vnd.github.v3+json' } });
+    if(!res.ok) throw new Error('github api '+res.status);
+    const data = await res.json();
+    if(!Array.isArray(data)) throw new Error('not array');
+    const files = data.filter(x=> x.type === 'file' && typeof x.name === 'string' && x.name.toLowerCase().endsWith('.html') && x.name.toLowerCase() !== 'index.html').map(x=> x.name);
+    if(files.length === 0) throw new Error('empty');
+    return { source: 'github-api', files };
+  }catch(e){
+    return null;
+  }
+}
+async function fetchViaDirectoryListing(){
+  try{
+    const res = await fetch('./', { headers: { 'Accept':'text/html' } });
+    if(!res.ok) throw new Error('dir list '+res.status);
+    const html = await res.text();
+    // Heuristic: if response is index.html itself (contains AI Operating System title) without listing, bail
+    if(html.includes('AI Operating System') && !html.toLowerCase().includes('parent directory') && !html.match(/href="[^"]+\.html"/i)?.length) {
+      // Try to parse anyway
+    }
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    const anchors = Array.from(doc.querySelectorAll('a[href]'));
+    const files = anchors.map(a=> a.getAttribute('href')||'')
+      .map(href=>{
+        // strip query, keep filename
+        try{
+          const u = new URL(href, window.location.href);
+          const pathname = u.pathname;
+          return pathname.split('/').pop();
+        }catch(_){
+          return href.split('/').pop().split('?')[0].split('#')[0];
+        }
+      })
+      .filter(name=> !!name && name.toLowerCase().endsWith('.html') && name.toLowerCase() !== 'index.html')
+      .filter((v,i,self)=> self.indexOf(v)===i); // dedup
+    if(files.length === 0) throw new Error('no html links');
+    return { source: 'directory-listing', files };
+  }catch(e){
+    return null;
+  }
+}
+
+async function loadDocs(){
+  const grid = document.getElementById('autoDocsGrid');
+  const status = document.getElementById('autoDocsStatus');
+  if(!grid || !status) return;
+  grid.innerHTML = '';
+  status.textContent = 'Scanning… trying GitHub API, then local listing…';
+
+  let result = await fetchViaGithubAPI();
+  let sourceLabel = result?.source;
+  if(!result){
+    result = await fetchViaDirectoryListing();
+    sourceLabel = result?.source;
+  }
+  let files;
+  if(result && result.files && result.files.length){
+    files = result.files;
+  }else{
+    files = FALLBACK_LIST.slice();
+    sourceLabel = 'fallback (offline)';
+  }
+
+  // Sort: known first alphabetical? requirement sorts files
+  files = files.slice().sort((a,b)=> a.localeCompare(b));
+
+  // Render
+  grid.innerHTML = '';
+  files.forEach(f=>{
+    const meta = KNOWN_META[f] ? KNOWN_META[f] : { title: prettyTitle(f), desc: prettyDesc(f), tag: 'auto · ' + f.replace('.html','').slice(0,12), chips: ['auto','Docs', f.split('-')[0]||'doc'].slice(0,3) };
+    grid.appendChild(makeCard(f, meta));
+  });
+
+  // Update status text — must say new html files dropped will appear automatically
+  const count = files.length;
+  const srcText = sourceLabel === 'github-api' ? 'GitHub API (pamaral-git/ai-os/Docs)' : sourceLabel === 'directory-listing' ? 'local directory listing ./' : 'fallback list (offline/cached)';
+  status.textContent = 'Loaded ' + count + ' docs via ' + srcText + ' · New .html files dropped into /Docs will appear automatically on next reload. No manual edits needed.';
+}
+
+document.addEventListener('DOMContentLoaded', loadDocs);
+</script>
 </body>
 </html>

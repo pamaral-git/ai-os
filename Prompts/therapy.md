@@ -1,9 +1,6 @@
 ---
-name: talk-to-me
+name: therapy
 description: instructions to address private issues
-metadata:
-  author: github.com/pamaral-git 
-  modified: 31-October-2026
 ---
 
 **PERSONA:**
