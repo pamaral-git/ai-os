@@ -1,8 +1,8 @@
 ---
 name: feed-reader
-description: Universal RSS/Atom feed reader and article extractor, with a built-in Nowflation inflation preset and Google News per-ticker search. Use when the user asks for news, a feed, a blog's latest posts, today's inflation number, or what the press is saying about a stock. Supports multi-turn agent runs: fetch a feed, then drill into one item, then read the linked article, in separate tool calls.
+description: Universal RSS/Atom feed reader and article extractor, with a built-in Nowflation inflation preset and Google News per-ticker search. Use when the user asks for news, a feed, a blog's latest posts, today's inflation number, or what the press is saying about a stock.
 metadata:
-  homepage: https://github.com/google-ai-edge/gallery/tree/main/skills
+  origin: github.com/pamaral-git
 ---
 
 # Feed Reader

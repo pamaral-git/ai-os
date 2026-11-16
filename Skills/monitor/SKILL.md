@@ -2,8 +2,7 @@
 name: monitor
 description: analytical frame to analyse world events
 metadata:
-  author: github.com/pedromanuelamaral 
-  modified: 11-november-2026
+  origin: github.com/pamaral-git
 ---
 
 # Situation Monitor

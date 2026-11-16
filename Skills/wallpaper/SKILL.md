@@ -2,8 +2,7 @@
 name: wallpaper-render
 description: Quick conditional AI Wallpaper Image Editing
 metadata:
-    author: github.com/pamaral-git
-    modified: 07-Septermber-2026
+  origin: github.com/pamaral-git
 ---
 
 If  the provided image is already in the wallpaper aspect ratio (Portrait 19.5:9 for mobile or Landscape 16:10), then:

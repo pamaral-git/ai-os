@@ -2,7 +2,7 @@
 name: cinema
 description: Look up a film. Tries Letterboxd's public film page (JSON-LD only, no account or watch history) and falls back to Wikipedia when Letterboxd is blocked or its search page has no server-rendered results. Use when the user asks about a movie, wants a poster, or needs year/director/rating facts.
 metadata:
-  homepage: https://github.com/google-ai-edge/gallery/tree/main/skills
+  origin: github.com/pamaral-git
 ---
 
 # Film Digest
@@ -17,8 +17,12 @@ No user account, watch history, or list data is touched.
 
 ## Instructions
 
-Call `run_js` with script name `index.html` and `data` as ONE of:
+1. Call `cinema.ts` following this comment instructions:
+> Fill lines 330 with the file caching path, 334-335 with the film to search and 202, 337-338 with your own user profile username
+  NOTE: This bun script fetches public film metadata and user’s watch history.
+  BEWARE: Scraping another user’s activity may reveal personal data (PII) and so keep `getUserRecentActivity` limited to your own account or obtain explicit consent.
 
+2. If step 1 `cinema.ts` fails: Call `run_js` with script name `index.html` and `data` as ONE of:
 - Search: `{"action":"search","query":"parasite 2019"}`
   Returns up to 6 rows. A row with `slug` is Letterboxd. A row with `page` and
   `source:"wikipedia"` is not — pass `page` to `action:film` as `title`.

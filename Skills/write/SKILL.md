@@ -3,11 +3,8 @@ name: write
 description: Global instruction for better writting
 execution_mode: strict_override
 metadata:
-  author: github.com/pedromanuelamaral 
-  modified: 20-September-2026
-  sources: 
-  - "https://github.com/jpeggdev/humanize-writing"
-  - "https://ruben.substack.com/p/its-not-x-its-y"
+  origin: github.com/pamaral-git
+  sources: "https://github.com/jpeggdev/humanize-writing" "https://ruben.substack.com/p/its-not-x-its-y"
 ---
 
 ## 1. Core Logic & Cognitive Friction

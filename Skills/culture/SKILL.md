@@ -2,8 +2,7 @@
 name: art
 description: Search public-domain art (Art Institute of Chicago, Met Museum), poems (PoetryDB, Poetry Foundation, Lyrikline, Tumblr, Poets.org, Poetry in Translation), and full public-domain books (Project Gutenberg). Ingest Gutenberg books into on-device RAG. Use when the user asks about paintings, sculptures, poems, or classic books, or wants to read/quote from a public-domain work.
 metadata:
-  author: github.com/pamaral-git
-  modified: 1-November-2026
+  origin: github.com/pamaral-git
 ---
 
 # Culture Shelf

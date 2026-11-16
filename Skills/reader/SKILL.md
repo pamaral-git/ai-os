@@ -3,9 +3,8 @@ name: read-aloud
 description: Instructions for read aloud.
 category: Optmizer for read aloud text to speech
 metadata:
-  author: github.com/pedromanuelamaral 
-  modified: 24-August-2026
-compatibility: Requires user inserted input (text provided via insertion, links, or attachments)
+  origin: github.com/pamaral-git
+  tools: Requires user inserted input (text provided via insertion, links, or attachments)
 ---
 
 Purpose:
