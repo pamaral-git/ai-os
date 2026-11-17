@@ -1,0 +1,857 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>InferenceX — Apple M4 llama-swap Hill-Climb Report</title>
+<style>
+  :root {
+    --bg: #111214;
+    --surface: #17181c;
+    --raised: #1e2026;
+    --inset: #131418;
+    --border: rgba(240, 242, 245, 0.08);
+    --border-strong: rgba(240, 242, 245, 0.14);
+    --text: #f0f2f5;
+    --text-2: #a0a7b4;
+    --text-3: #6c7380;
+    --accent: #f59e0b;
+    --accent-dim: rgba(245, 158, 11, 0.14);
+    --green: #34d399;
+    --green-dim: rgba(52, 211, 153, 0.12);
+    --red: #f87171;
+    --red-dim: rgba(248, 113, 113, 0.12);
+    --blue: #60a5fa;
+    --sans: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui, sans-serif;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, monospace;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 14px; line-height: 1.55; -webkit-font-smoothing: antialiased; }
+  body { margin: 0; display: flex; min-height: 100vh; }
+
+  /* Sidebar */
+  aside {
+    width: 248px; flex-shrink: 0; background: var(--surface); border-right: 1px solid var(--border);
+    padding: 20px 16px; position: sticky; top: 0; height: 100vh; overflow-y: auto;
+    display: flex; flex-direction: column; gap: 24px;
+  }
+  .brand { display: flex; align-items: center; gap: 10px; padding: 0 8px; }
+  .brand-mark {
+    width: 24px; height: 24px; border-radius: 6px; background: var(--raised); border: 1px solid var(--border-strong);
+    display: grid; place-items: center; color: var(--accent); flex-shrink: 0;
+  }
+  .brand-title { font-size: 14px; font-weight: 600; color: var(--text); letter-spacing: -0.01em; }
+  .brand-sub { font-size: 11px; color: var(--text-3); font-family: var(--mono); }
+
+  nav { display: flex; flex-direction: column; gap: 2px; }
+  .nav-group { margin-top: 20px; margin-bottom: 6px; padding: 0 8px; font-size: 12px; font-weight: 500; color: var(--text-3); }
+  .nav-group:first-child { margin-top: 0; }
+  nav a {
+    display: flex; align-items: center; gap: 10px; height: 34px; padding: 0 8px; border-radius: 8px;
+    color: var(--text-2); text-decoration: none; font-size: 13px; font-weight: 400;
+    transition: background-color 140ms var(--ease), color 140ms var(--ease);
+  }
+  nav a:hover { background: var(--raised); color: var(--text); }
+  nav a.active { background: var(--raised); color: var(--text); border: 1px solid var(--border); font-weight: 500; }
+  nav a svg { width: 16px; height: 16px; stroke-width: 1.5; flex-shrink: 0; color: var(--text-3); }
+  nav a.active svg { color: var(--accent); }
+
+  .sidebar-meta {
+    margin-top: auto; padding: 12px; border-radius: 10px; background: var(--inset); border: 1px solid var(--border);
+    font-size: 12px; color: var(--text-2); display: flex; flex-direction: column; gap: 6px;
+  }
+  .sidebar-meta .row { display: flex; justify-content: space-between; font-variant-numeric: tabular-nums; }
+  .sidebar-meta .k { color: var(--text-3); }
+  .sidebar-meta .v { font-family: var(--mono); color: var(--text); }
+
+  /* Main layout */
+  main { flex: 1; min-width: 0; padding: 32px 40px 64px; max-width: 1320px; }
+  section { margin-bottom: 48px; scroll-margin-top: 24px; }
+  header.page-head {
+    display: flex; justify-content: space-between; align-items: flex-end; gap: 24px;
+    padding-bottom: 24px; border-bottom: 1px solid var(--border); margin-bottom: 32px;
+  }
+  h1 { margin: 0 0 6px; font-size: 24px; font-weight: 500; letter-spacing: -0.02em; color: var(--text); }
+  .subtitle { margin: 0; color: var(--text-2); font-size: 14px; max-width: 720px; }
+  .head-actions { display: flex; gap: 8px; flex-shrink: 0; }
+
+  h2 { margin: 0 0 8px; font-size: 18px; font-weight: 500; letter-spacing: -0.015em; color: var(--text); }
+  h3 { margin: 0 0 8px; font-size: 14px; font-weight: 500; color: var(--text); }
+  p { margin: 0 0 12px; color: var(--text-2); }
+  p:last-child { margin-bottom: 0; }
+  code { font-family: var(--mono); font-size: 12px; background: var(--raised); padding: 2px 6px; border-radius: 4px; color: var(--text); border: 1px solid var(--border); }
+
+  /* Buttons & controls */
+  button, .btn {
+    display: inline-flex; align-items: center; gap: 8px; height: 34px; padding: 0 12px; border-radius: 8px;
+    font-family: var(--sans); font-size: 13px; font-weight: 500; cursor: pointer; text-decoration: none;
+    border: 1px solid var(--border-strong); background: var(--raised); color: var(--text);
+    transition: background-color 140ms var(--ease), border-color 140ms var(--ease);
+  }
+  button:hover, .btn:hover { background: #262930; }
+  button.primary { background: var(--text); color: var(--bg); border-color: var(--text); }
+  button.primary:hover { background: #dce0e6; }
+  button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+  /* Grid & Cards */
+  .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+  .card {
+    background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px;
+  }
+  .stat-card .label { font-size: 12px; color: var(--text-3); margin-bottom: 8px; }
+  .stat-card .value { font-size: 24px; font-weight: 500; font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--text); letter-spacing: -0.02em; }
+  .stat-card .delta { margin-top: 6px; font-size: 12px; color: var(--text-2); font-variant-numeric: tabular-nums; }
+  .delta .good { color: var(--green); font-family: var(--mono); }
+  .delta .warn { color: var(--accent); font-family: var(--mono); }
+  .delta .bad { color: var(--red); font-family: var(--mono); }
+
+  .grid-2 { display: grid; grid-template-columns: 1.35fr 1fr; gap: 16px; }
+  .grid-equal { display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; }
+  .section-head { display: flex; justify-content: space-between; align-items: baseline; gap: 16px; margin-bottom: 16px; }
+  .section-meta { font-size: 12px; font-family: var(--mono); color: var(--text-3); }
+
+  /* Tables */
+  .table-wrap { overflow-x: auto; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  th, td { padding: 10px 14px; text-align: left; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  th { font-weight: 500; color: var(--text-3); font-size: 12px; background: var(--inset); white-space: nowrap; }
+  td { color: var(--text-2); }
+  tr:last-child td { border-bottom: none; }
+  tbody tr:hover { background: rgba(240, 242, 245, 0.025); }
+  .num { text-align: right; font-family: var(--mono); font-variant-numeric: tabular-nums; color: var(--text); white-space: nowrap; }
+  .mono { font-family: var(--mono); font-size: 12px; }
+
+  .dot { display: inline-block; width: 7px; height: 7px; border-radius: 50%; margin-right: 6px; vertical-align: middle; }
+  .dot-good { background: var(--green); }
+  .dot-warn { background: var(--accent); }
+  .dot-bad { background: var(--red); }
+  .dot-muted { background: var(--text-3); }
+
+  .tag {
+    display: inline-flex; align-items: center; padding: 2px 8px; border-radius: 6px;
+    font-size: 11px; font-family: var(--mono); border: 1px solid var(--border); background: var(--raised); color: var(--text-2);
+  }
+  .tag-good { background: var(--green-dim); color: var(--green); border-color: rgba(52, 211, 153, 0.25); }
+  .tag-warn { background: var(--accent-dim); color: var(--accent); border-color: rgba(245, 158, 11, 0.25); }
+  .tag-bad { background: var(--red-dim); color: var(--red); border-color: rgba(248, 113, 113, 0.25); }
+
+  /* Tabs */
+  .tabs { display: inline-flex; gap: 4px; padding: 4px; background: var(--inset); border: 1px solid var(--border); border-radius: 10px; }
+  .tabs button { height: 28px; padding: 0 10px; border: none; background: transparent; color: var(--text-2); border-radius: 6px; font-size: 12px; }
+  .tabs button.active { background: var(--raised); color: var(--text); border: 1px solid var(--border); }
+
+  /* Interactive Memory Simulator */
+  .sim-grid { display: grid; grid-template-columns: 320px 1fr; gap: 20px; align-items: start; }
+  .sim-controls { display: flex; flex-direction: column; gap: 14px; }
+  .ctrl label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-2); margin-bottom: 6px; }
+  .ctrl label span.val { font-family: var(--mono); color: var(--text); font-variant-numeric: tabular-nums; }
+  select, input[type="text"] {
+    width: 100%; height: 34px; padding: 0 10px; border-radius: 8px; background: var(--inset);
+    border: 1px solid var(--border-strong); color: var(--text); font-family: var(--sans); font-size: 13px;
+  }
+  input[type="range"] { width: 100%; accent-color: var(--accent); cursor: pointer; }
+  .check-row { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--text-2); cursor: pointer; }
+  .check-row input { accent-color: var(--accent); width: 15px; height: 15px; }
+
+  .mem-bar-outer {
+    position: relative; height: 36px; border-radius: 8px; background: var(--inset); border: 1px solid var(--border-strong);
+    overflow: hidden; display: flex; margin: 16px 0 12px;
+  }
+  .mem-seg { height: 100%; transition: width 200ms var(--ease); }
+  .limit-line {
+    position: absolute; top: 0; bottom: 0; width: 2px; background: var(--red); z-index: 3;
+  }
+  .limit-tag {
+    position: relative; font-size: 11px; font-family: var(--mono); color: var(--red); margin-bottom: 4px;
+  }
+  .mem-legend { display: flex; flex-wrap: wrap; gap: 16px; font-size: 12px; color: var(--text-2); margin-top: 8px; }
+  .mem-legend-item { display: flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+  .swatch { width: 10px; height: 10px; border-radius: 3px; }
+
+  /* Findings accordion / cards */
+  .finding-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+  .finding-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .finding-title { font-size: 15px; font-weight: 500; color: var(--text); }
+  .kv-pair { display: grid; grid-template-columns: 140px 1fr; gap: 8px; font-size: 13px; padding-top: 8px; border-top: 1px solid var(--border); }
+  .kv-pair .k { color: var(--text-3); }
+
+  /* Code viewer */
+  .code-box {
+    background: var(--inset); border: 1px solid var(--border); border-radius: 12px; overflow: hidden;
+  }
+  .code-bar {
+    display: flex; justify-content: space-between; align-items: center; padding: 10px 16px;
+    border-bottom: 1px solid var(--border); background: var(--surface);
+  }
+  pre {
+    margin: 0; padding: 16px; overflow: auto; max-height: 520px;
+    font-family: var(--mono); font-size: 12px; line-height: 1.55; color: var(--text-2);
+  }
+
+  /* Filter toolbar */
+  .toolbar { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 12px; align-items: center; }
+  .toolbar input[type="text"] { width: 240px; }
+  .toolbar select { width: 170px; }
+
+  @media (max-width: 1024px) {
+    body { flex-direction: column; }
+    aside { width: 100%; height: auto; position: static; border-right: none; border-bottom: 1px solid var(--border); }
+    main { padding: 20px; }
+    .stat-row, .grid-2, .grid-equal, .sim-grid { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">
+    <div class="brand-mark">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" width="14" height="14"><path d="M4 17l6-6 4 4 6-8"/></svg>
+    </div>
+    <div>
+      <div class="brand-title">InferenceX Lab</div>
+      <div class="brand-sub">Apple M4 · 24 GB</div>
+    </div>
+  </div>
+
+  <nav>
+    <div class="nav-group">Overview</div>
+    <a href="#summary" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>Summary &amp; ceilings</a>
+    <a href="#charts"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3v18h18"/><path d="M7 16l4-5 4 3 5-7"/></svg>Throughput gains</a>
+    <a href="#memory-sim"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="2" y="6" width="20" height="12" rx="2"/><path d="M6 10v4M10 10v4M14 10v4M18 10v4"/></svg>Memory &amp; glitch lab</a>
+
+    <div class="nav-group">Diagnosis</div>
+    <a href="#findings"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.3-4.3"/></svg>Root causes</a>
+    <a href="#spec-math"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>Speculative math</a>
+    <a href="#gates"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5"/></svg>Needle &amp; soak gates</a>
+
+    <div class="nav-group">Artifacts</div>
+    <a href="#ledger"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 6h18M3 12h18M3 18h18"/></svg>Run ledger (65)</a>
+    <a href="#config"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 18l6-6-6-6M8 6l-6 6 6 6"/></svg>Optimised config</a>
+  </nav>
+
+  <div class="sidebar-meta">
+    <div class="row"><span class="k">Metal BW</span><span class="v">93.2 GB/s</span></div>
+    <div class="row"><span class="k">FP16 GEMM</span><span class="v">3.60 TF</span></div>
+    <div class="row"><span class="k">Ridge point</span><span class="v">38.6 F/B</span></div>
+    <div class="row"><span class="k">Metal cap</span><span class="v">18.62 GiB</span></div>
+    <div class="row"><span class="k">llama.cpp</span><span class="v">b12436</span></div>
+    <div class="row"><span class="k">llama-swap</span><span class="v">v273</span></div>
+  </div>
+</aside>
+
+<main>
+  <header class="page-head">
+    <div>
+      <h1>Apple M4 local inference hill-climb</h1>
+      <p class="subtitle">Isolated benchmark and root-cause analysis <a href="https://github.com/sybil-solutions/inference-optimisation-skill">(Skill ↗)</a> on <code>localhost:11111</code> across 65 controlled runs, 4 focus models, and safe 24 GB unified memory limits for <code>gemma4a</code>.</p>
+    </div>
+    <div class="head-actions">
+      <button onclick="downloadYaml()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Download YAML</button>
+      <button class="primary" onclick="copyYaml(this)">Copy optimised config</button>
+    </div>
+  </header>
+
+  <section id="summary">
+    <div class="stat-row">
+      <div class="card stat-card">
+        <div class="label">Nanbeige 16K prefill recovery</div>
+        <div class="value">148.7 tok/s</div>
+        <div class="delta"><span class="good">+1,609%</span> vs 8.7 tok/s baseline</div>
+      </div>
+      <div class="card stat-card">
+        <div class="label">Spark 4B 4-slot swarm soak</div>
+        <div class="value">65.48 tok/s</div>
+        <div class="delta"><span class="good">3.25×</span> vs 20.13 tok/s c2 baseline</div>
+      </div>
+      <div class="card stat-card">
+        <div class="label">Nanbeige 4-slot q4_0 swarm</div>
+        <div class="value">42.59 tok/s</div>
+        <div class="delta"><span class="good">4.26×</span> vs 10.00 tok/s c2 · 10.63 GiB</div>
+      </div>
+      <div class="card stat-card">
+        <div class="label">Gemma 26B A4B glitch-free cap</div>
+        <div class="value">16.21 GiB</div>
+        <div class="delta"><span class="good">31.96 tok/s</span> at c=49,152 · 0 glitches</div>
+      </div>
+    </div>
+
+    <div class="section-head">
+      <h2>Metric comparison: baseline vs optimised vs ceiling</h2>
+      <span class="section-meta">Medians of 6 reps (`bench.py`), AC power, 18.5 GiB watchdog</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Model</th>
+            <th class="num">Baseline c1</th>
+            <th class="num">Now c1</th>
+            <th class="num">Ceiling c1</th>
+            <th class="num">Swarm cN</th>
+            <th class="num">Prefill 4K</th>
+            <th class="num">Prefill 16K</th>
+            <th class="num">Peak RAM</th>
+            <th>Winning KV &amp; slots</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>xspark</strong> <span class="mono" style="color:var(--text-3)">4B Q8_0</span></td>
+            <td class="num">20.27</td>
+            <td class="num"><strong>20.75</strong> <span style="color:var(--green)">(+2.4%)</span></td>
+            <td class="num">21.3</td>
+            <td class="num"><strong>65.48</strong> (c4)</td>
+            <td class="num">350.1 → <strong>359.0</strong></td>
+            <td class="num">317.7 → <strong>319.0</strong></td>
+            <td class="num">5.22–6.62 GiB</td>
+            <td><code>q8_0/q8_0</code> · <code>4-slot</code></td>
+          </tr>
+          <tr>
+            <td><strong>nanbeige</strong> <span class="mono" style="color:var(--text-3)">3B Q8_0</span></td>
+            <td class="num">9.91</td>
+            <td class="num"><strong>12.88</strong> <span style="color:var(--green)">(+30.0%)</span></td>
+            <td class="num">23.9</td>
+            <td class="num"><strong>42.59</strong> (c4)</td>
+            <td class="num">29.7 → <strong>204.7</strong></td>
+            <td class="num">8.7 → <strong>148.7</strong></td>
+            <td class="num">10.63 GiB (q4)</td>
+            <td><code>q4_0/q4_0</code> · <code>4-slot</code></td>
+          </tr>
+          <tr>
+            <td><strong>gemma4e</strong> <span class="mono" style="color:var(--text-3)">E4B Q8_0</span></td>
+            <td class="num">17.36</td>
+            <td class="num"><strong>18.75</strong> <span style="color:var(--green)">(+8.0%)</span></td>
+            <td class="num">18.8</td>
+            <td class="num">18.61 (c2, 1-slot)</td>
+            <td class="num">495.3 → <strong>552.2</strong></td>
+            <td class="num">505.7 → <strong>527.0</strong></td>
+            <td class="num">10.04–10.20 GiB</td>
+            <td><code>f16/f16</code> · <code>1-slot</code></td>
+          </tr>
+          <tr>
+            <td><strong>qwen3a</strong> <span class="mono" style="color:var(--text-3)">35B-A3B IQ3M</span></td>
+            <td class="num">34.86</td>
+            <td class="num"><strong>37.51</strong> <span style="color:var(--green)">(+7.6%)</span></td>
+            <td class="num">57.2</td>
+            <td class="num">36.73 (c2, 1-slot)</td>
+            <td class="num">381.8 → <strong>401.3</strong></td>
+            <td class="num">348.3 → <strong>376.2</strong></td>
+            <td class="num">15.96 GiB</td>
+            <td><code>q8_0/q8_0</code> · <code>1-slot</code></td>
+          </tr>
+          <tr>
+            <td><strong>gemma4a</strong> <span class="mono" style="color:var(--text-3)">26B-A4B Q4_K_S</span></td>
+            <td class="num" style="color:var(--red)">glitched</td>
+            <td class="num"><strong>31.96</strong> (c=49K)</td>
+            <td class="num">37.7</td>
+            <td class="num">—</td>
+            <td class="num"><strong>350.7</strong></td>
+            <td class="num"><strong>311.2</strong></td>
+            <td class="num"><strong>16.21 GiB</strong></td>
+            <td><code>q4_0/q4_0</code> · <code>c=49152</code> · <code>cram 256</code></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="charts">
+    <div class="section-head">
+      <div>
+        <h2>Throughput across levers</h2>
+        <p style="margin:0">Switch metric views to compare baseline, optimised, and physical hardware limits.</p>
+      </div>
+      <div class="tabs" role="tablist">
+        <button class="active" onclick="renderMainChart('c1', this)">Single-user decode</button>
+        <button onclick="renderMainChart('swarm', this)">4-slot swarm aggregate</button>
+        <button onclick="renderMainChart('prefill16k', this)">16K cold prefill</button>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3 id="chart-title">Single-user decode (tok/s) vs theoretical ceiling</h3>
+        <div id="main-chart" style="margin-top:16px"></div>
+      </div>
+      <div class="card">
+        <h3>Hardware &amp; active-byte ceilings (`THEORY.md`)</h3>
+        <p style="font-size:13px">Apple M4 (`Mac16,1`, 4P+6E, 10-core GPU) measured <strong>93.2 GB/s</strong> Metal copy bandwidth and <strong>3.60 TFLOPS</strong> FP16 GEMM (`8192³`), giving a <strong>38.6 FLOP/byte</strong> arithmetic ridge point.</p>
+        <table style="margin-top:12px">
+          <thead><tr><th>Model</th><th class="num">Disk GB</th><th class="num">Active GB/tok</th><th class="num">Attn / KV layers</th></tr></thead>
+          <tbody>
+            <tr><td><code>xspark</code></td><td class="num">4.38</td><td class="num">4.37</td><td class="num">9 full / 27 SWA</td></tr>
+            <tr><td><code>nanbeige</code></td><td class="num">4.43</td><td class="num">3.89</td><td class="num">22 full / 0 SWA</td></tr>
+            <tr><td><code>gemma4e</code></td><td class="num">8.03</td><td class="num">4.97*</td><td class="num">7 full / 18 shared</td></tr>
+            <tr><td><code>qwen3a</code></td><td class="num">15.81</td><td class="num">1.63</td><td class="num">10 full / 30 GDN</td></tr>
+            <tr><td><code>gemma4a</code></td><td class="num">15.47</td><td class="num">2.47</td><td class="num">5 full / 25 SWA (8h)</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px; color:var(--text-3); margin-top:10px">*`gemma4e` has 3.05 GB of Per-Layer Embeddings (`ple`) where only 1 row/tok is looked up, not streamed through MatMul.</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="memory-sim">
+    <div class="section-head">
+      <div>
+        <h2>24 GB unified memory &amp; screen-glitch simulator</h2>
+        <p style="margin:0">Interactive model of Metal residency vs `recommendedMaxWorkingSetSize` (18.62 GiB) and host Docker VM pressure.</p>
+      </div>
+    </div>
+    <div class="card sim-grid">
+      <div class="sim-controls">
+        <div class="ctrl">
+          <label>Model</label>
+          <select id="sim-model" onchange="updateSim()">
+            <option value="gemma4a">gemma4a (Gemma 4 26B-A4B Q4_K_S)</option>
+            <option value="qwen3a">qwen3a (Qwen 3.6 35B-A3B IQ3_M)</option>
+            <option value="gemma4e">gemma4e (Gemma 4 E4B Q8_0)</option>
+            <option value="nanbeige">nanbeige (Nanbeige 3B Q8_0)</option>
+            <option value="xspark">xspark (Spark 2.6 4B Q8_0)</option>
+          </select>
+        </div>
+        <div class="ctrl">
+          <label>Context window (`-c`) <span class="val" id="sim-ctx-val">60,800</span></label>
+          <input type="range" id="sim-ctx" min="8192" max="128000" step="4096" value="60800" oninput="updateSim()">
+        </div>
+        <div class="ctrl">
+          <label>KV cache quantization</label>
+          <select id="sim-kv" onchange="updateSim()">
+            <option value="f16">f16 / f16 (16-bit)</option>
+            <option value="q8_0">q8_0 / q8_0 (8-bit symmetric)</option>
+            <option value="q5_1" selected>q5_1 / q5_1 (5-bit symmetric)</option>
+            <option value="q4_0">q4_0 / q4_0 (4-bit symmetric)</option>
+          </select>
+        </div>
+        <div class="ctrl">
+          <label>Prompt checkpoint RAM (`--cache-ram`) <span class="val" id="sim-cram-val">4048 MiB</span></label>
+          <input type="range" id="sim-cram" min="0" max="4096" step="256" value="4048" oninput="updateSim()">
+        </div>
+        <label class="check-row"><input type="checkbox" id="sim-docker" checked onchange="updateSim()"> Docker Desktop VM active (`13.0 GiB` cap observed)</label>
+        <div style="display:flex; gap:8px; margin-top:4px">
+          <button onclick="applyPreset('broken')" style="flex:1; justify-content:center">Original `gemma4a`</button>
+          <button class="primary" onclick="applyPreset('safe')" style="flex:1; justify-content:center">Fixed `gemma4a`</button>
+        </div>
+      </div>
+
+      <div>
+        <div style="display:flex; justify-content:space-between; align-items:baseline">
+          <h3 id="sim-status-title" style="margin:0">Estimated `llama-server` footprint</h3>
+          <span id="sim-total-badge" class="tag tag-bad">19.9 GiB — EXCEEDS 18.62 GiB METAL CAP</span>
+        </div>
+        <div class="mem-bar-outer" id="sim-bar">
+          <div id="seg-weights" class="mem-seg" style="background:#60a5fa"></div>
+          <div id="seg-mmproj" class="mem-seg" style="background:#818cf8"></div>
+          <div id="seg-kv" class="mem-seg" style="background:#34d399"></div>
+          <div id="seg-compute" class="mem-seg" style="background:#94a3b8"></div>
+          <div id="seg-cram" class="mem-seg" style="background:#f59e0b"></div>
+          <div id="sim-limit-line" class="limit-line" title="Metal recommendedMaxWorkingSetSize: 18.62 GiB"></div>
+        </div>
+        <div class="mem-legend" id="sim-legend"></div>
+        <div id="sim-advice" style="margin-top:16px; padding:12px 14px; border-radius:8px; background:var(--inset); border:1px solid var(--border); font-size:13px; color:var(--text-2)"></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="findings">
+    <div class="section-head">
+      <h2>Root-cause diagnosis of every pain point</h2>
+      <span class="section-meta">All causes directly observed in server logs and `bench.py` runs</span>
+    </div>
+    <div class="grid-equal">
+      <div class="finding-card">
+        <div class="finding-head">
+          <div class="finding-title">1. `nanbeige` 17.1× prefill collapse (`8.7` vs `148.7 tok/s`)</div>
+          <span class="tag tag-good">Fixed</span>
+        </div>
+        <p>Asymmetric `cache-q8` (`--cache-type-k q8_0 --cache-type-v q5_1`) on `nanbeige` (`head_dim=128`, 22 full layers) caused Metal Flash Attention to miss its fused fast path. Even at `d=2048` in `llama-bench`, `q8_0/q5_1` timed out after 240 s while symmetric `q8_0/q8_0` ran 176.9 / 12.53 tok/s.</p>
+        <div class="kv-pair"><span class="k">Fix applied</span><span>Changed `cache-q8` macro to symmetric `--cache-type-k q8_0 --cache-type-v q8_0` (`204.7` 4K / `148.7` 16K prefill), and `q4_0/q4_0` for 4-slot swarm.</span></div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-head">
+          <div class="finding-title">2. `gemma4a` screen glitching &amp; memory exhaustion</div>
+          <span class="tag tag-good">Solved</span>
+        </div>
+        <p>`gemma4a` holds `14.40 GiB` weights + `1.02 GiB` mmproj + 25 SWA layers (`8` KV heads each) + 5 full layers (`head_dim=512`). Combined with `--cache-ram 4048` and Docker Desktop's `13.0 GiB` VM reservation, residency exceeded `18.62 GiB` and starved `WindowServer`.</p>
+        <div class="kv-pair"><span class="k">Fix applied</span><span>`--cache-ram 256 --ctx-checkpoints 4`, `-c 49152`, symmetric `q4_0` KV → **16.21 GiB** peak, `31.96 tok/s`, zero glitches.</span></div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-head">
+          <div class="finding-title">3. Startup &gt;60s (`mcp.json` + warmup + swap thrash)</div>
+          <span class="tag tag-good">8.3× faster</span>
+        </div>
+        <p>`llama-server` logs proved `--mcp-servers-config` spawns 4 Docker stdio containers (`DuckDuckGo`, `Thinking`, `Youtube`, `Wikipedia` = 29 tools) on every swap (`2.0 s` warm, much longer cold) while skipping 6 HTTP/malformed entries (`Web Fetch` lacked `"command"`). Warmup + 4 GiB `--cache-ram` + swap pressure pushed cold swaps past 60 s.</p>
+        <div class="kv-pair"><span class="k">Measured</span><span>`xspark` direct boot: `6.36 s` (agent + warmup + 4G cram) → **`0.77 s`** (`--no-warmup`, no MCP, 512M cram). `qwen3a` swap load: `23.2 s` → **`6.5 s`**.</span></div>
+      </div>
+
+      <div class="finding-card">
+        <div class="finding-head">
+          <div class="finding-title">4. Parallel agentic swarm (`tiny` / `smol`) &amp; thread tuning</div>
+          <span class="tag tag-good">Up to 4.26×</span>
+        </div>
+        <p>`--parallel 1` serialized concurrent swarm calls (`c2 ≈ c1`). Switching to `--parallel 4 --kv-unified` scaled `xspark` to **`65.48 tok/s`** (`5.22 GiB`). On `nanbeige` at `c=124000`, `q8_0` 4-slot thrashed (`7.05` c1 / `21.28` c4), whereas `q4_0` 4-slot hit **`42.59 tok/s`** (`10.63 GiB`). `-tb 8` vs `-tb 4` landed inside ±0.5% noise.</p>
+        <div class="kv-pair"><span class="k">Fix applied</span><span>Keep `-t 4 -tb 4` (4 P-cores); use `${4-slot}` on `xspark` (`q8_0`) and `nanbeige` (`q4_0`, or `q8_0` + `2-slot`).</span></div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:16px">
+      <h3>Config bugs caught in your original `llama-swap.yaml`</h3>
+      <div class="table-wrap" style="margin-top:10px">
+        <table>
+          <thead><tr><th>Entry</th><th>Original value</th><th>Actual on disk / issue</th><th>Fix in `llama-swap-optimised.yaml`</th></tr></thead>
+          <tbody>
+            <tr><td><code>lfmMoE</code></td><td><code>lfm2.5-24b-a2b-Q5-heretic.gguf</code></td><td>File missing; actual is <code>lfm-2.5-24b-a2b-Q5-heretic.gguf</code></td><td>Updated filename</td></tr>
+            <tr><td><code>cpm2b</code></td><td><code>miniCPM5-2B-heretic.gguf</code></td><td>File missing; actual is <code>minicpm-5-2B-heretic.gguf</code></td><td>Updated filename</td></tr>
+            <tr><td><code>ocr_surya</code></td><td><code>--spec-type draft-dspark --spec-draft-n-max 15</code></td><td>No <code>--model-draft</code> or Surya draft GGUF exists</td><td>Removed orphaned spec flags; added <code>--kv-unified</code></td></tr>
+            <tr><td><code>cache-q8</code></td><td><code>--cache-type-k q8_0 --cache-type-v q5_1</code></td><td>Asymmetric K/V triggered Metal FA fallback</td><td>Changed to symmetric <code>q8_0 / q8_0</code></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <section id="spec-math">
+    <div class="section-head">
+      <h2>Speculative decoding: math vs measured reality on Apple M4</h2>
+      <span class="section-meta">Direct test of `qwen3a` embedded MTP (`blk.40.nextn.*`) &amp; `ngram-simple`</span>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <h3>Why 80.2% acceptance ran 2.59× slower</h3>
+        <p>`qwen-3.6-35B-A3B-heretic-IQ3M.gguf` includes an embedded MTP draft layer (`blk.40`, `366 MB` with `346 MB` of its own MoE experts). With `--spec-type draft-mtp --spec-draft-n-max 1`, `llama-server` achieved <strong>80.2% draft acceptance</strong> (`170/212`, mean length `1.80`), yet throughput fell from <strong>36.93 tok/s</strong> to <strong>14.28 tok/s</strong>.</p>
+        <p>Every speculative step doubles routed MoE expert union reads (`3.13% → 6.15%`), reads `blk.40` + `0.42 GB` `output.weight`, and forces GDN state save/rollback across 41 layers — raising step time from <strong>27.08 ms</strong> to <strong>126.5 ms/step</strong> (`210` vs `384` graph reuses).</p>
+      </div>
+      <div class="card">
+        <h3>Measured code-generation A/B (`384` tokens, greedy)</h3>
+        <table>
+          <thead><tr><th>Mode (`qwen3a`, `q8_0` KV)</th><th class="num">Acceptance</th><th class="num">Step / tok ms</th><th class="num">Eval tok/s</th></tr></thead>
+          <tbody>
+            <tr><td><strong>No speculation (control)</strong></td><td class="num">1.00</td><td class="num">27.08 ms</td><td class="num"><strong>36.93</strong></td></tr>
+            <tr><td><code>ngram-simple</code> (n=12, m=16)</td><td class="num">—</td><td class="num">26.94 ms</td><td class="num">37.12</td></tr>
+            <tr><td><code>draft-mtp</code> (`--spec-draft-n-max 1`)</td><td class="num">80.2% (1.80)</td><td class="num">70.01 ms/tok</td><td class="num" style="color:var(--red)">14.28</td></tr>
+          </tbody>
+        </table>
+        <p style="font-size:12px; color:var(--text-3); margin-top:10px">Verdict: keep speculation off on Apple M4 (`93.2 GB/s`).</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="gates">
+    <div class="section-head">
+      <h2>Stability &amp; long-context needle retrieval gates</h2>
+      <span class="section-meta">Exact 3-code retrieval at spread document depths · 0 `LOOP` / `REQ_FAIL` / `MEM_CAP`</span>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr><th>Gate run</th><th>Config</th><th class="num">Real prompt tokens</th><th class="num">Cold prefill</th><th class="num">Decode at ctx</th><th class="num">Peak RAM</th><th class="num">Retrieval</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>gate-xspark-long45k</code> + check</td><td><code>xspark-q8q8</code></td><td class="num">31,044</td><td class="num">240.0 tok/s</td><td class="num">17.71 tok/s</td><td class="num">5.66 GiB</td><td class="num"><span class="tag tag-good">3/3 (think off)</span></td></tr>
+          <tr><td><code>gate-xspark-long80k</code></td><td><code>xspark-q8q8</code></td><td class="num">55,132</td><td class="num">178.6 tok/s</td><td class="num">14.93 tok/s</td><td class="num">6.61 GiB</td><td class="num"><span class="tag tag-good">3/3</span></td></tr>
+          <tr><td><code>gate-nanbeige-long60k</code></td><td><code>nanbeige-q8q8</code></td><td class="num">37,627</td><td class="num">68.2 tok/s</td><td class="num">6.69 tok/s</td><td class="num">15.52 GiB</td><td class="num"><span class="tag tag-good">3/3</span></td></tr>
+          <tr><td><code>gate-gemma4e-long45k</code></td><td><code>gemma4e-f16</code></td><td class="num">28,236</td><td class="num">405.0 tok/s</td><td class="num">15.60 tok/s</td><td class="num">10.04 GiB</td><td class="num"><span class="tag tag-good">3/3</span></td></tr>
+          <tr><td><code>gate-qwen3a-long32k</code></td><td><code>qwen3a-q8q8</code></td><td class="num">21,558</td><td class="num">315.7 tok/s</td><td class="num">29.07 tok/s</td><td class="num">16.03 GiB</td><td class="num"><span class="tag tag-good">3/3</span></td></tr>
+          <tr><td><code>gate-qwen3a-long55k</code></td><td><code>qwen3a-q8q8</code></td><td class="num">36,177</td><td class="num">248.4 tok/s</td><td class="num">25.50 tok/s</td><td class="num">15.91 GiB</td><td class="num"><span class="tag tag-good">3/3</span></td></tr>
+          <tr><td><code>gate-xspark-4slot-soak</code></td><td><code>xspark-4slot</code></td><td class="num">c=4 soak</td><td class="num">358.3 / 318.9</td><td class="num">65.48 agg</td><td class="num">5.22 GiB</td><td class="num"><span class="tag tag-good">PASS</span></td></tr>
+          <tr><td><code>l5-nanbeige-q4-4slot</code></td><td><code>nanbeige-q4-4slot</code></td><td class="num">c=4 swarm</td><td class="num">200.6 / 147.5</td><td class="num">42.59 agg</td><td class="num">10.63 GiB</td><td class="num"><span class="tag tag-good">PASS</span></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="ledger">
+    <div class="section-head">
+      <h2>Complete run ledger (`ledger.jsonl`, 65 runs)</h2>
+      <span class="section-meta" id="ledger-count">65 runs</span>
+    </div>
+    <div class="toolbar">
+      <input type="text" id="ledger-search" placeholder="Filter by run name" oninput="renderLedger()">
+      <select id="ledger-model" onchange="renderLedger()">
+        <option value="all">All models</option>
+        <option value="xspark">xspark</option>
+        <option value="nanbeige">nanbeige</option>
+        <option value="gemma4e">gemma4e</option>
+        <option value="qwen3a">qwen3a</option>
+        <option value="gemma4a">gemma4a</option>
+      </select>
+      <select id="ledger-phase" onchange="renderLedger()">
+        <option value="all">All phases</option>
+        <option value="base-">Baseline</option>
+        <option value="l1-">Lever 1 (Startup/RAM)</option>
+        <option value="l2-">Lever 2 (KV cache)</option>
+        <option value="l3-">Lever 3 (Threads/batch)</option>
+        <option value="l4-">Lever 4 (Controls)</option>
+        <option value="l5-">Lever 5 (Swarm/gemma4a)</option>
+        <option value="gate-">Acceptance gates</option>
+      </select>
+    </div>
+    <div class="table-wrap" style="max-height:480px; overflow-y:auto">
+      <table>
+        <thead>
+          <tr>
+            <th>Run</th>
+            <th class="num">c1 tok/s</th>
+            <th class="num">cN agg</th>
+            <th class="num">Prefill 4K</th>
+            <th class="num">Prefill 16K</th>
+            <th class="num">TTFT ms</th>
+            <th class="num">Startup s</th>
+            <th class="num">Mem GiB</th>
+            <th>Status / gate</th>
+          </tr>
+        </thead>
+        <tbody id="ledger-body"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="config">
+    <div class="section-head">
+      <div>
+        <h2>Optimised `llama-swap.yaml`</h2>
+        <p style="margin:0">Validated with `llama-swap -validate` (`config is valid: 15 model(s), 0 peer(s)`).</p>
+      </div>
+      <div class="head-actions">
+        <button onclick="downloadYaml()">Download</button>
+        <button class="primary" onclick="copyYaml(this)">Copy YAML</button>
+      </div>
+    </div>
+    <div class="code-box">
+      <div class="code-bar">
+        <span class="mono" style="color:var(--text-2)">/Volumes/X-Drive/drivework/inferenceX/llama-swap-optimised.yaml</span>
+        <span class="tag tag-good">Validated · 15 models</span>
+      </div>
+      <pre id="yaml-pre"></pre>
+    </div>
+
+    <div class="grid-equal" style="margin-top:16px">
+      <div class="card">
+        <h3>System state &amp; isolation</h3>
+        <p style="font-size:13px">Workspace <code>/Users/pedroamaral/Documents/cloudwork/inferenceX</code> was never modified. Isolated proxy <code>:11111</code> and all child servers were stopped. Primary <code>:8080</code> remains running and unloaded.</p>
+      </div>
+      <div class="card">
+        <h3>What was not verified</h3>
+        <p style="font-size:13px">The 10 non-focus models (`apple`, `ocr_*`, `lfm*`, `ling`, `cpm*`, `qwen4b`, `embgemma`) were not benchmarked live. Long-context needle runs on `nanbeige-q4-4slot` and `gemma4a-c49k-q4` were skipped when the laptop switched to battery (`require_ac`).</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script>
+const LEDGER = [{"name": "base-xspark", "time": "2026-11-17T03:48:57", "startup_s": 4.7, "ttft_short_ms": 121.0, "c1_decode": 20.27, "c1_all": [20.09, 20.09, 20.46, 20.25, 20.3, 20.49], "c2_aggregate": 20.13, "c2_per_stream": [20.29, 20.22], "prefill_4096": 350.1, "prefill_4096_tokens": 2995, "prefill_16384": 317.7, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 6.08, "flags": []}, {"name": "base-nanbeige", "time": "2026-11-17T03:53:28", "startup_s": 8.9, "ttft_short_ms": 116.1, "c1_decode": 9.91, "c1_all": [9.86, 9.87, 9.89, 9.94, 9.96, 9.97], "c2_aggregate": 10.0, "c2_per_stream": [10.03, 10.04], "prefill_4096": 29.7, "prefill_4096_tokens": 2697, "prefill_16384": 8.7, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 13.61, "flags": []}, {"name": "base-gemma4e", "time": "2026-11-17T04:22:06", "startup_s": 10.6, "ttft_short_ms": 227.1, "c1_decode": 17.36, "c1_all": [17.61, 17.49, 17.22, 17.33, 17.35, 17.36], "c2_aggregate": 17.15, "c2_per_stream": [17.3, 17.23], "prefill_4096": 495.3, "prefill_4096_tokens": 2676, "prefill_16384": 505.7, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 9.01, "flags": []}, {"name": "base-qwen3a", "time": "2026-11-17T04:26:41", "startup_s": 23.2, "ttft_short_ms": 170.9, "c1_decode": 34.86, "c1_all": [36.0, 35.38, 33.81, 34.77, 34.85, 34.87], "c2_aggregate": 34.41, "c2_per_stream": [35.07, 34.94], "prefill_4096": 381.8, "prefill_4096_tokens": 2797, "prefill_16384": 348.3, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 6.35, "flags": []}, {"name": "l1-xspark-ctl1", "time": "2026-11-17T04:46:01", "startup_s": 7.7, "ttft_short_ms": 119.8, "c1_decode": 20.07, "c1_all": [20.1, 20.11, 20.05, 20.02, 20.06, 20.08], "c2_aggregate": 19.82, "c2_per_stream": [19.83, 20.07], "prefill_4096": 361.3, "prefill_4096_tokens": 2995, "prefill_16384": 323.3, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.9, "flags": []}, {"name": "l1-xspark-cram512", "time": "2026-11-17T04:50:20", "startup_s": 4.7, "ttft_short_ms": 123.8, "c1_decode": 19.95, "c1_all": [19.94, 20.02, 19.99, 19.88, 19.88, 19.97], "c2_aggregate": 19.75, "c2_per_stream": [19.85, 19.89], "prefill_4096": 358.0, "prefill_4096_tokens": 2995, "prefill_16384": 320.6, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.97, "flags": []}, {"name": "l1-xspark-nowarm", "time": "2026-11-17T04:54:41", "startup_s": 5.1, "ttft_short_ms": 116.9, "c1_decode": 19.95, "c1_all": [19.98, 20.09, 19.96, 19.94, 19.87, 19.9], "c2_aggregate": 19.73, "c2_per_stream": [19.88, 19.82], "prefill_4096": 358.5, "prefill_4096_tokens": 2995, "prefill_16384": 314.0, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.97, "flags": []}, {"name": "l1-xspark-ctl2", "time": "2026-11-17T04:58:59", "startup_s": 4.7, "ttft_short_ms": 116.3, "c1_decode": 19.94, "c1_all": [19.95, 20.03, 20.03, 19.88, 19.86, 19.92], "c2_aggregate": 19.72, "c2_per_stream": [19.84, 19.85], "prefill_4096": 359.0, "prefill_4096_tokens": 2995, "prefill_16384": 315.1, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.97, "flags": []}, {"name": "l1-qwen3a-ctl1", "time": "2026-11-17T05:03:17", "startup_s": 20.6, "ttft_short_ms": 166.4, "c1_decode": 36.65, "c1_all": [36.56, 36.86, 36.82, 36.74, 36.24, 36.23], "c2_aggregate": 35.58, "c2_per_stream": [36.34, 36.05], "prefill_4096": 412.7, "prefill_4096_tokens": 2797, "prefill_16384": 376.0, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 8.65, "flags": []}, {"name": "l1-qwen3a-cram512", "time": "2026-11-17T05:06:09", "startup_s": 7.5, "ttft_short_ms": 157.7, "c1_decode": 36.97, "c1_all": [36.98, 37.16, 36.98, 36.87, 36.95, 36.91], "c2_aggregate": 35.8, "c2_per_stream": [35.74, 37.11], "prefill_4096": 410.9, "prefill_4096_tokens": 2797, "prefill_16384": 377.1, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 16.22, "flags": []}, {"name": "l1-qwen3a-nowarm", "time": "2026-11-17T05:08:47", "startup_s": 6.5, "ttft_short_ms": 165.2, "c1_decode": 36.97, "c1_all": [37.03, 37.0, 37.01, 36.91, 36.93, 36.63], "c2_aggregate": 36.33, "c2_per_stream": [37.08, 36.86], "prefill_4096": 412.9, "prefill_4096_tokens": 2797, "prefill_16384": 377.2, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.0, "flags": []}, {"name": "l1-qwen3a-ctl2", "time": "2026-11-17T05:11:23", "startup_s": 6.9, "ttft_short_ms": 158.3, "c1_decode": 36.67, "c1_all": [36.97, 37.05, 36.34, 36.77, 36.56, 36.53], "c2_aggregate": 35.98, "c2_per_stream": [36.7, 36.53], "prefill_4096": 405.8, "prefill_4096_tokens": 2797, "prefill_16384": 376.5, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.79, "flags": []}, {"name": "l2-nanbeige-q8q8", "time": "2026-11-17T05:14:01", "startup_s": 11.7, "ttft_short_ms": 118.2, "c1_decode": 12.88, "c1_all": [12.96, 12.84, 12.72, 12.91, 12.91, 12.86], "c2_aggregate": 12.85, "c2_per_stream": [12.9, 12.9], "prefill_4096": 204.7, "prefill_4096_tokens": 2697, "prefill_16384": 148.7, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 13.55, "flags": []}, {"name": "l2-nanbeige-q5q5", "time": "2026-11-17T05:21:01", "startup_s": 5.7, "ttft_short_ms": 127.4, "c1_decode": 12.6, "c1_all": [12.72, 12.67, 12.61, 12.59, 12.42, 12.54], "c2_aggregate": 12.51, "c2_per_stream": [12.56, 12.56], "prefill_4096": 203.9, "prefill_4096_tokens": 2697, "prefill_16384": 147.6, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 12.63, "flags": []}, {"name": "l2-nanbeige-q4q4", "time": "2026-11-17T05:28:00", "startup_s": 4.7, "ttft_short_ms": 112.9, "c1_decode": 12.84, "c1_all": [12.88, 12.89, 12.85, 12.81, 12.78, 12.82], "c2_aggregate": 12.73, "c2_per_stream": [12.78, 12.78], "prefill_4096": 204.8, "prefill_4096_tokens": 2697, "prefill_16384": 147.5, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 10.57, "flags": []}, {"name": "l2-nanbeige-f16-64k", "time": "2026-11-17T05:34:51", "startup_s": 5.8, "ttft_short_ms": 115.5, "c1_decode": 12.95, "c1_all": [13.02, 13.09, 12.95, 12.9, 12.91, 12.94], "c2_aggregate": 12.91, "c2_per_stream": [12.98, 12.95], "prefill_4096": 204.3, "prefill_4096_tokens": 2697, "prefill_16384": 146.6, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 15.24, "flags": []}, {"name": "l2-nanbeige-q8q8-ctl-repeat", "time": "2026-11-17T05:41:43", "startup_s": 5.7, "ttft_short_ms": 108.7, "c1_decode": 12.88, "c1_all": [12.96, 12.9, 12.87, 12.88, 12.85, 12.8], "c2_aggregate": 12.82, "c2_per_stream": [12.88, 12.87], "prefill_4096": 204.5, "prefill_4096_tokens": 2697, "prefill_16384": 148.2, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 15.4, "flags": []}, {"name": "l2-qwen3a-ctl1", "time": "2026-11-17T05:48:34", "startup_s": 15.6, "ttft_short_ms": 165.6, "c1_decode": 37.02, "c1_all": [37.19, 36.87, 37.03, 37.0, 37.08, 36.02], "c2_aggregate": 36.09, "c2_per_stream": [36.87, 36.64], "prefill_4096": 413.9, "prefill_4096_tokens": 2797, "prefill_16384": 376.9, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.68, "flags": []}, {"name": "l2-qwen3a-f16", "time": "2026-11-17T05:51:19", "startup_s": 7.6, "ttft_short_ms": 160.1, "c1_decode": 37.24, "c1_all": [37.27, 37.47, 37.19, 37.23, 37.22, 37.25], "c2_aggregate": 36.19, "c2_per_stream": [36.64, 37.07], "prefill_4096": 363.0, "prefill_4096_tokens": 2797, "prefill_16384": 375.1, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.95, "flags": []}, {"name": "l2-qwen3a-q8q8", "time": "2026-11-17T05:53:57", "startup_s": 7.6, "ttft_short_ms": 160.2, "c1_decode": 37.51, "c1_all": [37.64, 37.38, 37.55, 37.49, 37.53, 37.26], "c2_aggregate": 36.73, "c2_per_stream": [37.36, 37.47], "prefill_4096": 401.3, "prefill_4096_tokens": 2797, "prefill_16384": 376.2, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.96, "flags": []}, {"name": "l2-qwen3a-q4q4", "time": "2026-11-17T05:56:33", "startup_s": 6.8, "ttft_short_ms": 167.0, "c1_decode": 37.31, "c1_all": [37.53, 37.5, 37.26, 37.29, 37.34, 37.19], "c2_aggregate": 36.72, "c2_per_stream": [37.41, 37.38], "prefill_4096": 400.8, "prefill_4096_tokens": 2797, "prefill_16384": 375.9, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.5, "flags": []}, {"name": "l2-qwen3a-ctl2", "time": "2026-11-17T05:59:09", "startup_s": 6.6, "ttft_short_ms": 168.0, "c1_decode": 37.0, "c1_all": [37.04, 37.15, 37.01, 36.92, 37.0, 36.87], "c2_aggregate": 36.37, "c2_per_stream": [36.92, 37.15], "prefill_4096": 415.3, "prefill_4096_tokens": 2797, "prefill_16384": 377.7, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.84, "flags": []}, {"name": "l2-gemma4e-ctl1", "time": "2026-11-17T06:01:45", "startup_s": 10.5, "ttft_short_ms": 135.7, "c1_decode": 17.75, "c1_all": [17.75, 17.75, 17.71, 17.67, 17.76, 17.76], "c2_aggregate": 17.58, "c2_per_stream": [17.79, 17.73], "prefill_4096": 566.6, "prefill_4096_tokens": 2676, "prefill_16384": 525.4, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 8.11, "flags": []}, {"name": "l2-gemma4e-q8q8", "time": "2026-11-17T06:06:14", "startup_s": 6.5, "ttft_short_ms": 137.4, "c1_decode": 18.3, "c1_all": [18.34, 18.21, 18.19, 18.3, 18.32, 18.31], "c2_aggregate": 18.09, "c2_per_stream": [18.3, 18.23], "prefill_4096": 507.6, "prefill_4096_tokens": 2676, "prefill_16384": 515.7, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 9.31, "flags": []}, {"name": "l2-gemma4e-q4q4", "time": "2026-11-17T06:10:32", "startup_s": 4.5, "ttft_short_ms": 136.8, "c1_decode": 18.23, "c1_all": [18.24, 18.16, 18.24, 18.23, 18.23, 18.25], "c2_aggregate": 18.04, "c2_per_stream": [18.23, 18.22], "prefill_4096": 508.7, "prefill_4096_tokens": 2676, "prefill_16384": 516.3, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 8.9, "flags": []}, {"name": "l2-gemma4e-f16", "time": "2026-11-17T06:14:50", "startup_s": 4.5, "ttft_short_ms": 131.1, "c1_decode": 18.75, "c1_all": [18.79, 18.68, 18.72, 18.78, 18.76, 18.74], "c2_aggregate": 18.61, "c2_per_stream": [18.79, 18.69], "prefill_4096": 552.2, "prefill_4096_tokens": 2676, "prefill_16384": 527.0, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 10.2, "flags": []}, {"name": "l2-gemma4e-ctl2", "time": "2026-11-17T06:19:00", "startup_s": 4.5, "ttft_short_ms": 138.1, "c1_decode": 17.79, "c1_all": [17.79, 17.72, 17.81, 17.8, 17.79, 17.71], "c2_aggregate": 17.59, "c2_per_stream": [17.78, 17.75], "prefill_4096": 564.1, "prefill_4096_tokens": 2676, "prefill_16384": 524.0, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 9.12, "flags": []}, {"name": "l2-xspark-ctl1", "time": "2026-11-17T06:23:22", "startup_s": 7.7, "ttft_short_ms": 113.9, "c1_decode": 20.09, "c1_all": [20.13, 20.14, 20.08, 20.07, 20.07, 20.1], "c2_aggregate": 19.96, "c2_per_stream": [20.08, 20.09], "prefill_4096": 358.5, "prefill_4096_tokens": 2995, "prefill_16384": 320.2, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.92, "flags": []}, {"name": "l2-xspark-q8q8", "time": "2026-11-17T06:27:41", "startup_s": 4.7, "ttft_short_ms": 123.0, "c1_decode": 20.75, "c1_all": [20.77, 20.59, 20.83, 20.76, 20.73, 20.67], "c2_aggregate": 20.57, "c2_per_stream": [20.71, 20.69], "prefill_4096": 359.0, "prefill_4096_tokens": 2995, "prefill_16384": 319.0, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 6.62, "flags": []}, {"name": "l2-xspark-q4q4", "time": "2026-11-17T06:31:50", "startup_s": 4.7, "ttft_short_ms": 114.7, "c1_decode": 20.62, "c1_all": [20.62, 20.74, 20.75, 20.63, 20.61, 20.62], "c2_aggregate": 20.46, "c2_per_stream": [20.55, 20.62], "prefill_4096": 360.4, "prefill_4096_tokens": 2995, "prefill_16384": 319.7, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.56, "flags": []}, {"name": "l2-xspark-ctl2", "time": "2026-11-17T06:35:59", "startup_s": 4.7, "ttft_short_ms": 117.6, "c1_decode": 20.22, "c1_all": [20.21, 20.28, 20.29, 20.23, 20.19, 20.16], "c2_aggregate": 20.02, "c2_per_stream": [20.16, 20.13], "prefill_4096": 358.6, "prefill_4096_tokens": 2995, "prefill_16384": 316.7, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.97, "flags": []}, {"name": "l3-xspark-ctl1", "time": "2026-11-17T06:40:14", "startup_s": 4.7, "ttft_short_ms": 118.8, "c1_decode": 20.25, "c1_all": [20.23, 20.31, 20.27, 20.27, 20.19, 20.22], "c2_aggregate": 20.08, "c2_per_stream": [20.2, 20.2], "prefill_4096": 358.9, "prefill_4096_tokens": 2995, "prefill_16384": 318.2, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.97, "flags": []}, {"name": "l3-xspark-tb8", "time": "2026-11-17T06:44:28", "startup_s": 4.7, "ttft_short_ms": 119.8, "c1_decode": 20.3, "c1_all": [20.31, 20.36, 20.39, 20.29, 20.29, 20.26], "c2_aggregate": 20.13, "c2_per_stream": [20.25, 20.26], "prefill_4096": 357.8, "prefill_4096_tokens": 2995, "prefill_16384": 318.4, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.97, "flags": []}, {"name": "l3-xspark-ub512", "time": "2026-11-17T06:48:41", "startup_s": 4.7, "ttft_short_ms": 114.4, "c1_decode": 20.32, "c1_all": [20.2, 20.37, 20.4, 20.34, 20.28, 20.3], "c2_aggregate": 20.04, "c2_per_stream": [20.25, 20.08], "prefill_4096": 360.7, "prefill_4096_tokens": 2995, "prefill_16384": 313.3, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.91, "flags": []}, {"name": "l3-xspark-ctl2", "time": "2026-11-17T06:52:55", "startup_s": 4.7, "ttft_short_ms": 117.3, "c1_decode": 20.39, "c1_all": [20.37, 20.45, 20.41, 20.41, 20.37, 20.31], "c2_aggregate": 20.22, "c2_per_stream": [20.36, 20.34], "prefill_4096": 358.7, "prefill_4096_tokens": 2995, "prefill_16384": 312.6, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.97, "flags": []}, {"name": "l3-nanbeige-ctl1", "time": "2026-11-17T06:57:08", "startup_s": 8.7, "ttft_short_ms": 120.7, "c1_decode": 13.06, "c1_all": [13.1, 13.09, 13.09, 13.04, 12.87, 12.8], "c2_aggregate": 12.83, "c2_per_stream": [12.89, 12.86], "prefill_4096": 204.4, "prefill_4096_tokens": 2697, "prefill_16384": 147.6, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 15.31, "flags": []}, {"name": "l3-nanbeige-tb8", "time": "2026-11-17T07:04:00", "startup_s": 5.7, "ttft_short_ms": 119.5, "c1_decode": 12.89, "c1_all": [13.04, 12.94, 12.88, 12.89, 12.86, 12.86], "c2_aggregate": 12.79, "c2_per_stream": [12.86, 12.82], "prefill_4096": 205.0, "prefill_4096_tokens": 2697, "prefill_16384": 148.4, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 15.38, "flags": []}, {"name": "l3-nanbeige-ub512", "time": "2026-11-17T07:10:50", "startup_s": 5.7, "ttft_short_ms": 113.6, "c1_decode": 12.93, "c1_all": [12.99, 12.98, 12.93, 12.92, 12.88, 12.9], "c2_aggregate": 12.84, "c2_per_stream": [12.9, 12.87], "prefill_4096": 204.8, "prefill_4096_tokens": 2697, "prefill_16384": 148.5, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 15.4, "flags": []}, {"name": "l3-nanbeige-ctl2", "time": "2026-11-17T07:17:39", "startup_s": 5.7, "ttft_short_ms": 109.4, "c1_decode": 12.95, "c1_all": [13.02, 13.01, 12.95, 12.93, 12.94, 12.88], "c2_aggregate": 12.87, "c2_per_stream": [12.93, 12.91], "prefill_4096": 204.8, "prefill_4096_tokens": 2697, "prefill_16384": 147.9, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 15.28, "flags": []}, {"name": "l3-qwen3a-ctl1", "time": "2026-11-17T07:24:28", "startup_s": 16.8, "ttft_short_ms": 161.7, "c1_decode": 37.26, "c1_all": [37.53, 37.36, 37.13, 37.47, 36.92, 37.16], "c2_aggregate": 36.34, "c2_per_stream": [37.07, 36.99], "prefill_4096": 412.2, "prefill_4096_tokens": 2797, "prefill_16384": 376.1, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.89, "flags": []}, {"name": "l3-qwen3a-tb8", "time": "2026-11-17T07:27:14", "startup_s": 6.7, "ttft_short_ms": 158.7, "c1_decode": 37.31, "c1_all": [37.28, 36.88, 37.37, 37.34, 37.26, 37.38], "c2_aggregate": 36.62, "c2_per_stream": [37.42, 37.22], "prefill_4096": 409.9, "prefill_4096_tokens": 2797, "prefill_16384": 374.9, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.89, "flags": []}, {"name": "l3-qwen3a-b4k", "time": "2026-11-17T07:29:50", "startup_s": 6.5, "ttft_short_ms": 167.1, "c1_decode": 37.22, "c1_all": [37.4, 37.39, 37.22, 37.22, 36.51, 37.07], "c2_aggregate": 35.67, "c2_per_stream": [36.31, 36.32], "prefill_4096": 410.9, "prefill_4096_tokens": 2797, "prefill_16384": 376.7, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.92, "flags": []}, {"name": "l3-qwen3a-ctl2", "time": "2026-11-17T07:32:26", "startup_s": 7.6, "ttft_short_ms": 165.3, "c1_decode": 37.08, "c1_all": [37.49, 37.51, 36.77, 36.52, 37.05, 37.12], "c2_aggregate": 36.12, "c2_per_stream": [37.09, 36.51], "prefill_4096": 411.4, "prefill_4096_tokens": 2797, "prefill_16384": 377.2, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 14.65, "flags": []}, {"name": "l3-gemma4e-ctl1", "time": "2026-11-17T07:35:03", "startup_s": 10.5, "ttft_short_ms": 137.7, "c1_decode": 18.31, "c1_all": [18.39, 18.46, 17.89, 18.33, 18.22, 18.29], "c2_aggregate": 18.16, "c2_per_stream": [18.34, 18.34], "prefill_4096": 562.1, "prefill_4096_tokens": 2676, "prefill_16384": 518.6, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 8.24, "flags": []}, {"name": "l3-gemma4e-tb8", "time": "2026-11-17T07:39:26", "startup_s": 5.5, "ttft_short_ms": 134.2, "c1_decode": 18.44, "c1_all": [18.33, 18.43, 18.41, 18.45, 18.45, 18.44], "c2_aggregate": 18.29, "c2_per_stream": [18.48, 18.35], "prefill_4096": 564.2, "prefill_4096_tokens": 2676, "prefill_16384": 525.1, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 9.31, "flags": []}, {"name": "l3-gemma4e-ctl2", "time": "2026-11-17T07:43:40", "startup_s": 4.5, "ttft_short_ms": 134.8, "c1_decode": 18.49, "c1_all": [18.49, 18.41, 18.39, 18.49, 18.52, 18.5], "c2_aggregate": 18.35, "c2_per_stream": [18.52, 18.43], "prefill_4096": 565.0, "prefill_4096_tokens": 2676, "prefill_16384": 526.1, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 9.31, "flags": []}, {"name": "l4-qwen3a-ctl1", "time": "2026-11-17T07:47:53", "startup_s": 20.6, "ttft_short_ms": 164.4, "c1_decode": 36.58, "c1_all": [37.32, 37.13, 36.8, 36.35, 35.48, 35.72], "c2_aggregate": 35.56, "c2_per_stream": [36.26, 36.2], "prefill_4096": 411.1, "prefill_4096_tokens": 2797, "prefill_16384": 369.2, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 6.85, "flags": []}, {"name": "l4-qwen3a-ctl2", "time": "2026-11-17T07:50:58", "startup_s": 6.6, "ttft_short_ms": 164.0, "c1_decode": 36.98, "c1_all": [36.97, 37.0, 37.15, 37.46, 35.69, 36.07], "c2_aggregate": 36.15, "c2_per_stream": [36.61, 37.07], "prefill_4096": 411.7, "prefill_4096_tokens": 2797, "prefill_16384": 376.2, "prefill_16384_tokens": 10843, "ok": true, "mem_peak_gib": 15.95, "flags": []}, {"name": "l4-xspark-ctl1", "time": "2026-11-17T07:53:35", "startup_s": 8.7, "ttft_short_ms": 115.8, "c1_decode": 20.35, "c1_all": [20.41, 20.43, 20.43, 20.24, 20.29, 20.27], "c2_aggregate": 20.1, "c2_per_stream": [20.23, 20.22], "prefill_4096": 358.2, "prefill_4096_tokens": 2995, "prefill_16384": 315.2, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.75, "flags": []}, {"name": "l4-xspark-ctl2", "time": "2026-11-17T07:57:56", "startup_s": 4.7, "ttft_short_ms": 118.4, "c1_decode": 20.3, "c1_all": [20.41, 20.42, 20.3, 20.3, 20.11, 19.83], "c2_aggregate": 19.76, "c2_per_stream": [19.88, 19.88], "prefill_4096": 358.7, "prefill_4096_tokens": 2995, "prefill_16384": 319.5, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.97, "flags": []}, {"name": "l5-xspark-2slot", "time": "2026-11-17T08:02:50", "startup_s": 8.7, "ttft_short_ms": 116.9, "c1_decode": 20.09, "c1_all": [20.28, 20.34, 19.87, 19.83, 20.12, 20.07], "c2_aggregate": 34.99, "c2_per_stream": [17.72, 17.72], "prefill_4096": 330.7, "prefill_4096_tokens": 2995, "prefill_16384": 303.4, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.62, "flags": []}, {"name": "l5-xspark-4slot", "time": "2026-11-17T08:06:50", "startup_s": 4.7, "ttft_short_ms": 117.0, "c1_decode": 20.21, "c1_all": [20.22, 20.25, 20.26, 20.17, 20.18, 20.2], "c4_aggregate": 64.35, "c4_per_stream": [16.58, 16.58, 16.58, 16.58], "prefill_4096": 355.7, "prefill_4096_tokens": 2995, "prefill_16384": 311.3, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 6.11, "flags": []}, {"name": "l5-nanbeige-q8-2slot", "time": "2026-11-17T08:10:46", "startup_s": 10.9, "ttft_short_ms": 120.4, "c1_decode": 12.79, "c1_all": [12.82, 12.8, 12.83, 12.79, 12.7, 12.75], "c2_aggregate": 22.52, "c2_per_stream": [11.41, 11.41], "prefill_4096": 201.5, "prefill_4096_tokens": 2697, "prefill_16384": 145.6, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 12.24, "flags": []}, {"name": "l5-nanbeige-q8-4slot", "time": "2026-11-17T08:17:15", "startup_s": 6.9, "ttft_short_ms": 488.7, "c1_decode": 7.05, "c1_all": [7.28, 7.03, 7.17, 6.89, 7.07, 6.82], "c4_aggregate": 21.28, "c4_per_stream": [5.36, 5.36, 5.36, 5.36], "prefill_4096": 187.5, "prefill_4096_tokens": 2697, "prefill_16384": 143.6, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 12.59, "flags": []}, {"name": "l5-nanbeige-q4-4slot", "time": "2026-11-17T08:27:48", "startup_s": 6.7, "ttft_short_ms": 117.1, "c1_decode": 12.86, "c1_all": [12.92, 12.91, 12.85, 12.86, 12.81, 12.83], "c4_aggregate": 42.59, "c4_per_stream": [10.82, 10.82, 10.82, 10.82], "prefill_4096": 200.6, "prefill_4096_tokens": 2697, "prefill_16384": 147.5, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 10.63, "flags": []}, {"name": "l5-gemma4a-c32k-q4", "time": "2026-11-17T08:34:08", "startup_s": 17.7, "ttft_short_ms": 458.2, "c1_decode": 32.16, "c1_all": [32.2, 32.25, 32.17, 32.16, 31.96, 31.97], "prefill_4096": 345.9, "prefill_4096_tokens": 2676, "prefill_16384": 311.2, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 15.99, "flags": []}, {"name": "l5-gemma4a-c49k-q4", "time": "2026-11-17T08:36:47", "startup_s": 5.6, "ttft_short_ms": 317.4, "c1_decode": 31.96, "c1_all": [32.11, 32.05, 31.95, 31.98, 31.94, 31.88], "prefill_4096": 350.7, "prefill_4096_tokens": 2676, "prefill_16384": 311.2, "prefill_16384_tokens": 10353, "ok": true, "mem_peak_gib": 16.21, "flags": []}, {"name": "gate-xspark-long45k", "time": "2026-11-17T08:39:13", "startup_s": 9.7, "ttft_short_ms": 109.4, "c1_decode": 20.74, "c1_all": [20.81, 20.74, 20.68], "prefill_4096": 359.0, "prefill_4096_tokens": 2995, "long": {"prompt_tokens": 31044, "ttft_s": 129.3, "prefill": 240.0, "decode": 17.71, "retrieval": "1/3"}, "ok": true, "mem_peak_gib": 5.66, "flags": []}, {"name": "gate-xspark-long80k", "time": "2026-11-17T08:43:11", "startup_s": 4.7, "ttft_short_ms": 115.9, "c1_decode": 20.89, "c1_all": [20.89, 20.89, 20.88], "prefill_4096": 360.3, "prefill_4096_tokens": 2995, "long": {"prompt_tokens": 55132, "ttft_s": 308.7, "prefill": 178.6, "decode": 14.93, "retrieval": "3/3"}, "ok": true, "mem_peak_gib": 6.61, "flags": []}, {"name": "gate-nanbeige-long60k", "time": "2026-11-17T08:50:09", "startup_s": 8.7, "ttft_short_ms": 116.0, "c1_decode": 13.25, "c1_all": [13.25, 13.25, 13.18], "prefill_4096": 200.0, "prefill_4096_tokens": 2697, "long": {"prompt_tokens": 37627, "ttft_s": 551.9, "prefill": 68.2, "decode": 6.69, "retrieval": "3/3"}, "ok": true, "mem_peak_gib": 15.52, "flags": []}, {"name": "gate-gemma4e-long45k", "time": "2026-11-17T09:02:24", "startup_s": 10.5, "ttft_short_ms": 134.0, "c1_decode": 18.96, "c1_all": [18.98, 18.86, 18.96], "prefill_4096": 601.8, "prefill_4096_tokens": 2676, "long": {"prompt_tokens": 28236, "ttft_s": 69.7, "prefill": 405.0, "decode": 15.6, "retrieval": "3/3"}, "ok": true, "mem_peak_gib": 10.04, "flags": []}, {"name": "gate-qwen3a-long32k", "time": "2026-11-17T09:05:28", "startup_s": 15.6, "ttft_short_ms": 167.1, "c1_decode": 37.75, "c1_all": [37.93, 37.75, 37.5], "prefill_4096": 416.1, "prefill_4096_tokens": 2797, "long": {"prompt_tokens": 21558, "ttft_s": 68.3, "prefill": 315.7, "decode": 29.07, "retrieval": "3/3"}, "ok": true, "mem_peak_gib": 16.03, "flags": []}, {"name": "gate-qwen3a-long55k", "time": "2026-11-17T09:07:50", "startup_s": 6.6, "ttft_short_ms": 167.6, "c1_decode": 37.61, "c1_all": [37.59, 37.69, 37.61], "prefill_4096": 418.7, "prefill_4096_tokens": 2797, "long": {"prompt_tokens": 36177, "ttft_s": 145.7, "prefill": 248.4, "decode": 25.5, "retrieval": "3/3"}, "ok": true, "mem_peak_gib": 15.91, "flags": []}, {"name": "gate-xspark-4slot-soak", "time": "2026-11-17T09:11:25", "startup_s": 8.7, "ttft_short_ms": 111.5, "c1_decode": 20.43, "c1_all": [20.48, 20.44, 20.41, 20.37], "c4_aggregate": 65.48, "c4_per_stream": [16.83, 16.83, 16.83, 16.83], "prefill_4096": 358.3, "prefill_4096_tokens": 2995, "prefill_16384": 318.9, "prefill_16384_tokens": 11420, "ok": true, "mem_peak_gib": 5.22, "flags": []}, {"name": "gate-nanbeige-4slot-soak", "time": "2026-11-17T09:14:32", "startup_s": 12.0, "ttft_short_ms": 555.2, "c1_decode": 8.97, "c1_all": [8.85, 9.09, 9.99, 7.83], "c4_aggregate": 23.83, "c4_per_stream": [6.06, 6.06, 6.06, 6.06], "prefill_4096": 185.8, "prefill_4096_tokens": 2697, "prefill_16384": 142.8, "prefill_16384_tokens": 10374, "ok": true, "mem_peak_gib": 9.08, "flags": []}];
+const OPT_YAML = "# yaml-language-server: $schema=https://raw.githubusercontent.com/mostlygeek/llama-swap/refs/heads/main/config-schema.json\n# Optimised for Apple M4 (24 GB unified memory, 18.62 GiB Metal working-set limit)\n# Generated & verified via /Volumes/X-Drive/drivework/inferenceX hill-climb\n\nhealthCheckTimeout: 120\nglobalTTL: 1200\nlogLevel: info\nlogToStdout: proxy\ncaptureBuffer: 0\nstartPort: 10001\nsendLoadingState: true\nincludeAliasesInList: false\n\nmacros:\n  \"bin\": \"llama-server\"\n  \"root\": \"/Users/pedroamaral/models\"\n  \"brain\": \"/Users/pedroamaral/Documents/AI-Brain\"\n  \"image\": \"--image-min-tokens 1024\"\n  # Cut --cache-ram from 4048 -> 512 MiB and --ctx-checkpoints 16 -> 4 to reclaim ~3.5 GiB unified RAM and stop swap/glitching\n  \"config\": \"--cache-ram 512 --ctx-checkpoints 4 --ui-config-file ${brain}/llama-conf.json\"\n  # Fast non-agent config for models or swarm workers that don't need Docker MCP proxy startup overhead\n  \"agent\": \"--tools all --ui-mcp-proxy --mcp-servers-config ${brain}/.mcp.json\"\n  \"preset\": \"--jinja -ngl 99 --flash-attn on --reasoning-preserve -t 4 -tb 4 -b 2048 -ub 1024\"\n  \"1-slot\": \"--parallel 1\"\n  \"2-slot\": \"--parallel 2 --kv-unified\"\n  \"4-slot\": \"--parallel 4 --kv-unified\"\n  \"cache-q4\": \"--cache-type-k q4_0 --cache-type-v q4_0\"\n  \"cache-q5\": \"--cache-type-k q5_1 --cache-type-v q5_1\"\n  # Fixed symmetric Q8_0 KV cache (avoids 22x prefill collapse seen with mixed q8_0/q5_1 on Apple Metal)\n  \"cache-q8\": \"--cache-type-k q8_0 --cache-type-v q8_0\"\n\nmodels:\n\n  apple:\n    name: \"Apple Intelligence\"\n    description: \"Apple Foundation Model\"\n    aliases: [\"AFM\"]\n    useModelName: \"system\"\n    cmd: /usr/bin/fm serve --host 127.0.0.1 --port ${PORT}\n    proxy: http://127.0.0.1:${PORT}\n    checkEndpoint: /health\n    ttl: 0\n    unloadTimeout: 35\n\n  ocr_cpm:\n    name: \"CPM OCR\"\n    description: \"MINI CPM DSpark\"\n    aliases: [\"OCR_CPM\"]\n    capabilities:\n      in: [text, image]\n      out: [text]\n      tools: false\n      context: 90000\n    filters:\n      setParams:\n        temperature: 0.0\n        top_k: 50\n        repeat_penalty: 1.03\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} --special\n      -m ${root}/OCR/miniCPM-ocr.gguf --reasoning off\n      --mmproj ${root}/OCR/.mmproj-miniCPM-ocr.gguf\n      ${preset} ${cache-q8} -c 90000 --parallel 3 --kv-unified\n      --model-draft ${root}/OCR/.dspark-miniCPM-ocr.gguf\n      --spec-type draft-dspark --spec-draft-n-max 15\n    ttl: 1000\n    unloadTimeout: 50\n\n  ocr_surya:\n    name: \"Surya OCR\"\n    description: \"Surya OCR\"\n    aliases: [\"OCR_Surya\"]\n    capabilities:\n      in: [text, image]\n      out: [text]\n      tools: false\n      context: 98304\n    filters:\n      setParams:\n        temperature: 0.0\n        top_k: 50\n        repeat_penalty: 1.03\n    # Fixed: removed orphaned --spec-type draft-dspark (no surya draft gguf exists) and added --kv-unified\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} --special\n      -m ${root}/OCR/surya-ocr-2.5.gguf --reasoning off\n      --mmproj ${root}/OCR/.mmproj-surya-ocr-2.5.gguf\n      ${preset} ${cache-q8} -c 98304 --parallel 4 --kv-unified\n    ttl: 1000\n    unloadTimeout: 50\n\n  lfmMoE:\n    name: \"LFM 2.5 MoE\"\n    aliases: [\"LFM 24B A2B\"]\n    description: \"A2B Text MoE Model\"\n    capabilities:\n      in: [text]\n      out: [text]\n      tools: true\n      context: 95000\n    filters:\n      setParams:\n        temperature: 0.1\n        top_k: 50\n        repeat_penalty: 1.05\n        reasoning_budget: 15000\n    # Fixed filename: lfm-2.5-24b-a2b-Q5-heretic.gguf\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} ${config}\n      -m ${root}/lfm-2.5-24b-a2b-Q5-heretic.gguf ${agent}\n      ${preset} ${cache-q5} -c 90000 ${1-slot}\n    ttl: 1000\n    unloadTimeout: 35\n\n  lfmvl:\n    name: \"LFM 3 VL\"\n    aliases: [\"LFM 3 2B VL\"]\n    description: \"2B VL\"\n    capabilities:\n      in: [text, image, video]\n      out: [text]\n      tools: true\n      context: 128000\n    filters:\n      setParams:\n        temperature: 0.1\n        top_k: 50\n        top_p: 1.0\n        min_p: 0.0\n        repeat_penalty: 1.1\n        reasoning_budget: 15000\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} ${config}\n      -m ${root}/lfm3-vl-2b-heretic.gguf ${agent}\n      --mmproj ${root}/.mmproj-lfm3-vl-heretic.gguf ${image}\n      ${preset} ${cache-q5} -c 128000 ${2-slot}\n    ttl: 1000\n    unloadTimeout: 35\n\n  ling:\n    name: \"Ling A1B\"\n    aliases: [\"Ling 8B A1B\"]\n    description: \"8B MoE A1B Text Model\"\n    capabilities:\n      in: [text]\n      out: [text]\n      tools: true\n      context: 80500\n    filters:\n      setParams:\n        temperature: 0.7\n        top_p: 0.95\n        top_k: 20\n        reasoning_budget: 20000\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} ${config}\n      -m ${root}/ling-3-tiny-heretic.gguf ${agent}\n      ${preset} ${cache-q5} -c 70500 ${2-slot}\n    ttl: 1000\n    unloadTimeout: 35\n\n  cpm1bvl:\n    name: \"MiniCPM-VL 1B\"\n    aliases: [\"MiniCPM VL\"]\n    description: \"1B Multimodal\"\n    capabilities:\n      in: [text, image]\n      out: [text]\n      context: 95500\n      tools: true\n    filters:\n      setParams:\n        temperature: 0.60\n        top_p: 0.95\n        min_p: 0.0\n        repeat_penalty: 1.15\n        reasoning_budget: 15000\n        enable_thinking: True\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} ${config}\n      -m ${root}/minicpm-vl-4.7-1b-heretic.gguf ${agent}\n      --mmproj ${root}/.mmproj-minicpm-4.7-1b.gguf ${image}\n      ${preset} -c 95500 ${cache-q5} ${2-slot}\n      --min-p 0.0 --repeat-penalty 1.15\n    ttl: 900\n    unloadTimeout: 30\n\n  cpm2b:\n    name: \"MiniCPM5 2B\"\n    aliases: [\"MiniCPM5 2B\"]\n    description: \"2B Dense Text Model\"\n    capabilities:\n      in: [text]\n      out: [text]\n      context: 70500\n      tools: true\n    filters:\n      setParams:\n        temperature: 0.60\n        top_p: 0.95\n        min_p: 0.0\n        repeat_penalty: 1.05\n        reasoning_budget: 15000\n        enable_thinking: True\n    # Fixed filename: minicpm-5-2B-heretic.gguf\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} ${config}\n      -m ${root}/minicpm-5-2B-heretic.gguf ${agent}\n      ${preset} -c 70500 ${cache-q5} ${2-slot}\n      --min-p 0.0 --repeat-penalty 1.05\n    ttl: 900\n    unloadTimeout: 30\n\n  qwen4b:\n    name: \"Qwen 4B\"\n    aliases: [\"Qwen 4B\"]\n    description: \"4B Dense Multimodal\"\n    capabilities:\n      in: [text, image, audio, video]\n      out: [text]\n      context: 70500\n      tools: true\n    filters:\n      setParams:\n        temperature: 0.6\n        top_p: 0.95\n        min_p: 0.05\n        repeat_penalty: 1.05\n        reasoning_budget: 15000\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} ${config}\n      -m ${root}/qwen-3.5-4B-Uncensored-Q6K.gguf ${agent}\n      --mmproj ${root}/.mmproj-qwen-4b.gguf ${image}\n      ${preset} ${cache-q5} -c 70500 ${2-slot}\n    ttl: 900\n    unloadTimeout: 30\n\n  qwen3a:\n    name: \"Qwen A3B\"\n    aliases: [\"Qwen 35B A3B\"]\n    description: \"35B MoE A3B Multimodal\"\n    capabilities:\n      in: [text, image, audio, video]\n      out: [text]\n      tools: true\n      context: 60800\n    filters:\n      setParams:\n        temperature: 0.6\n        top_p: 0.95\n        top_k: 20\n        min_p: 0.0\n        repeat_penalty: 1.0\n        presence_penalty: 0\n        reasoning_budget: 12000\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} ${config}\n      -m ${root}/qwen-3.6-35B-A3B-heretic-IQ3M.gguf ${agent}\n      --mmproj ${root}/.mmproj-qwen-3.6-f16.gguf ${image}\n      ${preset} -c 60800 --cache-type-k q8_0 --cache-type-v q8_0 ${1-slot}\n    unloadTimeout: 70\n\n  gemma4e:\n    name: \"Gemma E4B\"\n    aliases: [\"Gemma E4B\"]\n    description: \"Gemma E4B\"\n    capabilities:\n      in: [text, image, video]\n      out: [text]\n      tools: true\n      context: 85800\n    filters:\n      setParams:\n        temperature: 0.6\n        top_p: 0.95\n        top_k: 64\n        min_p: 0.0\n        repeat_penalty: 1.0\n        presence_penalty: 0\n        reasoning_budget: 12000\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} ${config}\n      -m ${root}/gemma-4-E4B-it-heretic.gguf ${agent}\n      --mmproj ${root}/.mmproj-gemma-4-e4b.gguf ${image}\n      ${preset} -c 85800 --cache-type-k f16 --cache-type-v f16 ${1-slot}\n    unloadTimeout: 70\n\n  gemma4a:\n    name: \"Gemma A4B\"\n    aliases: [\"Gemma 25B A4B\"]\n    description: \"Gemma 4 26B A4B (Glitch-safe memory budget for 24 GB M4)\"\n    capabilities:\n      in: [text, image, audio, video]\n      out: [text]\n      tools: true\n      context: 49152\n    filters:\n      setParams:\n        temperature: 0.6\n        top_p: 0.95\n        top_k: 20\n        min_p: 0.0\n        repeat_penalty: 1.0\n        presence_penalty: 0\n        reasoning_budget: 12000\n    # Capped context (-c 49152, verified 16.21 GiB peak), --cache-ram 256, and q4_0 KV to stay below 18.62 GiB Metal limit\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} --cache-ram 256 --ctx-checkpoints 4 --ui-config-file ${brain}/llama-conf.json\n      -m ${root}/gemma-4-26B-A4B-it-heretic.Q4_K_S.gguf ${agent}\n      --mmproj ${root}/.mmproj-gemma-4.gguf ${image}\n      ${preset} -c 49152 ${cache-q4} ${1-slot}\n    unloadTimeout: 70\n\n  nanbeige:\n    name: \"Nanbeige\"\n    aliases: [\"Nanbeige\"]\n    description: \"Nanbeige 3B Dense (Symmetric q4_0 KV for 42.6 tok/s 4-slot swarm; use cache-q8 + 2-slot if 8-bit KV preferred)\"\n    capabilities:\n      in: [text]\n      out: [text]\n      tools: true\n      context: 124000\n    filters:\n      setParams:\n        temperature: 0.6\n        top_p: 0.90\n        top_k: 40\n        min_p: 0.05\n        repeat_penalty: 1.0\n        presence_penalty: 0.15\n        reasoning_budget: 1536\n        chat_template_kwargs:\n          enable_thinking: true\n          reasoning_effort: \"low\"\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} ${config}\n      -m ${root}/nanbeige-4.2-3B-ARA-heresy.gguf ${agent}\n      ${preset} -c 124000 ${cache-q4} ${4-slot}\n    unloadTimeout: 70\n\n  xspark:\n    name: \"Spark 2.6 4B\"\n    aliases: [\"Spark\"]\n    description: \"Spark 4B Dense (4-slot swarm ready)\"\n    capabilities:\n      in: [text]\n      out: [text]\n      tools: true\n      context: 90800\n    filters:\n      setParams:\n        temperature: 0.7\n        top_p: 0.90\n        top_k: 40\n        min_p: 0.05\n        repeat_penalty: 1.0\n        presence_penalty: 0.15\n        reasoning_budget: 1536\n        chat_template_kwargs:\n          enable_thinking: true\n          reasoning_effort: \"low\"\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT} ${config}\n      -m ${root}/spark-X2.6-4b-heretic.gguf ${agent}\n      ${preset} -c 90800 --cache-type-k q8_0 --cache-type-v q8_0 ${4-slot}\n    unloadTimeout: 70\n\n  embgemma:\n    name: \"EmbeddingGemma 2\"\n    description: \"Local text embeddings for Hindsight; 768 dimensions\"\n    cmd: |\n      ${bin} --host 127.0.0.1 --port ${PORT}\n      -m \"/Users/pedroamaral/Library/Application Support/DigUp/Models/embeddinggemma-2-Q8_0.gguf\"\n      --embedding --pooling mean -ngl 99 --flash-attn on\n      -c 8192 -b 8192 -ub 8192 --parallel 1 -t 4 -tb 4 --no-webui\n    ttl: 0\n    unloadTimeout: 20\n\nmatrix:\n  vars:\n    l1a: ling\n    l2a: lfmMoE\n    g4e: gemma4e\n    g4a: gemma4a\n    q3a: qwen3a\n    afm: apple\n    emb: embgemma\n    c1b: cpm1bvl\n    c2b: cpm2b\n    q4b: qwen4b\n    x4b: xspark\n    n3b: nanbeige\n\n  sets:\n    tiny: \"(n3b | c2b) & (c1b) & emb & afm\"\n    smol: \"(q4b | x4b | n3b) & emb & afm\"\n    moe: \"(l1a | l2a | g4a | q3a | g4e)\"\n";
+
+document.getElementById("yaml-pre").textContent = OPT_YAML;
+
+// Active sidebar link on scroll
+const navLinks = [...document.querySelectorAll("aside nav a")];
+const sections = navLinks.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+window.addEventListener("scroll", () => {
+  let cur = sections[0];
+  for (const s of sections) {
+    if (s.getBoundingClientRect().top <= 120) cur = s;
+  }
+  navLinks.forEach(a => a.classList.toggle("active", a.getAttribute("href") === "#" + cur.id));
+}, { passive: true });
+
+// Chart data
+const CHART_DATA = {
+  c1: {
+    title: "Single-user decode (tok/s) vs theoretical ceiling",
+    unit: "tok/s",
+    rows: [
+      { label: "qwen3a", base: 34.86, now: 37.51, ceil: 57.2 },
+      { label: "gemma4a", base: 0, now: 31.96, ceil: 37.7, note: "glitched at base" },
+      { label: "xspark", base: 20.27, now: 20.75, ceil: 21.3 },
+      { label: "gemma4e", base: 17.36, now: 18.75, ceil: 18.8 },
+      { label: "nanbeige", base: 9.91, now: 12.88, ceil: 23.9 },
+    ]
+  },
+  swarm: {
+    title: "Concurrent swarm aggregate throughput (tok/s)",
+    unit: "tok/s",
+    rows: [
+      { label: "xspark (c2 → c4)", base: 20.13, now: 65.48, ceil: 81.0 },
+      { label: "nanbeige q4 (c2 → c4)", base: 10.00, now: 42.59, ceil: 81.0 },
+      { label: "nanbeige q8 (c2 → c4)", base: 10.00, now: 23.83, ceil: 81.0 },
+    ]
+  },
+  prefill16k: {
+    title: "Cold 16K prefill throughput (tok/s)",
+    unit: "tok/s",
+    rows: [
+      { label: "gemma4e", base: 505.7, now: 527.0, ceil: null },
+      { label: "qwen3a", base: 348.3, now: 376.2, ceil: null },
+      { label: "xspark", base: 317.7, now: 319.0, ceil: null },
+      { label: "gemma4a", base: 0, now: 311.2, ceil: null, note: "glitched at base" },
+      { label: "nanbeige", base: 8.7, now: 148.7, ceil: null },
+    ]
+  }
+};
+
+function renderMainChart(kind, btn) {
+  if (btn) {
+    btn.parentElement.querySelectorAll("button").forEach(b => b.classList.remove("active"));
+    btn.classList.add("active");
+  }
+  const d = CHART_DATA[kind];
+  document.getElementById("chart-title").textContent = d.title;
+  const maxVal = Math.max(...d.rows.flatMap(r => [r.base || 0, r.now || 0, r.ceil || 0])) * 1.08;
+  const container = document.getElementById("main-chart");
+  container.innerHTML = d.rows.map(r => {
+    const bw = ((r.base || 0) / maxVal * 100).toFixed(1);
+    const nw = ((r.now || 0) / maxVal * 100).toFixed(1);
+    const cw = r.ceil ? ((r.ceil) / maxVal * 100).toFixed(1) : null;
+    return `
+      <div style="margin-bottom:14px">
+        <div style="display:flex; justify-content:space-between; font-size:12px; margin-bottom:5px">
+          <span class="mono" style="color:var(--text)">${r.label}</span>
+          <span class="mono" style="font-variant-numeric:tabular-nums; color:var(--text-2)">
+            ${r.note ? r.note : `base ${r.base}`} → <strong style="color:var(--accent)">${r.now}</strong>${r.ceil ? ` / ${r.ceil} ceil` : ""}
+          </span>
+        </div>
+        <div style="position:relative; height:22px; background:var(--inset); border:1px solid var(--border); border-radius:6px; overflow:hidden">
+          ${cw ? `<div style="position:absolute; left:${cw}%; top:0; bottom:0; width:1px; background:rgba(240,242,245,0.28); z-index:3" title="Ceiling ${r.ceil}"></div>` : ""}
+          <div style="position:absolute; left:0; top:2px; height:8px; width:${bw}%; background:#4b5563; border-radius:0 3px 3px 0"></div>
+          <div style="position:absolute; left:0; bottom:2px; height:8px; width:${nw}%; background:var(--accent); border-radius:0 3px 3px 0"></div>
+        </div>
+      </div>`;
+  }).join("") + `
+    <div style="display:flex; gap:16px; font-size:11px; color:var(--text-3); margin-top:8px">
+      <span style="display:inline-flex;align-items:center;gap:6px"><span class="swatch" style="background:#4b5563"></span>Baseline</span>
+      <span style="display:inline-flex;align-items:center;gap:6px"><span class="swatch" style="background:var(--accent)"></span>Optimised</span>
+      <span style="display:inline-flex;align-items:center;gap:6px"><span style="display:inline-block;width:2px;height:10px;background:rgba(240,242,245,0.4)"></span>Ceiling</span>
+    </div>`;
+}
+renderMainChart("c1");
+
+// Interactive 24 GB Memory Budget Simulator
+const SIM_MODELS = {
+  gemma4a: { weights: 14.40, mmproj: 1.02, compute: 0.95, kv_f16: 49152, swa_gb: 0.25, label: "Gemma 4 26B-A4B" },
+  qwen3a:  { weights: 14.72, mmproj: 0.80, compute: 0.65, kv_f16: 20480, swa_gb: 0.10, label: "Qwen 3.6 35B-A3B" },
+  gemma4e: { weights: 7.48,  mmproj: 0.50, compute: 0.45, kv_f16: 14336, swa_gb: 0.12, label: "Gemma 4 E4B" },
+  nanbeige:{ weights: 4.13,  mmproj: 0.00, compute: 0.35, kv_f16: 90112, swa_gb: 0.00, label: "Nanbeige 3B" },
+  xspark:  { weights: 4.08,  mmproj: 0.00, compute: 0.35, kv_f16: 36864, swa_gb: 0.08, label: "Spark 2.6 4B" },
+};
+const KV_MULT = { f16: 1.0, q8_0: 0.531, q5_1: 0.375, q4_0: 0.281 };
+
+function applyPreset(mode) {
+  document.getElementById("sim-model").value = "gemma4a";
+  if (mode === "broken") {
+    document.getElementById("sim-ctx").value = 60800;
+    document.getElementById("sim-kv").value = "q5_1";
+    document.getElementById("sim-cram").value = 4048;
+  } else {
+    document.getElementById("sim-ctx").value = 49152;
+    document.getElementById("sim-kv").value = "q4_0";
+    document.getElementById("sim-cram").value = 256;
+  }
+  updateSim();
+}
+
+function updateSim() {
+  const mKey = document.getElementById("sim-model").value;
+  const ctx = +document.getElementById("sim-ctx").value;
+  const kv = document.getElementById("sim-kv").value;
+  const cramMb = +document.getElementById("sim-cram").value;
+  const dockerOn = document.getElementById("sim-docker").checked;
+  const m = SIM_MODELS[mKey];
+
+  document.getElementById("sim-ctx-val").textContent = ctx.toLocaleString();
+  document.getElementById("sim-cram-val").textContent = cramMb + " MiB";
+
+  const kvGib = (m.kv_f16 * KV_MULT[kv] * ctx) / (1024 ** 3) + m.swa_gb;
+  const cramGib = cramMb / 1024;
+  const total = m.weights + m.mmproj + kvGib + m.compute + cramGib;
+  const maxAxis = 22.0;
+  const metalCap = 18.62;
+
+  const setSeg = (id, v) => document.getElementById(id).style.width = Math.min(100, (v / maxAxis * 100)).toFixed(2) + "%";
+  setSeg("seg-weights", m.weights);
+  setSeg("seg-mmproj", m.mmproj);
+  setSeg("seg-kv", kvGib);
+  setSeg("seg-compute", m.compute);
+  setSeg("seg-cram", cramGib);
+  document.getElementById("sim-limit-line").style.left = (metalCap / maxAxis * 100).toFixed(2) + "%";
+
+  const badge = document.getElementById("sim-total-badge");
+  const advice = document.getElementById("sim-advice");
+  if (total > metalCap) {
+    badge.className = "tag tag-bad";
+    badge.textContent = `${total.toFixed(2)} GiB — EXCEEDS 18.62 GiB METAL CAP`;
+    advice.innerHTML = `<strong>Starvation risk:</strong> Exceeds Apple M4 Metal <code>recommendedMaxWorkingSetSize</code> (18.62 GiB). WindowServer framebuffers get evicted, causing display glitches${dockerOn ? " — amplified by Docker Desktop's 13.0 GiB VM cap" : ""}.`;
+  } else if (total > 17.2) {
+    badge.className = "tag tag-warn";
+    badge.textContent = `${total.toFixed(2)} GiB — TIGHT HEADROOM`;
+    advice.innerHTML = `<strong>Tight margin:</strong> Fits under 18.62 GiB Metal cap, leaving ${(metalCap - total).toFixed(2)} GiB buffer.${dockerOn ? " With Docker Desktop's 13.0 GiB VM running, macOS will compress/swap inactive pages during model loads." : ""}`;
+  } else {
+    badge.className = "tag tag-good";
+    badge.textContent = `${total.toFixed(2)} GiB — GLITCH-FREE SAFE`;
+    advice.innerHTML = `<strong>Healthy headroom:</strong> ${(metalCap - total).toFixed(2)} GiB below Metal cap. Verified stable without display artifacts${mKey === "gemma4a" && ctx <= 49152 && kv === "q4_0" ? " (measured 16.21 GiB peak in <code>l5-gemma4a-c49k-q4</code>)" : ""}.`;
+  }
+
+  document.getElementById("sim-legend").innerHTML = [
+    ["#60a5fa", `Weights ${m.weights.toFixed(2)} GiB`],
+    ["#818cf8", `MMProj ${m.mmproj.toFixed(2)} GiB`],
+    ["#34d399", `KV (${kv}) ${kvGib.toFixed(2)} GiB`],
+    ["#94a3b8", `Metal scratch ${m.compute.toFixed(2)} GiB`],
+    ["#f59e0b", `Cache-RAM ${cramGib.toFixed(2)} GiB`],
+  ].map(([c, t]) => `<span class="mem-legend-item"><span class="swatch" style="background:${c}"></span>${t}</span>`).join("");
+}
+updateSim();
+
+// Ledger table
+function renderLedger() {
+  const q = document.getElementById("ledger-search").value.toLowerCase();
+  const mf = document.getElementById("ledger-model").value;
+  const pf = document.getElementById("ledger-phase").value;
+  const filtered = LEDGER.filter(r => {
+    if (q && !r.name.toLowerCase().includes(q)) return false;
+    if (mf !== "all" && !r.name.includes(mf)) return false;
+    if (pf !== "all" && !r.name.startsWith(pf)) return false;
+    return true;
+  });
+  document.getElementById("ledger-count").textContent = `${filtered.length} of ${LEDGER.length} runs`;
+  document.getElementById("ledger-body").innerHTML = filtered.map(r => {
+    const cn = r.c4_aggregate ?? r.c2_aggregate ?? "-";
+    let st = `<span class="dot dot-good"></span>PASS`;
+    if (!r.ok || (r.flags && r.flags.length)) {
+      st = `<span class="dot dot-bad"></span>${(r.flags || ["FAIL"]).join(",")}`;
+    } else if (r.long) {
+      st = `<span class="dot dot-good"></span>${r.long.prompt_tokens} tok · ${r.long.retrieval}`;
+    }
+    return `<tr>
+      <td class="mono" style="color:var(--text)">${r.name}</td>
+      <td class="num">${r.c1_decode ?? "-"}</td>
+      <td class="num">${cn}</td>
+      <td class="num">${r.prefill_4096 ?? "-"}</td>
+      <td class="num">${r.prefill_16384 ?? "-"}</td>
+      <td class="num">${r.ttft_short_ms ?? "-"}</td>
+      <td class="num">${r.startup_s ?? "-"}</td>
+      <td class="num">${r.mem_peak_gib ?? "-"}</td>
+      <td class="mono">${st}</td>
+    </tr>`;
+  }).join("");
+}
+renderLedger();
+
+function copyYaml(btn) {
+  navigator.clipboard.writeText(OPT_YAML);
+  const old = btn.textContent;
+  btn.textContent = "Copied";
+  setTimeout(() => btn.textContent = old, 1600);
+}
+function downloadYaml() {
+  const blob = new Blob([OPT_YAML], { type: "text/yaml" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "llama-swap-optimised.yaml";
+  a.click();
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+{
+  "Community-Skills": [
+      {
+        "name": "i-have-adhd",
+        "sourceType": "github",
+        "sourceUri": "https://github.com/ayghri/i-have-adhd"
+      },
+      {
+        "name": "inference-optimisation",
+        "sourceType": "github",
+        "sourceUri": "https://github.com/sybil-solutions/inference-optimisation-skill"
+      },
+      {
+        "name": "unslop",
+        "sourceType": "github",
+        "sourceUri": "https://github.com/heydamir/unslop"
+      },
+      {
+        "name": "tstack",
+        "sourceType": "github",
+        "sourceUri": "https://github.com/t3dotgg/tstack"
+      },
+      {
+        "name": "how",
+        "sourceType": "github",
+        "sourceUri": "https://github.com/poteto/how"
+      },
+      {
+        "name": "socratic",
+        "sourceType": "github",
+        "sourceUri": "https://github.com/janestreet/agent_skills"
+      },
+      {
+        "name": "impeccable",
+        "sourceType": "github",
+        "sourceUri": "pbakaus/impeccable"
+      },
+      {
+        "name": "mattpocock",
+        "sourceType": "github",
+        "sourceUri": "https://github.com/mattpocock/skills"
+      },
+      {
+        "name": "addy-web-quality-skills",
+        "sourceType": "github",
+        "sourceUri": "addyosmani/web-quality-skills"
+      },
+      {
+        "name": "humanizer",
+        "sourceType": "github",
+        "sourceUri": "blader/humanizer"
+      },
+      {
+        "name": "noodle",
+        "sourceType": "github",
+        "sourceUri": "https://github.com/poteto/noodle"
+      },
+      {
+        "name": "chrome-dev",
+        "sourceType": "github",
+        "sourceUri": "https://github.com/ChromeDevTools/chrome-devtools-mcp"
+      }
+    ]
+}

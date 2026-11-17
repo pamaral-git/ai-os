@@ -1,13 +1,32 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Post-Training — M4 · 24 GB · MLX · DPO · GRPO · FTPO · Surgery</title>
-  <meta name="description" content="Interactive laboratory on post-training small language models — DPO, GRPO, CPT, Antidoom FTPO, and Weight-Space Surgery — on an Apple M4 with 24 GB." />
+<html lang="en"><head><style>
+@font-face {
+  font-family: "Optimistic";
+  font-style: normal;
+  font-weight: 400 600;
+  font-display: swap;
+  src: url("/fonts/OptimisticAI_VF_Optimized.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Optimistic Mono";
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("/fonts/OptimisticMono_W_TextRegular.woff2") format("woff2");
+}
+:where(html) {
+  font-family: "Optimistic", system-ui, sans-serif;
+}
+:where(code, pre, kbd, samp) {
+  font-family: "Optimistic Mono", ui-monospace, monospace;
+}
+</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Post-Training v2 — M4 · 24 GB · MLX · Distillation · LoRA Library · Idle Compute</title>
+  <meta name="description" content="Interactive laboratory v2 on post-training small models — DPO, GRPO, CPT, FTPO, Surgery, plus Distillation on free tiers, LoRA Library, free datasets, idle compute, proprietary datasets, and AJ-Gonzalez forensics — on Apple M4 24 GB.">
   <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;1,400&amp;family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&amp;family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400;1,6..72,500&amp;display=swap" rel="stylesheet">
   <style>
     :root {
       --color-paper: #f7f4ee;
@@ -227,13 +246,34 @@
     }
 
   </style>
+<style>
+/* v2 additions */
+.callout{margin-top:1.5rem;background:var(--color-raised);border:1px solid var(--color-line);border-left:4px solid var(--color-ember);border-radius:10px;padding:1rem 1.25rem}
+.callout.warn{border-left-color:var(--color-bad);background:#fdf2f2}
+.callout.good{border-left-color:var(--color-good);background:#f0f7f2}
+.callout p{margin-bottom:.6rem}.callout p:last-child{margin-bottom:0}
+.table-wrap{margin-top:1.25rem;overflow-x:auto;border:1px solid var(--color-line);border-radius:10px}
+.table-wrap table{width:100%;border-collapse:collapse;font-size:.9rem;min-width:560px}
+.table-wrap th{text-align:left;background:var(--color-raised);padding:.65rem .8rem;border-bottom:1px solid var(--color-line);font-weight:600}
+.table-wrap td{padding:.6rem .8rem;border-bottom:1px solid var(--color-line);vertical-align:top;color:var(--color-secondary)}
+.table-wrap td:first-child{color:var(--color-ink);font-weight:500}
+.table-wrap tr:last-child td{border-bottom:none}
+code{font-family:var(--font-mono);font-size:.88em;background:var(--color-raised);padding:.12em .35em;border-radius:4px}
+pre{background:#1f1b16;color:#f7f4ee;border-radius:10px;padding:1rem 1.1rem;overflow-x:auto;margin-top:1rem;font-family:var(--font-mono);font-size:.82rem;line-height:1.55}
+pre code{background:none;padding:0;color:inherit}
+.tag{display:inline-block;font-family:var(--font-mono);font-size:.72rem;padding:.15rem .5rem;border:1px solid var(--color-line);border-radius:999px;background:var(--color-card);margin-right:.35rem}
+.pill-pass{color:var(--color-good);font-weight:600}.pill-fail{color:var(--color-bad);font-weight:600}
+.checklist{list-style:none;margin-left:0!important}.checklist li{padding-left:1.4rem;position:relative}.checklist li:before{content:"☐";position:absolute;left:0;color:var(--color-ember)}
+.two-col{display:grid;gap:1rem}@media(min-width:768px){.two-col{grid-template-columns:1fr 1fr}}
+</style>
+
 </head>
 <body>
   <div class="app-shell">
     <header class="top-header">
       <div>
         <h1 class="header-title">Post-training</h1>
-        <p class="header-sub">M4 · 24 GB unified</p>
+        <p class="header-sub">M4 · 24 GB · MLX · v2 — Distill · LoRA · Datasets · Idle · Proprietary</p>
       </div>
       <div class="header-meta">About 120 GB/s bandwidth</div>
     </header>
@@ -249,6 +289,12 @@
         <button type="button" class="mobile-nav-btn" data-sec="surgery">Surgery</button>
         <button type="button" class="mobile-nav-btn" data-sec="schemas">Schemas</button>
         <button type="button" class="mobile-nav-btn" data-sec="roadmap">Roadmap</button>
+        <button type="button" class="mobile-nav-btn" data-sec="distill">Distill</button>
+        <button type="button" class="mobile-nav-btn" data-sec="lora">LoRA Library</button>
+        <button type="button" class="mobile-nav-btn" data-sec="datasets">Datasets</button>
+        <button type="button" class="mobile-nav-btn" data-sec="idle">Idle Compute</button>
+        <button type="button" class="mobile-nav-btn" data-sec="proprietary">Proprietary</button>
+        <button type="button" class="mobile-nav-btn" data-sec="forensics">Forensics</button>
       </div>
     </nav>
 
@@ -265,16 +311,629 @@
           <button type="button" class="nav-btn" data-sec="surgery">Surgery</button>
           <button type="button" class="nav-btn" data-sec="schemas">Schemas</button>
           <button type="button" class="nav-btn" data-sec="roadmap">Roadmap</button>
+          <button type="button" class="nav-btn" data-sec="distill">Distill</button>
+          <button type="button" class="nav-btn" data-sec="lora">LoRA Library</button>
+          <button type="button" class="nav-btn" data-sec="datasets">Datasets</button>
+          <button type="button" class="nav-btn" data-sec="idle">Idle Compute</button>
+          <button type="button" class="nav-btn" data-sec="proprietary">Proprietary</button>
+          <button type="button" class="nav-btn" data-sec="forensics">Forensics</button>
         </div>
       </aside>
 
       <main class="content-area" id="main-content">
-        <div class="container" id="content-container"></div>
+        <div class="container" id="content-container"><article><div class="kicker">M4 · 24 GB · MLX</div><h1 class="page-title">Post-training, held as an argument</h1><p class="page-lede">You already teach small models how to call tools and how to show their work. The next projects are about judgment, scoring, and what a model is allowed to forget. Every formula below is a sentence first. v2 adds six sections — Distill, LoRA Library, Datasets, Idle Compute, Proprietary, Forensics — and Roadmap now has E1-E11. Start with LoRA Library if you only have 10 minutes: it fixes the iters math in sugest.md.</p><div class="grid-specs"><div class="spec-item"><div class="spec-label">Unified memory</div><div class="spec-val">24 GB</div></div><div class="spec-item"><div class="spec-label">Bandwidth, about</div><div class="spec-val">120 GB/s</div></div><div class="spec-item"><div class="spec-label">Already training</div><div class="spec-val">LFM2 450M, LFM3 1.7B, Nanbeige 3B</div></div><div class="spec-item"><div class="spec-label">Already running — not mastered</div><div class="spec-val">LoRA SFT, tool calls, chain of thought</div></div></div><div class="prose"><p>Three questions, and they are not the same question. <span class="term">DPO</span> asks which of two answers you would rather have written. <span class="term">GRPO</span> asks whether a program, not a teacher, can tell a better sample from a worse one. <span class="term">CPT</span> asks what it costs to make a small model less surprised by a library it has not read, without scraping away the skills you already paid for.</p><p>The machine is the constraint that makes the philosophy concrete. Twenty-four gigabytes is one pool, shared by the weights, the optimizer, the activations, and macOS. A preference pair is two sequences. A GRPO step is K sequences. A full fine-tune stores the weights again as gradients and again as Adam’s memory. The memory page is where those sentences become a number you can reject.</p><h2 class="section-h2">How to use a question</h2><p>The blocks with an ember rule are closed on purpose. Write a sentence before you uncover the claim. The claim is not a grade. If you could have said it, you already know the page. If you could not, the miss is the part worth keeping.</p><p>Treat every gigabyte on the memory page as a hypothesis, about thirty percent either way, until you measure peak memory on the metal. Log one paragraph per run, dated in ISO 8601 with the offset +01:00.</p><h2 class="section-h2">How to read a symbol</h2><p>You do not need to have enjoyed school algebra. You need a pronunciation.</p><ul><li>A capital letter is a whole object. <em>W</em> is the weights. <em>L</em> is the loss, which is just the penalty.</li><li><em>P(a | b)</em> is "the probability of a, once b is known." The bar is the word <em>given</em>.</li><li>A Greek letter is a knob you choose. <em>β</em> is how tightly you hold the old model. <em>λ</em> is a mix. <em>ε</em> is a speck that stops a division from exploding.</li><li><em>Σ</em> means add these up. <em>‖W‖</em> is the length of W as an arrow: how big the change is, ignoring direction.</li><li><em>log</em> gets large and negative when a probability gets tiny. Minus log is therefore a penalty for being surprised.</li><li><em>σ</em> folds any number into a value between 0 and 1. <em>σ(0)</em> is one half. You can use it before you love it.</li></ul></div><div class="formula-box"><div class="formula-caption">The only fact about σ you will need</div><pre class="code-block">σ(z) = 1 / (1 + e^(−z))
+σ(0) = 0.5
+large positive z → near 1
+large negative z → near 0</pre></div><p style="margin-top: 1.5rem; font-size: 1rem;">Start with the budget, not the loss. <button type="button" onclick="navigateTo('memory')" style="text-decoration: underline; text-decoration-color: var(--color-ember); text-decoration-thickness: 2px; font-weight: 500;">Open the memory instrument →</button></p></article></div>
       </main>
     </div>
   </div>
 
-  <div id="toast" class="toast">Copied to clipboard</div>
+  <template id="tpl-distill">
+<article>
+<div class="kicker">Distillation · Free tiers only · New in v2</div>
+<h1 class="page-title">Borrow a big brain, keep a small one</h1>
+<p class="page-lede">No frontier teacher fits in 24 GB. So you do not keep the teacher beside the student. You pay the teacher once — on a free cloud endpoint — save the traces as immutable JSONL, then train locally in MLX. This section is experimental, not mastered. Verify every limit in the provider dashboard before a bulk run: free rosters and Neuron/token math change fast.</p>
+
+<div class="callout"><p><strong>Only-free rule for this section.</strong> No $10 OpenRouter top-up, no Workers Paid, no paid NIM subscription, no paid Cline/OpenCode model. If a limit says “rises after you pay,” stay at the free cap. Realistic yield if you rotate providers: ~300–500 raw traces/day, ~150–250 usable SFT rows/day after filtering. That is enough. Do not try to build 100k rows on free tiers — you will hit 429s or get throttled.</p></div>
+
+<h2 class="section-h2">The pattern</h2>
+<div class="prose"><p><code>API teacher (cloud, free) → raw traces (JSONL, immutable) → filter / dedupe / decontaminate → SFT JSONL + DPO pairs → LOCAL mlx_lm.lora on LFM2-350M / LFM3-1.7B / Nanbeige-3B → local eval, never teacher eval as proof</code></p><p>Keep the teacher’s output and your filtered output in different files. Never edit <code>raw/</code> in place. If you re-filter, you re-derive from raw — that is what makes the experiment reproducible.</p></div>
+
+<h2 class="section-h2">Decision table — pick teacher by job, not hype</h2>
+<div class="table-wrap"><table><tbody><tr><th>Provider</th><th>What it is</th><th>Best teacher use here</th><th>Free limit — VERIFY</th><th>Risk</th></tr>
+<tr><td>Cloudflare Workers AI</td><td>API, open-weight models inside a Worker</td><td>Bulk CoT / code / general SFT traces</td><td>10,000 Neurons/day, resets 00:00 UTC. Some frontier models need a paid billing method and will not run on free.</td><td>Neurons are not tokens. A 3k-in / 1k-out call costs far more than one Neuron.</td></tr>
+<tr><td>OpenRouter :free</td><td>Router to many providers, one OpenAI-compatible API</td><td>Reasoning traces, code, preference pairs from rotating free models</td><td>20 req/min, 50/day if lifetime purchases &lt; $10. 1,000/day after $10 — this lab stays at 50/day to stay strictly free.</td><td>Roster rotates. DeepSeek / Qwen / Llama free variants come and go. Pin the exact model id per run.</td></tr>
+<tr><td>NVIDIA NIM — build.nvidia.com</td><td>Hosted NIM endpoints, OpenAI-compatible</td><td>70B-class teacher for hard reasoning / code</td><td>~40 req/min in practice, ~1,000 signup credits historically; newer docs describe rate-limit trial instead of credits. No card for trial endpoints.</td><td>Trial terms allow prompts to improve models and exclude production use. Do not send secrets or PII.</td></tr>
+<tr><td>Cline</td><td>Free Apache-2.0 coding agent for VS Code / JetBrains / CLI</td><td>Code traces with real repo context, multi-file edits</td><td>Extension $0. Inference is BYOK — you pay / free-tier the model you point it at.</td><td>It edits files. Keep approval on for every irreversible step.</td></tr>
+<tr><td>OpenCode / opencode</td><td>Open-source terminal agent, 75+ providers</td><td>Batch trace generation in terminal, scripted prompts</td><td>Agent $0. Same BYOK rule as Cline. Config in <code>opencode.json</code>.</td><td>Easy to loop and burn a free quota in minutes. Add sleeps + caps.</td></tr>
+</tbody></table></div>
+<p style="margin-top:.6rem;font-size:.85rem;color:var(--color-muted)">Sources checked Nov 2026: Cloudflare Workers AI pricing (10k Neurons/day), OpenRouter rate-limit docs (20/min, 50/day), NVIDIA NIM docs / developer forums (~40 RPM, trial terms). Treat these as “check dashboard today,” not permanent facts.</p>
+
+<h2 class="section-h2">Teacher prompt — make the trace usable</h2>
+<div class="prose"><p>Do not ask for “an answer.” Ask for reasoning, then answer, then a self-check, in separate fields. That is what lets you filter later.</p></div>
+<pre><code>SYSTEM: You are a precise reasoning teacher. Output in this exact shape:
+## Reasoning
+Step-by-step, no skipped algebra, no hidden tool calls.
+## Answer
+The final answer, alone, in a fenced block if code / JSON.
+## Self-check
+Re-read the Reasoning. List one way it could be wrong, and why it is not.
+
+USER: {prompt}
+Keep reasoning under 1200 tokens unless the task needs more.
+If you are unsure, say so and give confidence 0-1, do not bluff.</code></pre>
+
+<h2 class="section-h2">Minimal generator — one file, no hardcoded keys</h2>
+<pre><code># teacher_generate.py — append-only, rate-limited, provenance on every row
+import os, json, time, hashlib, requests
+from pathlib import Path
+
+OPENROUTER_KEY = os.environ["OPENROUTER_API_KEY"]  # never hardcode
+NVIDIA_KEY = os.environ.get("NVIDIA_API_KEY", "")
+OUT = Path("data/raw/teacher_2026-11-16.jsonl"); OUT.parent.mkdir(parents=True, exist_ok=True)
+
+def call_openrouter(prompt, model="google/gemma-4-31b-it:free"):
+    r = requests.post("https://openrouter.ai/api/v1/chat/completions",
+        headers={"Authorization": f"Bearer {OPENROUTER_KEY}"},
+        json={"model": model, "temperature": 0.7, "max_tokens": 2048,
+              "messages": [{"role":"user","content": prompt}]}, timeout=120)
+    if r.status_code == 429:
+        time.sleep(65); return call_openrouter(prompt, model)  # free tier: back off, do not hammer
+    r.raise_for_status(); return r.json()["choices"][0]["message"]["content"]
+
+def save(prompt, teacher, model, text):
+    row = {"messages": [
+        {"role":"system","content":"You are a precise reasoning teacher."},
+        {"role":"user","content": prompt},
+        {"role":"assistant","content": text}],
+      "meta": {"teacher": teacher, "model": model, "temp": 0.7,
+               "date": "2026-11-16", "prompt_hash": hashlib.sha256(prompt.encode()).hexdigest()[:12]}}
+    with open(OUT, "a") as f: f.write(json.dumps(row, ensure_ascii=False) + "\n")
+
+# NVIDIA NIM is the same shape, different base URL + key:
+# POST https://integrate.api.nvidia.com/v1/chat/completions  Authorization: Bearer $NVIDIA_API_KEY
+# Cloudflare Workers AI: POST https://api.cloudflare.com/client/v4/accounts/$CF_ACCOUNT_ID/ai/run/@cf/meta/llama-3.1-8b-instruct
+#   Authorization: Bearer $CF_API_TOKEN  — check model id on the Workers AI catalogue page first.</code></pre>
+
+<h2 class="section-h2">From traces → SFT + DPO</h2>
+<div class="two-col">
+<div class="panel" style="margin-top:0"><h3 class="section-h3" style="margin-top:0">SFT row</h3><p style="font-size:.92rem">Teacher trace, filtered, becomes a <code>messages</code> row. Keep <code>meta</code> — it is your provenance.</p><pre><code>{"messages":[
+ {"role":"user","content":"Weather in Braga?"},
+ {"role":"assistant","content":"The city is the argument..."}],
+ "meta":{"teacher":"openrouter","model":"...:free","verifier":"pass"}}</code></pre></div>
+<div class="panel" style="margin-top:0"><h3 class="section-h3" style="margin-top:0">DPO pair</h3><p style="font-size:.92rem">Chosen = teacher trace that passed verifier. Rejected = your student’s trace that failed, or a shorter / bluffing teacher trace. Never invent a rejected answer.</p><pre><code>{"prompt":"Did Socrates write Apology?",
+ "chosen":"No. Plato composed...",
+ "rejected":"No. We cannot really say...",
+ "meta":{"axis":"hedging-vs-answer"}}</code></pre></div>
+</div>
+
+<h2 class="section-h2">Filter before you train — the gate</h2>
+<ul class="checklist prose"><li>Dedupe: exact hash + near-dedupe (drop if &gt;80% n-gram overlap with another row).</li><li>Length: drop traces &gt;2048 tokens for this lab, or chunk like the AJ-Gonzalez coder recipe (2048 / 256 overlap).</li><li>Verifier: if the task has a check (unit test, JSON schema, calculator), the trace must pass it. No verifier, no train for code / math.</li><li>Decontaminate: drop any row with &gt;8-gram overlap with your held-out eval set.</li><li>Language / PII: drop secrets, emails, API keys. Scrub before saving to <code>data/clean/</code>.</li><li>Balance: cap any one teacher / category at 40% of the set, or you distill its tics, not its skill.</li></ul>
+
+<h2 class="section-h2">ToS + provenance — the honest part</h2>
+<div class="callout warn"><p><strong>Do not distill to compete, do not redistribute verbatim.</strong> Check each provider’s terms before you use its outputs to train a model you publish. Qwen / OpenRouter / NVIDIA terms all apply to traces made through them, and the upstream prompt set’s licence applies too. Keep <code>meta.teacher / model / date / prompt_hash</code> on every row so you can delete a provider’s rows later if its terms change.</p></div>
+
+<h2 class="section-h2">Success vs failure — one distillation run</h2>
+<div class="table-wrap"><table><tbody><tr><th>Signal</th><th><span class="pill-pass">PASS</span></th><th><span class="pill-fail">FAIL / STOP</span></th></tr>
+<tr><td>Usable rate</td><td>≥50% of raw traces pass verifier + length gate</td><td>&lt;25% pass — prompt or teacher is wrong, not the filter</td></tr>
+<tr><td>Student win-rate vs base (held-out)</td><td>+8 points or more, length ratio 0.9–1.10</td><td>Win-rate up but length +30% — you taught verbosity, not reasoning</td></tr>
+<tr><td>Tool-call accuracy</td><td>Within 2 points of base, or better</td><td>Down &gt;5 points — traces taught hallucinated tool returns</td></tr>
+<tr><td>Doom-loop rate</td><td>Down or flat</td><td>Up — teacher traces were too long / loopy; re-filter to short traces</td></tr>
+</tbody></table></div>
+
+<h2 class="section-h2">Mini-experiment E8 — 1 prompt, 3 teachers, 1 judge</h2>
+<div class="prose"><ol><li>Pick 1 prompt you can verify (e.g. a Python function with 3 unit tests).</li><li>Generate it on Cloudflare + OpenRouter :free + NVIDIA NIM. Save all 3 to <code>raw/</code>.</li><li>Run the verifier on each. Keep only passing traces.</li><li>Ask a 4th model (or yourself) to pick the clearest passing trace — that becomes the SFT row. The failing trace becomes the DPO rejected.</li><li>Train LFM2-350M, FAST-PROBE (see LoRA Library), 200 steps. If it does not beat base on 20 held-out prompts, fix the prompt / verifier before you scale.</li></ol></div>
+</article>
+</template>
+
+<template id="tpl-lora">
+<article>
+<div class="kicker">LoRA Library · Rebuilt from sugest.md · New in v2</div>
+<h1 class="page-title">LoRA, written so you can copy it</h1>
+<p class="page-lede">This replaces the old sugest.md. Same sweet spots, but now every number shows its formula, every command is copy-paste with variables, and every run has a PASS / FAIL gate. If a number here has no formula, do not trust it.</p>
+
+<div class="callout"><p><strong>Honest status.</strong> You are not “mastered fine-tuning.” You are <strong>Level 1–2</strong> on the ladder below: you can run a LoRA job and diagnose the common failures. Level 3 is designing a new recipe from scratch; Level 4 is teaching it without this page. That is the goal, not the claim.</p></div>
+
+<h2 class="section-h2">Skill ladder — replace “mastered” with this</h2>
+<div class="table-wrap"><table><tbody><tr><th>Level</th><th>Can you…</th><th>Proof</th></tr>
+<tr><td>0 — Cannot start</td><td>Run <code>mlx_lm.lora</code> without error</td><td>One adapter file exists</td></tr>
+<tr><td>1 — Can run</td><td>Copy a recipe, fill variables, log the run</td><td>Log row with peak memory + metrics</td></tr>
+<tr><td>2 — Can diagnose</td><td>Tell loss-flat vs overfit vs length-explosion apart, and fix each</td><td>Two failed runs with written diagnosis</td></tr>
+<tr><td>3 — Can design</td><td>Choose r / LR / batch for a new dataset from its size + task</td><td>New recipe, predicted iters, matched actual</td></tr>
+<tr><td>4 — Can teach</td><td>Explain it unprompted, without this page</td><td>Someone else runs your recipe cleanly</td></tr>
+</tbody></table></div>
+
+<h2 class="section-h2">What was wrong with old sugest.md — fixed here</h2>
+<div class="table-wrap"><table><tbody><tr><th>Old bug</th><th>Fix</th></tr>
+<tr><td><code>1800 / 900 iters</code> for 3600 rows, no batch / epochs stated</td><td><strong>iters = ceil(epochs × N / effective_batch).</strong> 1800 = 2 epochs at effective batch 4. 900 = 1 epoch at effective batch 4. Never quote iters without all three.</td></tr>
+<tr><td>LFM2-450M listed as text model</td><td>Text backbone is <strong>350M</strong>. 450M is the VL total (350M LM + vision). Text LoRA ≠ VL LoRA. Use <code>LiquidAI/LFM2-350M</code> / <code>mlx-community/LFM2-350M-4bit</code> for text.</td></tr>
+<tr><td>LR / r given as gospel, no scale / keys / mask scope</td><td>Canonical YAML below. MLX uses <code>scale</code>, not <code>alpha</code> in the old sense. <code>--mask-prompt</code> only for chat / tool data; it errors on raw <code>text</code> data.</td></tr>
+<tr><td>No holdout / valid split</td><td>Every recipe holds out 200–300 rows. Never train on test.</td></tr>
+<tr><td>Dataset names, no IDs / licences</td><td>See Datasets section: VERIFY licence before training. No invented HF IDs here.</td></tr>
+</tbody></table></div>
+
+<h2 class="section-h2">Canonical config — one file per run</h2>
+<pre><code># run.yaml — copy, fill, commit with the adapter. No hidden defaults.
+model: "mlx-community/LFM3-1.7B-4bit"   # or LFM2-350M-4bit, MiniCPM, Nanbeige
+data: "/Users/pedroamaral/Documents/LoRA/SFT_liquid_power_triad"
+adapter: "/Volumes/X-Drive/models/LoRA/lfm3-1.7b-liquid-3in1-balanced"
+lora: { r: 16, scale: 32.0, dropout: 0.0, keys: ["q_proj","v_proj","k_proj","o_proj","gate_proj","up_proj","down_proj"] }
+train: { lr: 0.00001, epochs: 2, micro_batch: 2, grad_accum: 2, effective_batch: 4, seq: 2048, warmup: 20, seed: 42, mask_prompt: true }
+eval: { holdout: 300, steps_per_eval: 100, steps_per_report: 10 }
+notes: "Balanced preset. See LoRA Library § Recipes."</code></pre>
+
+<h2 class="section-h2">Command builder — variables, not magic numbers</h2>
+<pre><code># 1) Count rows FIRST — never guess N
+wc -l "$DATA/train.jsonl" "$DATA/valid.jsonl"
+
+# 2) Compute iters:  iters = epochs * N / effective_batch
+python3 -c "import math; print(math.ceil(2 * 3600 / 4))"  # -&gt; 1800
+
+# 3) Train — mlx_lm.lora
+MODEL="mlx-community/LFM3-1.7B-4bit"
+DATA="/Users/pedroamaral/Documents/LoRA/SFT_liquid_power_triad"
+ADAPTER="/Volumes/X-Drive/models/LoRA/lfm3-1.7b-liquid-3in1-balanced"
+mlx_lm.lora --model "$MODEL" --data "$DATA" --train --mask-prompt \
+  --iters 1800 --batch-size 2 --grad-accumulation-steps 2 \
+  --learning-rate 1e-5 --steps-per-eval 100 --steps-per-report 10 \
+  --adapter-path "$ADAPTER"
+
+# Same shape for the custom script:
+# python3 finetune_lfm3.py --model "$MODEL" --data "$DATA" --train --mask-prompt \
+#   --iters 1800 --batch-size 2 --grad-accumulation-steps 2 --learning-rate 1e-5 --adapter-path "$ADAPTER"</code></pre>
+
+<h2 class="section-h2">Recipes — sweet spots, with formulas</h2>
+<div class="table-wrap"><table><tbody><tr><th>Model</th><th>Params</th><th>LR</th><th>r / scale</th><th>Micro / Accum / Effective</th><th>Seq</th><th>Iters formula</th></tr>
+<tr><td>LFM2 350M (text)</td><td>354M</td><td>1.5e-5</td><td>8 / 16</td><td>4 / 1 / 4</td><td>2048</td><td>ceil(epochs × N / 4)</td></tr>
+<tr><td>LFM3 1.7B</td><td>1.7B</td><td>1.0e-5</td><td>16 / 32</td><td>2 / 2 / 4</td><td>2048</td><td>ceil(epochs × N / 4)</td></tr>
+<tr><td>MiniCPM-V 1.1B</td><td>1.1B</td><td>1.5e-5</td><td>8 / 16</td><td>4 / 1 / 4</td><td>2048</td><td>ceil(epochs × N / 4)</td></tr>
+<tr><td>Nanbeige 3B</td><td>3.0B</td><td>7.0e-6</td><td>16 / 32</td><td>2 / 4 / 8</td><td>2048</td><td>ceil(epochs × N / 8)</td></tr>
+</tbody></table></div>
+<p style="margin-top:.6rem;font-size:.9rem;color:var(--color-secondary)">Rule of thumb: smaller models tolerate slightly higher LR. Never go above 5e-5 on a small model. Effective batch target 4–8 for agentic data.</p>
+
+<h2 class="section-h2">Presets — FAST-PROBE / BALANCED / DEEP</h2>
+<div class="table-wrap"><table><tbody><tr><th>Preset</th><th>When</th><th>Epochs</th><th>Iters (N=3600, eff 4)</th><th>Stop if…</th></tr>
+<tr><td><strong>FAST-PROBE</strong></td><td>Smoke test: does the pipeline run, does loss move?</td><td>0.25–0.5</td><td>225–450</td><td>Loss NaN / flat, or peak memory &gt; usable</td></tr>
+<tr><td><strong>BALANCED</strong></td><td>Real run, most datasets</td><td>1.5–2</td><td>1350–1800</td><td>Eval loss rises 2 evals in a row</td></tr>
+<tr><td><strong>DEEP</strong></td><td>Only if BALANCED showed no overfit</td><td>2.5</td><td>2250</td><td>Any overfit signal — stop, do not push to 3 epochs</td></tr>
+</tbody></table></div>
+
+<h2 class="section-h2">Per-dataset recipes — your LoRA folder</h2>
+<div class="prose"><p>Rows are from sugest.md where verified. Where rows were not listed, <strong>count first</strong> — the table gives the formula, not a guessed N. Adapter names keep the old names so old adapters stay findable.</p></div>
+<div class="table-wrap"><table><tbody><tr><th>Dataset</th><th>Rows (train)</th><th>Model</th><th>Iters (formula)</th><th>BS / GAS</th><th>LR</th><th>Adapter</th></tr>
+<tr><td>Liquid-3-in-1 (master triad)</td><td>3600</td><td>LFM2-350M</td><td>1800 = 2 ep × 3600 / 4</td><td>4 / 1</td><td>1.5e-5</td><td>lfm450-liquid-3in1</td></tr>
+<tr><td>Agentic reasoning</td><td>2400</td><td>LFM3-1.7B</td><td>1200 = 2 × 2400 / 4</td><td>2 / 2</td><td>1e-5</td><td>lfm3-1.7b-Agentic-reasoning</td></tr>
+<tr><td>Software coding</td><td>1500</td><td>LFM3-1.7B</td><td>750 = 2 × 1500 / 4</td><td>2 / 2</td><td>1e-5</td><td>lfm3-1.7b-Software-coding</td></tr>
+<tr><td>Phone tools</td><td>Count first</td><td>LFM3-1.7B</td><td>ceil(1.5 × N / 4)</td><td>2 / 2</td><td>1e-5</td><td>lfm3-1.7b-Liquid-phone-tools</td></tr>
+<tr><td>Apple UI</td><td>Count first</td><td>LFM3 / Nanbeige</td><td>ceil(1.5 × N / 4) / ceil(1.5 × N / 8)</td><td>2/2 or 2/4</td><td>1e-5 / 7e-6</td><td>lfm3-1.7b-Apple / nanb3-Apple</td></tr>
+<tr><td>Coder-distill-250x indiedev</td><td>Count first</td><td>LFM3-1.7B</td><td>ceil(2.5 × N / 4)</td><td>2 / 2</td><td>1.2e-5</td><td>lfm3-1.7b-coder-indiedev</td></tr>
+<tr><td>Codex tool-use</td><td>Count first</td><td>Nanbeige / LFM3</td><td>ceil(2 × N / 8) / ceil(2 × N / 4)</td><td>2/4 or 2/2</td><td>7e-6 / 1e-5</td><td>nanb3-codex-tooluse</td></tr>
+<tr><td>Nvidia finance</td><td>Count first</td><td>Nanbeige / LFM3</td><td>ceil(2 × N / 8) / ceil(2 × N / 4)</td><td>2/4 or 2/2</td><td>7e-6 / 1e-5</td><td>nanb3-agentic-finance</td></tr>
+<tr><td>Ccore 3js 3d</td><td>Count first</td><td>LFM3 / Nanbeige</td><td>ceil(2 × N / 4) / ceil(2 × N / 8)</td><td>2/2 or 2/4</td><td>1e-5 / 7e-6</td><td>lfm3-ccore-3js</td></tr>
+<tr><td>Hermes tool-use</td><td>Count first</td><td>LFM3-1.7B</td><td>Start 3000, then eval — do not run 23k blind</td><td>2 / 2</td><td>1e-5</td><td>lfm3-hermes-flagship</td></tr>
+</tbody></table></div>
+
+<h2 class="section-h2">Success vs failure — scorecard for EVERY run</h2>
+<div class="table-wrap"><table><tbody><tr><th>Metric</th><th><span class="pill-pass">PASS</span></th><th><span class="pill-fail">FAIL</span></th><th>Fix</th></tr>
+<tr><td>Train loss</td><td>Falls smoothly, no NaN</td><td>NaN or flat for 100 steps</td><td>Lower LR ×0.5, check data for empty / huge rows</td></tr>
+<tr><td>Eval loss (held-out)</td><td>Falls, then flat — best checkpoint kept</td><td>Rises 2 evals in a row</td><td>Stop, use earlier checkpoint, reduce epochs / r</td></tr>
+<tr><td>Win-rate vs base (held-out)</td><td>+8 points or more</td><td>≤0, or up only because length grew</td><td>Check length ratio; re-filter data</td></tr>
+<tr><td>Length ratio (new / base)</td><td>0.90–1.10</td><td>&gt;1.30</td><td>You taught verbosity. Shorten traces, add length penalty in eval</td></tr>
+<tr><td>Tool-call accuracy</td><td>Within 2 pts of base, or better</td><td>Down &gt;5 pts</td><td>Data taught hallucinated returns — add verifier, ToolGrad answer-first</td></tr>
+<tr><td>Doom-loop rate</td><td>Down or flat</td><td>Up</td><td>See DPO / FTPO: single-token preference, not whole-trace penalty</td></tr>
+<tr><td>Forgetting F (general PPL delta)</td><td>Bounded, replay helps</td><td>Explodes</td><td>Add replay λ=0.2, lower LR, lower r</td></tr>
+</tbody></table></div>
+
+<h2 class="section-h2">Troubleshooting — symptom → cause → fix</h2>
+<div class="table-wrap"><table><tbody><tr><th>Symptom</th><th>Likely cause</th><th>Fix</th></tr>
+<tr><td>Loss NaN in first 50 steps</td><td>LR too high, bad row, seq too long</td><td>LR ×0.5, drop longest 1% rows, seq 1024 probe</td></tr>
+<tr><td>Loss flat</td><td>Mask-prompt wrong, LR too low, data is prompt-only</td><td>Check mask, LR ×2 (max 5e-5), inspect 3 rows by hand</td></tr>
+<tr><td>Eval loss rises, train falls</td><td>Overfit / memorisation</td><td>Stop early, fewer epochs, larger holdout</td></tr>
+<tr><td>Model repeats “Wait, let me reconsider…”</td><td>Doom loop, whole-trace penalty in past runs</td><td>FTPO single-token, not GRPO negative reward on whole trace</td></tr>
+<tr><td>Outputs get longer but not better</td><td>Length bias in data / reward</td><td>Filter to concise traces, track length ratio every eval</td></tr>
+</tbody></table></div>
+
+<h2 class="section-h2">Run log — v2 template (copy per run)</h2>
+<pre><code>Date: 2026-11-16T23:00:00+00:00
+Run: E8 (Distillation probe) / Dataset: Liquid-3-in-1 / Model: LFM3-1.7B
+Config: run.yaml hash 9f2c… / r=16 scale=32 LR=1e-5 epochs=2 eff_batch=4 seq=2048 seed=42
+Rows: train=3600 valid=360 holdout=300 (frozen, never trained on)
+Peak memory measured: __ GB (mx.get_peak_memory()) / Wall: __ h __ m
+Metrics: train_loss __ → __ / eval_loss __ → __ / win-rate __% (+__%) / length_ratio __ / tool-call __% / doom-loop __%
+Conclusion: PASS / FAIL — one sentence, what you would change next.
+Adapter: /Volumes/X-Drive/models/LoRA/&lt;name&gt;  — never overwrite promoted/</code></pre>
+</article>
+</template>
+
+<template id="tpl-datasets">
+<article>
+<div class="kicker">Free Datasets · HF + Kaggle · New in v2</div>
+<h1 class="page-title">Free datasets, curated not hoarded</h1>
+<p class="page-lede">The free tier is not the bottleneck. Curation is. A 1,500-row set that is deduped, decontaminated, verified, and balanced will beat a 100k-row dump on a 1.7B model on M4. Start from the 1,500-row pack, prove the loop, then scale to 3k.</p>
+
+<div class="callout"><p><strong>M4 reality.</strong> Teacher traces are made offline via API only where that provider allows it → saved as JSONL → local SFT/DPO. GRPO / true DPO do not run in <code>mlx_lm.lora</code> — use the verifier + DPO-pair workaround in the Schemas / GRPO sections. <strong>Verify-before-you-train:</strong> if a cell says VERIFY, open the dataset card before using it. Licences change.</p></div>
+
+<h2 class="section-h2">1500-row starter pack — start here</h2>
+<div class="table-wrap"><table><tbody><tr><th>Job</th><th>Pull this first</th><th>Rows</th><th>Why it fits</th></tr>
+<tr><td>Agentic / tool-use</td><td><code>glaiveai/glaive-function-calling-v2</code></td><td>600</td><td>Already tool-call shaped, Apache-2.0</td></tr>
+<tr><td>Reasoning / CoT (short only)</td><td><code>microsoft/orca-math-word-problems-200k</code></td><td>500</td><td>MIT, short CoT, fits seq 2048</td></tr>
+<tr><td>Chat / instruction</td><td><code>teknium/OpenHermes-2.5</code></td><td>400</td><td>Broad, chat format, Apache-2.0-tagged</td></tr>
+</tbody></table></div>
+<p style="margin-top:.6rem;font-size:.9rem">Total 1500. Hold out 300 (100 per job) as frozen eval. Train on 1200. If that loop does not beat base, more data will not fix it.</p>
+
+<h2 class="section-h2">Curated catalogue — by type</h2>
+<h3 class="section-h3">1 · SFT JSONL / chat</h3>
+<div class="table-wrap"><table><tbody><tr><th>Dataset</th><th>Size / Licence</th><th>Filter to 1–3k</th></tr>
+<tr><td><code>teknium/OpenHermes-2.5</code></td><td>~1M / VERIFY Apache-2.0</td><td>Sample 1–3k, drop &gt;2048 tokens, keep diverse categories</td></tr>
+<tr><td><code>glaiveai/glaive-function-calling-v2</code></td><td>~100k / Apache-2.0</td><td>Keep only rows with valid JSON tool call + verifier pass</td></tr>
+<tr><td><code>microsoft/orca-math-word-problems-200k</code></td><td>200k / MIT</td><td>Short traces only, answer must match gold</td></tr>
+</tbody></table></div>
+<h3 class="section-h3">2 · Reasoning traces / CoT</h3>
+<div class="table-wrap"><table><tbody><tr><th>Dataset</th><th>Note</th><th>Filter</th></tr>
+<tr><td><code>OpenThoughts / OpenR1</code> family</td><td>Large trace sets, VERIFY licence per split</td><td>Cap trace at 1200 tokens, drop unverified math</td></tr>
+<tr><td><code>allenai/big-reasoning-traces</code></td><td>Permissively licensed traces</td><td>Sample by difficulty, not by length</td></tr>
+<tr><td><code>AJ-Gonzalez/qwen4-max-reasoning-250x</code></td><td>250 rows, see Forensics — not verified, long traces</td><td>Use only filtered short subset, see Forensics §</td></tr>
+</tbody></table></div>
+<h3 class="section-h3">3 · Preference / DPO</h3>
+<div class="table-wrap"><table><tbody><tr><th>Dataset</th><th>Note</th><th>Filter</th></tr>
+<tr><td><code>HuggingFaceH4/ultrafeedback_binarized</code></td><td>MIT-tagged, binarized pairs</td><td>300–1k pairs, drop pairs where chosen is longer by &gt;30% (length bias)</td></tr>
+<tr><td><code>Anthropic/hh-rlhf</code></td><td>MIT-tagged, helpful / harmless</td><td>Sample helpful split first; harmless is a different task</td></tr>
+</tbody></table></div>
+<h3 class="section-h3">4 · RL / verifiable / GRPO prompts</h3>
+<div class="table-wrap"><table><tbody><tr><th>Dataset</th><th>Verifier</th><th>Use</th></tr>
+<tr><td><code>openai/gsm8k</code> — train split only</td><td>Gold answer = free verifier</td><td>300–1k prompts, GRPO group reward</td></tr>
+<tr><td><code>NuminaMath</code> / MATH train</td><td>Answer check</td><td>Harder prompts, keep pass-rate 20–80% (see GRPO)</td></tr>
+<tr><td>JSON-schema tasks (own)</td><td>Python <code>json_keys</code> verifier in Schemas</td><td>BFCL-style tool prompts, partial credit 0.3/0.4/0.3</td></tr>
+</tbody></table></div>
+
+<h2 class="section-h2">Kaggle — useful, but not first</h2>
+<div class="prose"><ul><li><strong>API:</strong> <code>pip install kaggle</code> → <code>kaggle datasets download -d &lt;owner/slug&gt;</code> → unzip to <code>data/kaggle/</code>. Needs a Kaggle API token; never commit it.</li><li><strong>Good fits:</strong> Bitext customer-support (intents → tool calls), code / finance CSVs you convert to tool-use, small clean classification sets you turn into verifiable prompts.</li><li><strong>Caution:</strong> Kaggle Notebooks free GPU is tempting for training, but it splits your pipeline (data in two places, adapter in two places). Use Kaggle for <em>exploration / curation</em>, keep training on M4 so the adapter + log stay in one place.</li><li><strong>Licence:</strong> Kaggle sets are often non-commercial / no-redistribution. Check the dataset page, not the file name.</li></ul></div>
+
+<h2 class="section-h2">Curation pipeline — 6 steps, in order</h2>
+<div class="prose"><ol><li><strong>Download</strong> — raw to <code>data/raw/</code>, never edit raw.</li><li><strong>Dedupe</strong> — exact hash, then near-dedupe (&gt;80% n-gram overlap → drop).</li><li><strong>Decontaminate</strong> — drop any row with &gt;8-gram overlap with held-out eval.</li><li><strong>Quality filter</strong> — length ≤2048, language PT/EN as intended, verifier pass if verifiable, no PII / secrets.</li><li><strong>Balance</strong> — cap any category / teacher at 40%, mix 30% easy / 50% medium / 20% hard.</li><li><strong>Split + convert</strong> — frozen train / valid / test, then convert to your schema (below).</li></ol></div>
+
+<h2 class="section-h2">Converter — HF → mlx_lm.lora JSONL</h2>
+<pre><code>from datasets import load_dataset
+import json, hashlib
+
+# Example: Glaive tool-use -&gt; messages JSONL
+ds = load_dataset("glaiveai/glaive-function-calling-v2", split="train")
+# VERIFY: check ds.column_names first — HF schemas change. Print 3 rows by hand before bulk converting.
+def to_row(r):
+    # Adapt field names to the actual dataset you loaded. Do not guess them.
+    return {"messages": [
+        {"role": "user", "content": r["question"] if "question" in r else str(r)[:500]},
+        {"role": "assistant", "content": r["answer"] if "answer" in r else ""}],
+      "meta": {"source": "glaive-v2", "hash": hashlib.sha256(str(r).encode()).hexdigest()[:12]}}
+
+with open("data/clean/train.jsonl","w") as f:
+    for r in ds.select(range(600)):
+        f.write(json.dumps(to_row(r), ensure_ascii=False)+"\n")
+
+# DPO: UltraFeedback binarized already has chosen/rejected — map to:
+# {"prompt": ..., "chosen": ..., "rejected": ..., "meta": {...}}
+# GRPO: GSM8K train -&gt; {"prompt": ..., "gold": ..., "verifier": "math_answer"}</code></pre>
+
+<h2 class="section-h2">Checklist — before you train on any free dataset</h2>
+<ul class="checklist prose"><li>Licence allows your use (research / commercial)? Link saved in dataset card.</li><li>Not training on test: held-out split is frozen and decontaminated.</li><li>3 rows inspected by hand — not just stats.</li><li>Verifier passes on verifiable subset.</li><li>No PII / secrets / copyrighted text you cannot use.</li><li>Provenance saved: dataset id + version + date + filter script hash.</li></ul>
+</article>
+</template>
+
+<template id="tpl-idle">
+<article>
+<div class="kicker">Idle Compute · Overnight Workflow · New in v2</div>
+<h1 class="page-title">Let the night do the boring work</h1>
+<p class="page-lede">You do not need more willpower. You need a queue that runs while you sleep, a gate that refuses to promote a bad adapter, and a kill-switch you can hit from your phone. On 24 GB there is no frontier teacher locally — overnight work is teacher generation (rate-limited) → curation → LoRA → eval gate → promote-or-rollback.</p>
+
+<div class="callout"><p><strong>The one rule.</strong> NEVER overwrite <code>adapters/promoted/</code>. NEVER train on eval. NEVER promote without <code>eval_gate.py = PASS</code>. NEVER run overnight without AC power + lid open + STOP file + lockfile.</p><p><strong>Kill-switch:</strong> create <code>~/post-training-lab/STOP</code> at any time. The runner checks it before every job and exits cleanly.</p></div>
+
+<h2 class="section-h2">Nightly timeline — 23:00–07:00 = 8 hours</h2>
+<div class="table-wrap"><table><tbody><tr><th>Time</th><th>Phase</th><th>Budget</th></tr>
+<tr><td>22:55</td><td>Pre-flight: AC, disk, thermal, lock, STOP file</td><td>10 min</td></tr>
+<tr><td>23:00–00:40</td><td>Teacher generation, rate-limited, append-only</td><td>≤90 min / ≤40–200 rows</td></tr>
+<tr><td>00:40–01:00</td><td>Curation + verifier, decontamination vs eval</td><td>20 min</td></tr>
+<tr><td>01:00–04:30</td><td><strong>One</strong> train job only: SFT <em>or</em> DPO</td><td>≤3.5 h</td></tr>
+<tr><td>04:30–05:30</td><td>Eval gate: baseline vs candidate on held-out set</td><td>≤60 min</td></tr>
+<tr><td>05:30–06:00</td><td>Promote / rollback + morning report</td><td>30 min</td></tr>
+<tr><td>06:00–07:00</td><td>Buffer / prune / sleep normally</td><td>—</td></tr>
+</tbody></table></div>
+<p style="margin-top:.6rem">Do not try Gen + SFT + DPO + Eval for 3 models in one night. Split across nights. The queue is resumable — that is the point.</p>
+
+<h2 class="section-h2">Queue — one YAML file</h2>
+<pre><code># queue.yaml — order matters, priority wins. Max 1 train job per night.
+jobs:
+  - id: E8-distill-probe
+    kind: distill
+    model: "google/gemma-4-31b-it:free"  # VERIFY roster today
+    prompts: data/prompts/code_50.jsonl
+    max_rows: 50
+    priority: 1
+  - id: E8-sft-lfm2
+    kind: sft
+    model: "mlx-community/LFM2-350M-4bit"
+    data: data/clean/E8
+    config: configs/E8-balanced.yaml
+    max_hours: 3.5
+    checkpoint_every: 100
+    priority: 2
+  - id: E8-eval
+    kind: eval
+    candidate: adapters/candidates/E8-sft-lfm2
+    baseline: adapters/promoted/lfm2-base
+    priority: 3</code></pre>
+
+<h2 class="section-h2">Runner — run_queue.sh (simplified, real)</h2>
+<pre><code>#!/bin/bash
+set -euo pipefail
+LAB="$HOME/post-training-lab"; cd "$LAB"
+# Pre-flight
+[ -f STOP ] &amp;&amp; { echo "STOP file present — exiting"; exit 0; }
+[ -f .lock ] &amp;&amp; { echo "Already running — exiting"; exit 0; }
+touch .lock; trap 'rm -f .lock' EXIT
+# Keep awake, but let display sleep: caffeinate -i = prevent idle sleep
+caffeinate -i -w $$ &amp;
+# Free space guard: need &gt;10 GB on X-Drive
+df -h /Volumes/X-Drive | awk 'NR==2 &amp;&amp; $4+0 &lt; 10 {print "DISK LOW"; exit 1}'
+# One job at a time — real runner loops over queue.yaml with yq / python
+python3 run_queue.py --queue queue.yaml --max-hours 8 --heartbeat heartbeat.json
+# Morning report is written by run_queue.py — see template below</code></pre>
+
+<h2 class="section-h2">Eval gate — promote only if PASS</h2>
+<pre><code># eval_gate.py — returns PASS only if ALL gates pass. No partial promotion.
+# Gates (tune thresholds in config, not in code):
+#  win_rate_delta &gt;= +8 pts  AND  length_ratio in [0.90, 1.10]
+#  tool_call_delta &gt;= -2 pts  AND  doom_loop_rate &lt;= baseline
+#  eval_loss &lt; baseline_eval_loss  OR  win-rate gate already passed
+# If any gate fails: move candidate to adapters/rejected/, write reason to morning report, keep promoted/ untouched.</code></pre>
+
+<h2 class="section-h2">macOS — sleep, heat, launchd</h2>
+<div class="prose"><ul><li><strong>Lid open, AC plugged in.</strong> Closed-lid sleep will kill a run. If you must close the lid, do not schedule training.</li><li><strong>Display sleep is fine, system sleep is not.</strong> <code>caffeinate -i</code> prevents idle system sleep. Test it once in daytime before trusting it overnight.</li><li><strong>Thermal:</strong> keep the Mac on a hard surface, vents clear. If the fan is loud for &gt;30 min, the run is throttling — cap seq to 1024 overnight, 2048 in daytime.</li><li><strong>Memory cap:</strong> overnight seq 1024 for Nanbeige / 2048 for LFM2-350M. Never run two trains at once on 24 GB.</li></ul></div>
+<pre><code>&lt;!-- ~/Library/LaunchAgents/com.posttraining.queue.plist — 23:00 start --&gt;
+&lt;plist version="1.0"&gt;&lt;dict&gt;
+  &lt;key&gt;Label&lt;/key&gt;&lt;string&gt;com.posttraining.queue&lt;/string&gt;
+  &lt;key&gt;ProgramArguments&lt;/key&gt;&lt;array&gt;
+    &lt;string&gt;/bin/bash&lt;/string&gt;&lt;string&gt;/Users/pedroamaral/post-training-lab/run_queue.sh&lt;/string&gt;
+  &lt;/array&gt;
+  &lt;key&gt;StartCalendarInterval&lt;/key&gt;&lt;dict&gt;&lt;key&gt;Hour&lt;/key&gt;&lt;integer&gt;23&lt;/integer&gt;&lt;key&gt;Minute&lt;/key&gt;&lt;integer&gt;0&lt;/integer&gt;&lt;/dict&gt;
+  &lt;key&gt;StandardOutPath&lt;/key&gt;&lt;string&gt;/Users/pedroamaral/post-training-lab/queue.log&lt;/string&gt;
+&lt;/dict&gt;&lt;/plist&gt;
+# launchctl load ~/Library/LaunchAgents/com.posttraining.queue.plist
+# Dry-run first: bash run_queue.sh  (in daytime, with STOP file removed, for 5 min)</code></pre>
+
+<h2 class="section-h2">Morning report — what you read with coffee</h2>
+<pre><code>Morning report — 2026-11-17
+Ran: E8-distill-probe (48/50 rows, 2× 429 backoff), E8-sft-lfm2 (1800 iters, 2.9h), E8-eval
+Metrics: win-rate 62% (+9%) / length_ratio 1.03 / tool-call 71% (-1%) / doom-loop 2% (base 3%)
+Gate: PASS → promoted to adapters/promoted/lfm2-E8/ (old promoted moved to adapters/archive/)
+Next: E9 (DPO on E8 failures) is next in queue.yaml
+Failures: 2 teacher rows dropped (verifier fail), 0 disk / thermal warnings</code></pre>
+
+<h2 class="section-h2">Weekly cadence</h2>
+<div class="table-wrap"><table><tbody><tr><th>Day</th><th>Job</th></tr><tr><td>Mon</td><td>Probe — FAST-PROBE, 200 steps, pipeline smoke test</td></tr><tr><td>Tue–Thu</td><td>Train — one BALANCED job per night</td></tr><tr><td>Fri</td><td>Eval — full held-out eval, no new training</td></tr><tr><td>Weekend</td><td>Distill + curate — build next week’s dataset, no training</td></tr></tbody></table></div>
+
+<h2 class="section-h2">Failure modes — and auto-recovery</h2>
+<div class="table-wrap"><table><tbody><tr><th>Failure</th><th>Symptom</th><th>Recovery</th></tr>
+<tr><td>Mac sleeps</td><td>Heartbeat stops, log gaps</td><td>Check caffeinate, lid, pmset. Resume from last checkpoint.</td></tr>
+<tr><td>WiFi drops</td><td>Teacher generation 429 / timeout</td><td>Backoff + retry 3×, then skip distill, go to train on existing clean data.</td></tr>
+<tr><td>API 429</td><td>429 on free tier</td><td>Sleep 65s, rotate provider, cap rows. Never hammer.</td></tr>
+<tr><td>Disk full on X-Drive</td><td>Write fails</td><td>Pre-flight df check aborts before training. Prune adapters/rejected/ weekly.</td></tr>
+<tr><td>Adapter corrupt</td><td>Eval gate crashes</td><td>Move to rejected/, keep promoted/ untouched, log hash.</td></tr>
+</tbody></table></div>
+</article>
+</template>
+
+<template id="tpl-proprietary">
+<article>
+<div class="kicker">Proprietary Datasets · Synthetic + Real · New in v2</div>
+<h1 class="page-title">Your moat is your own traces</h1>
+<p class="page-lede">Anyone can download UltraFeedback. Nobody else has your tools, your repo, your PT-PT voice, your mistakes and your fixes. That is the only moat at this scale. This section is an experiment: if the 100-row pilot below does not beat base on a frozen held-out set, the dataset is wrong — not the model.</p>
+
+<div class="callout"><p><strong>Core rule.</strong> Every row, synthetic or real, must pass the same gate: <code>verifier OR human audit + dedupe + PII scrub + provenance</code>. No gate, no train.</p></div>
+
+<h2 class="section-h2">Two pipelines — do both</h2>
+<div class="table-wrap"><table><tbody><tr><th>Pipeline</th><th>Teaches</th><th>Comes from</th><th>Risk if alone</th></tr>
+<tr><td><strong>A. Synthetic</strong></td><td>Coverage, tool-use chains, PT-PT + EN breadth</td><td>ToolGrad answer-first, self-instruct, teacher → student, verifiers</td><td>Hallucinated, generic, off-distribution</td></tr>
+<tr><td><strong>B. Real</strong></td><td>Your actual failures, tools, style</td><td>Own tool calls, code fixes, edits, corrections</td><td>Too small, too noisy, PII / secrets leak</td></tr>
+</tbody></table></div>
+
+<h2 class="section-h2">Loop — seed → expand → verify → human review</h2>
+<div class="prose"><ol><li><strong>Seed (10–20 rows).</strong> Write 10 perfect examples by hand. These are the gold. Everything else is judged against them.</li><li><strong>Expand.</strong> Use a teacher (free tier) or a script to generate 5 variations per seed: change city, numbers, tool, language PT↔EN, difficulty.</li><li><strong>Verify.</strong> Run the verifier (unit test, JSON schema, calculator). Drop anything that fails.</li><li><strong>Human review.</strong> Read 20% of the expanded set. If &gt;20% are wrong, fix the seed / prompt, do not filter harder.</li><li><strong>Balance + split.</strong> 30% easy / 50% medium / 20% hard, frozen train / valid / test.</li></ol></div>
+
+<h2 class="section-h2">Schema — proprietary rows carry provenance</h2>
+<pre><code>{"messages": [
+  {"role": "user", "content": "Converte 250 EUR para USD, taxa de hoje?"},
+  {"role": "assistant", "content": "Primeiro taxa, depois multiplicação.\n{\"tool\": \"finance.get_rate\", \"args\": {\"pair\": \"EURUSD\"}}\n[API_RESPONSE: 1.085]\n250 EUR = 271.25 USD."}],
+ "meta": {
+   "source": "proprietary-synthetic",
+   "seed_id": "finance-003",
+   "generator": "toolgrad-answer-first",
+   "verifier": "calculator-pass",
+   "language": "pt-PT",
+   "consent": "own-data",
+   "pii_scrubbed": true,
+   "date": "2026-11-16",
+   "hash": "a1b2c3…"}}</code></pre>
+
+<h2 class="section-h2">Template 1 — Synthetic, ToolGrad answer-first</h2>
+<div class="prose"><p>Do not write the query first. <strong>Execute the workflow first, then reverse-annotate the query.</strong> That guarantees the tool calls are real.</p></div>
+<pre><code># 1) Pick a seed API: finance.get_rate, get_weather, calculator.multiply
+# 2) Execute it for real: get_rate(EURUSD) -&gt; 1.085
+# 3) Write the workflow: get_rate -&gt; multiply(250, 1.085) -&gt; 271.25
+# 4) Reverse-annotate the query: "Converte 250 EUR para USD, taxa de hoje?"
+# 5) Render as messages row (above). Verifier: calculator must reproduce 271.25.
+# 6) Vary: city Braga -&gt; Porto, amount 250 -&gt; 180, language PT -&gt; EN. Re-execute, do not just edit text.</code></pre>
+
+<h2 class="section-h2">Template 2 — Real, correction capture → DPO pair</h2>
+<div class="prose"><p>Your best DPO data is your own edits. When you fix a model output, save <em>before</em> and <em>after</em>.</p></div>
+<pre><code>{"prompt": "Write a Python function that returns the first 12 primes.",
+ "chosen": "def first_12_primes(): ...  # your fixed version, with docstring, tested",
+ "rejected": "def primes(): ...  # the model's version that failed 2 unit tests",
+ "meta": {"source": "proprietary-real-correction",
+          "verifier": "unit-tests: 3/3 chosen, 1/3 rejected",
+          "date": "2026-11-16"}}</code></pre>
+<div class="prose"><p><strong>Capture habit:</strong> when you edit a model output in your editor, copy both versions into <code>data/proprietary/corrections.jsonl</code> that day. A week later you will not remember why you edited it.</p></div>
+
+<h2 class="section-h2">Real sources — where to look in your own work</h2>
+<ul class="prose"><li>Own tool calls: weather, finance, calendar, file tools — anonymise cities / amounts if needed.</li><li>Own code fixes: diffs where you corrected a model’s code — that diff <em>is</em> a DPO pair.</li><li>Own chat corrections: when you re-prompted because the first answer hedged / bluffed / looped.</li><li>Literature / mental-health work: your own summaries, your own voice, PT-PT phrasing — never other people’s private messages without consent.</li></ul>
+
+<h2 class="section-h2">PII + consent — non-negotiable</h2>
+<ul class="checklist prose"><li>Scrub emails, API keys, tokens, phone numbers, addresses — regex + manual read of 20% of rows.</li><li>Never include another person’s messages, health data, or private code without explicit consent.</li><li>If in doubt, drop the row. One leaked secret costs more than 100 rows are worth.</li><li>Mark <code>consent: own-data</code> or <code>consent: granted-by-&lt;name&gt;-&lt;date&gt;</code> on every row.</li></ul>
+
+<h2 class="section-h2">Quality — coverage matrix</h2>
+<div class="table-wrap"><table><tbody><tr><th>Task</th><th>Easy</th><th>Medium</th><th>Hard</th><th>PT-PT</th><th>EN</th></tr>
+<tr><td>Tool-use (weather / finance / calendar)</td><td>1 call</td><td>2 calls, parallel</td><td>3+ calls, error handling</td><td>✓</td><td>✓</td></tr>
+<tr><td>Code (Python, 3JS)</td><td>1 function</td><td>2 functions + test</td><td>Refactor + edge cases</td><td>✓</td><td>✓</td></tr>
+<tr><td>Reasoning (math / logic)</td><td>1 step</td><td>3 steps</td><td>5+ steps, self-check</td><td>✓</td><td>✓</td></tr>
+</tbody></table></div>
+<p style="margin-top:.6rem">Aim: every cell has ≥5 rows before you call the dataset “balanced.” Empty cells are the next seed batch.</p>
+
+<h2 class="section-h2">Versioning — dataset card + frozen splits</h2>
+<pre><code># DATASET-CARD.md — one per dataset version. Copy, fill, commit.
+# Name: proprietary-tooluse-v1  |  Rows: 100 (train 70 / valid 15 / test 15, frozen)
+# Sources: synthetic 60 (ToolGrad), real corrections 40
+# Licence: own-data, not for redistribution without review
+# Changelog: v1 2026-11-16 — initial 100 rows, PT-PT 55 / EN 45
+# Hash: sha256(train.jsonl) = …  |  Filter script: scripts/filter_v1.py @ commit …
+# Eval: held-out test set, never trained on. Decontamination: 8-gram overlap = 0 rows.</code></pre>
+<div class="prose"><p>Store the card with the data. Use <code>git-lfs</code> or a private HF repo for versions. Never edit <code>train.jsonl</code> in place — bump the version, write a new card.</p></div>
+
+<h2 class="section-h2">100-row weekend challenge — no burnout</h2>
+<div class="prose"><ol><li><strong>Saturday morning (1h):</strong> Write 10 seeds by hand (4 tool-use, 3 code, 3 reasoning, PT-PT + EN).</li><li><strong>Saturday afternoon (1h):</strong> Expand each seed ×5 with a teacher + verifier. Keep only passing rows → ~40 rows.</li><li><strong>Sunday (1h):</strong> Capture 20 real corrections from your own chats / code edits this week.</li><li><strong>Sunday evening (30m):</strong> Human-review 20 rows, scrub PII, write the dataset card, freeze splits.</li><li><strong>Monday:</strong> FAST-PROBE on LFM2-350M, 200 steps. If it does not beat base on your 15-row test set, fix the seeds — do not add more rows.</li></ol><p><strong>What makes it proprietary?</strong> Test: if you deleted it, could someone download the same rows elsewhere? If yes, it is not proprietary. If no — because it is tied to your tools, your repo, your voice, your fixes — it is.</p></div>
+</article>
+</template>
+
+<template id="tpl-forensics">
+<article>
+<div class="kicker">Forensics · AJ-Gonzalez Datasets · New in v2</div>
+<h1 class="page-title">What 250 prompts can teach you</h1>
+<p class="page-lede">Two artefacts, one lesson: small, well-documented, verifiable beats large, vague, and unverified. Both datasets below are tiny, honest about their limits, and — crucially — <em>not</em> the same pipeline. Do not conflate them.</p>
+
+<div class="callout"><p><strong>Do not conflate.</strong> The Qwen4 dataset was <strong>not</strong> used to train the coder model. The coder model was trained on a <em>separate, parallel</em> Kimi corpus over the same 250-prompt family. Same prompts, different teacher = a comparison opportunity, not one pipeline.</p></div>
+
+<h2 class="section-h2">At-a-glance</h2>
+<div class="table-wrap"><table><tbody><tr><th>Artefact</th><th>Exact ID</th><th>What it is</th><th>Teacher</th><th>Base</th></tr>
+<tr><td>Dataset</td><td><code>AJ-Gonzalez/qwen4-max-reasoning-250x</code></td><td>250 teacher traces, same 250 prompts, one teacher</td><td><code>qwen/qwen4-max</code>, canonical <code>qwen/qwen4-max-20261115</code> via OpenRouter</td><td>—</td></tr>
+<tr><td>Model</td><td><code>AJ-Gonzalez/coder-lfm3-1.7b-k3.1-pro</code></td><td>LoRA SFT adapter + fused MLX weights for LFM3</td><td><code>moonshotai/kimi-k3.1-pro</code>, canonical <code>moonshotai/kimi-k3.1-pro-20261023</code> via OpenRouter</td><td><code>LiquidAI/LFM3-1.7B</code>, MLX 4-bit</td></tr>
+</tbody></table></div>
+<p style="margin-top:.6rem;font-size:.9rem">Sibling to know: <code>AJ-Gonzalez/coder-lfm3-1.7b</code> (no -k3.1-pro) is the earlier MiMo-teacher version. It has better eval reporting than the Kimi version — compare both, do not assume newer = better.</p>
+
+<h2 class="section-h2">Dataset 1 — qwen4-max-reasoning-250x: facts from the card</h2>
+<div class="table-wrap"><table><tbody><tr><th>Field</th><th>Value</th></tr>
+<tr><td>Rows</td><td><strong>250</strong>, 1 split (<code>train</code>), no held-out split</td></tr>
+<tr><td>Output tokens</td><td><strong>1,672,656</strong> total — mean <strong>6,691</strong> / row, median <strong>3,706</strong>, max <strong>43,473</strong></td></tr>
+<tr><td>Input tokens</td><td>17,517 total</td></tr>
+<tr><td>Cost</td><td>Retained <strong>$7.5532</strong> ($0.0302/row), billed $7.9960 (includes discarded truncated attempts)</td></tr>
+<tr><td>Wall time</td><td>2h 22m 50s, concurrency 4</td></tr>
+<tr><td>Sampling</td><td>Temperature 0.7, no top-p override. First pass max_tokens 32,768. 3 rows (ids 25, 30, 95) hit cap, regenerated at 65,536 — all then finished <code>stop</code>.</td></tr>
+<tr><td>Finish</td><td>250 <code>stop</code>, 0 truncated, 0 failed</td></tr>
+<tr><td>System prompt</td><td>Identical every row: “You're an expert at reasoning, and give thoughtful and precise answers.”</td></tr>
+<tr><td>Downloads last month</td><td><strong>15</strong> — tiny, unvetted, not community-validated</td></tr>
+<tr><td>Licence</td><td><code>license: other</code>. Upstream TeichAI + MiMo both <code>other</code>. Qwen + OpenRouter terms also apply. No new licence asserted over traces. Review before commercial use.</td></tr>
+</tbody></table></div>
+
+<h3 class="section-h3">Categories — local judge labels, not upstream fields</h3>
+<div class="table-wrap"><table><tbody><tr><th>Category</th><th>Rows</th><th>Output tokens</th><th>Cost</th></tr>
+<tr><td><code>1_code</code></td><td>32</td><td>322,404</td><td>$1.4537</td></tr>
+<tr><td><code>2_cs</code></td><td>29</td><td>201,980</td><td>$0.9118</td></tr>
+<tr><td><code>4_stats</code></td><td>9</td><td>136,147</td><td>$0.6137</td></tr>
+<tr><td><code>5_finance</code></td><td>13</td><td>247,979</td><td>$1.1175</td></tr>
+<tr><td><code>6_business</code></td><td>22</td><td>205,425</td><td>$0.9270</td></tr>
+<tr><td><code>8_science</code></td><td>8</td><td>90,360</td><td>$0.4076</td></tr>
+<tr><td><code>9_humanities</code></td><td>32</td><td>160,886</td><td>$0.7272</td></tr>
+<tr><td><code>uncategorized</code></td><td>105</td><td>307,475</td><td>$1.3946</td></tr>
+</tbody></table></div>
+<p style="margin-top:.6rem">105 uncategorized rows vary 46 to 43,473 output tokens — heterogeneous, not a balanced eval set.</p>
+
+<h3 class="section-h3">Schema</h3>
+<pre><code># Each line: one JSON object
+# messages: [system, user, assistant] — assistant carries reasoning + content
+# id: 0-based index in MiMo 250x set (so you can join to MiMo / TeichAI)
+# category: local judge label, or null for 105 uncategorized
+# source: TeichAI/claude-4.5-opus-high-reasoning-250x
+# model / model_canonical / model_name / served_model: qwen/qwen4-max / qwen/qwen4-max-20261115
+# usage: {prompt_tokens, completion_tokens, cost, cost_details}
+# finish_reason: stop for all 250  |  latency_s: wall time per request
+
+from datasets import load_dataset
+ds = load_dataset("AJ-Gonzalez/qwen4-max-reasoning-250x", split="train")
+row = ds[0]
+print(row["messages"][-1]["reasoning"][:500])
+print(row["messages"][-1]["content"][:500])
+# Coder profile, same definition as generator:
+coder = ds.filter(lambda r: r["category"] in {"1_code", "2_cs", "4_stats"})  # 32+29+9 = 70 rows</code></pre>
+
+<h3 class="section-h3">Limitations — quoted from the card, not invented</h3>
+<div class="callout warn"><p>Model outputs, including reasoning text, are <strong>not verified for correctness</strong>. They may contain factual errors, flawed reasoning, or unsafe code. The reasoning field is generated text, not a verified record of internal computation. These prompts have been answered by several other models — this is one teacher’s responses, not a new benchmark.</p></div>
+
+<h2 class="section-h2">Model — coder-lfm3-1.7b-k3.1-pro: facts from the card</h2>
+<div class="table-wrap"><table><tbody><tr><th>Field</th><th>Value</th></tr>
+<tr><td>Base</td><td><code>LiquidAI/LFM3-1.7B</code>, MLX 4-bit conversion</td></tr>
+<tr><td>Data</td><td><code>AJ-Gonzalez/coder-kimi-k3.1-pro-lfm3</code> — <strong>69 rows → 289 train / 34 valid chunks</strong></td></tr>
+<tr><td>Chunking</td><td>2048 tokens, 256-token replay, one example per chunk</td></tr>
+<tr><td>LoRA</td><td>Rank <strong>8</strong>, 8 layers, <strong>2.753M trainable (0.159%)</strong></td></tr>
+<tr><td>Batch / seq</td><td>1 / 2048</td></tr>
+<tr><td>Optimizer</td><td>Adam, LR 1e-5</td></tr>
+<tr><td>Schedule</td><td>3 epochs = <strong>867 iters</strong>, save + eval every 289</td></tr>
+<tr><td>Memory</td><td><code>--grad-checkpoint</code> mandatory at seq 2048 on 8 GB</td></tr>
+<tr><td>Wall time</td><td><strong>2.96 h on M1 8 GB</strong></td></tr>
+<tr><td>Validation loss</td><td><strong>2.861 → 2.581 → 2.594 → 2.438</strong>. Final epoch was best, so <code>adapters/adapters.safetensors</code> is the keeper.</td></tr>
+<tr><td>Files</td><td><code>model.safetensors</code> 946 MB, 4.503 bits/weight. <code>adapters/</code> 11 MB. BF16 merged not included — regenerate with <code>mlx_lm.fuse</code>.</td></tr>
+<tr><td>GGUF</td><td>Q4_K_M 1.1 GB, 5.05 bits/weight. Decodes ~37.6 tok/s on M1 (96-token smoke, not a benchmark).</td></tr>
+<tr><td>MLX generate</td><td><code>mlx_lm.generate --model AJ-Gonzalez/coder-lfm3-1.7b-k3.1-pro --prompt "..." --max-tokens 3000</code> — 46–48 tok/s, 1.19 GB peak on M1 8 GB</td></tr>
+<tr><td>Licence</td><td>Base: LFM Open License v1.0. Commercial use only while legal entity stays below <strong>$10M annual revenue</strong> threshold. Data: Kimi traces via OpenRouter, upstream MiMo / TeichAI terms apply.</td></tr>
+</tbody></table></div>
+
+<h3 class="section-h3">Two traps the card itself warns about</h3>
+<div class="prose"><p><strong>1. Reasoning is a separate field.</strong> LFM3 streams scratchpad in <code>reasoning_content</code> and answer in <code>content</code>. A client that renders only <code>content</code> shows an empty bubble for every prompt that triggers thinking — that is a UI bug, not a model failure. Render reasoning separately, give generation room (1500+ tokens). If you want answer-only, pass <code>enable_thinking=false</code> through the chat template, as the eval runs do.</p><p><strong>2. Prompt shape matters more than model size.</strong> “Write a one-line Python function that reverses a word” answered in 93 tokens; “Say hi in five words” spent 512 tokens reasoning and never produced an answer. At a 256-token cap that prompt returned nothing. Quote it as: <em>15.4 tok/s when it answers; 512 tokens may not be enough on prompts that trigger long reasoning</em>. For a benchmark, run with ~1500-token budget and time only answered prompts.</p></div>
+
+<h2 class="section-h2">What to copy — and what to avoid</h2>
+<div class="two-col">
+<div class="panel" style="margin-top:0"><h3 class="section-h3" style="margin-top:0">Copy this</h3><ul style="font-size:.92rem"><li><strong>250-prompt family, multiple teachers.</strong> Same prompts, different teachers = you can compare Qwen4 vs Kimi vs MiMo without new prompts.</li><li><strong>Chunking 2048 / 256 replay</strong> for long traces — do not truncate silently.</li><li><strong>Provenance on every row</strong> — model, canonical id, cost, latency, source. You can audit a row in 10 seconds.</li><li><strong>Honest eval notes</strong> — val loss curve, wall time, hardware, “smoke, not a benchmark.” Copy that honesty.</li><li><strong>Small LoRA, big effect:</strong> r=8, 0.159% trainable, 867 iters, 2.96h on M1 8GB — proof that small works if data is focused.</li></ul></div>
+<div class="panel" style="margin-top:0"><h3 class="section-h3" style="margin-top:0">Avoid / verify first</h3><ul style="font-size:.92rem"><li><strong>Do not train on unverified traces as ground truth.</strong> No verifier, no eval, 15 downloads — treat as raw, not gold.</li><li><strong>Do not train on 43k-token rows.</strong> Median 3,706 is already long for seq 2048. Filter to short, verifiable subset.</li><li><strong>Do not use uncategorized 105 rows as eval.</strong> They are not balanced.</li><li><strong>Do not assume Kimi &gt; MiMo.</strong> The earlier MiMo version has better eval reporting. Compare on your own held-out set.</li><li><strong>Do not copy the $10M licence trap blindly.</strong> Check LFM Open License threshold before commercial use.</li></ul></div>
+</div>
+
+<h2 class="section-h2">Experiment E9 — eval the coder adapter on your M4</h2>
+<div class="prose"><ol><li><strong>Load both:</strong> base <code>LiquidAI/LFM3-1.7B</code> and <code>AJ-Gonzalez/coder-lfm3-1.7b-k3.1-pro</code> (adapter or fused). Same prompt, same <code>--max-tokens 3000</code>, same <code>enable_thinking</code> setting.</li><li><strong>Held-out set (20 prompts, frozen):</strong> 10 code (Python, with unit tests), 5 CS reasoning, 5 general. Never train on these.</li><li><strong>Score:</strong> unit-test pass rate, JSON validity if asked, length ratio, doom-loop rate, whether it actually answered (not just reasoned).</li><li><strong>Gate:</strong> PASS if code pass-rate +10 points vs base, length ratio 0.9–1.10, no tool-call regression. FAIL if it only wins by writing longer traces.</li><li><strong>Then:</strong> if PASS, try the same recipe with your own 69-row coder set (see Proprietary). If FAIL, the teacher’s shape does not transfer — try shorter traces, r=16, or a different teacher.</li></ol></div>
+
+<h2 class="section-h2">Reuse Qwen4 traces — filtered, not wholesale</h2>
+<pre><code>from datasets import load_dataset
+ds = load_dataset("AJ-Gonzalez/qwen4-max-reasoning-250x", split="train")
+# Coder profile: 70 rows. Then filter to SHORT + verifiable:
+def keep(r):
+    if r["category"] not in {"1_code","2_cs","4_stats"}: return False
+    if r["usage"]["completion_tokens"] &gt; 4000: return False  # too long for seq 2048
+    content = r["messages"][-1]["content"]
+    return "```" in content  # has a fenced implementation to verify
+small = ds.filter(keep)
+print(f"Kept {len(small)} / 250 — inspect 3 by hand before training")
+# Next: run a verifier on each kept row (unit test / compile / JSON parse). Drop failures.
+# Then chunk 2048 / 256 like the coder recipe, hold out 20% as valid.</code></pre>
+
+<h2 class="section-h2">10 checks — before you train on any stranger’s dataset</h2>
+<ul class="checklist prose"><li>Card lists teacher, base, sampling, cost, wall time, hardware? (These two do — good sign.)</li><li>Rows / splits / licence stated? (250 / train-only / other — no held-out, so make your own.)</li><li>3 rows read by hand — reasoning + content, not just stats.</li><li>Length stats: median vs max, vs your seq (3706 median &gt; 2048 — chunk or filter).</li><li>Dedupe rate: exact + near-dedupe, check for prompt leakage into your eval.</li><li>Verifier: can you check any row mechanically? If no, it is style data, not skill data.</li><li>Category balance: 105 uncategorized = not balanced.</li><li>Downloads / evals: 15 downloads = unvetted. No community eval = you are the eval.</li><li>Licence: upstream + teacher + base all apply. Commercial use reviewed?</li><li>Reproducibility: generator script linked? (Here: gist <code>openrouter_reasoning_corpus.py</code> + <code>build_profile_dataset.py</code> — copy that pattern.)</li></ul>
+
+<h2 class="section-h2">Inspect any HF dataset — copy-paste</h2>
+<pre><code>from datasets import load_dataset
+ds = load_dataset("AJ-Gonzalez/qwen4-max-reasoning-250x", split="train")
+print(ds.column_names, len(ds))
+# Length stats
+import statistics
+lens = [r["usage"]["completion_tokens"] for r in ds]
+print(f"mean {statistics.mean(lens):.0f} median {statistics.median(lens):.0f} max {max(lens)}")
+# Dedupe rate (prompt hash)
+hashes = [hash(r["messages"][1]["content"]) for r in ds]
+print(f"unique prompts {len(set(hashes))} / {len(hashes)}")
+# 3 samples by hand — always read them
+for i in [0, 1, 2]:
+    print("----", ds[i]["id"], ds[i]["category"])
+    print(ds[i]["messages"][1]["content"][:200])
+    print(ds[i]["messages"][-1]["content"][:400])</code></pre>
+</article>
+</template>
+
+
+<div id="toast" class="toast">Copied to clipboard</div>
   <script>
 // --- State & Storage ---
 const STORAGE_KEY = "post-training";
@@ -799,12 +1458,12 @@ function renderDesk() {
   return '<article>' +
     '<div class="kicker">M4 · 24 GB · MLX</div>' +
     '<h1 class="page-title">Post-training, held as an argument</h1>' +
-    '<p class="page-lede">You already teach small models how to call tools and how to show their work. The next projects are about judgment, scoring, and what a model is allowed to forget. Every formula below is a sentence first.</p>' +
+    '<p class="page-lede">You already teach small models how to call tools and how to show their work. The next projects are about judgment, scoring, and what a model is allowed to forget. Every formula below is a sentence first. v2 adds six sections — Distill, LoRA Library, Datasets, Idle Compute, Proprietary, Forensics — and Roadmap now has E1-E11. Start with LoRA Library if you only have 10 minutes: it fixes the iters math in sugest.md.</p>' +
     '<div class="grid-specs">' +
       '<div class="spec-item"><div class="spec-label">Unified memory</div><div class="spec-val">24 GB</div></div>' +
       '<div class="spec-item"><div class="spec-label">Bandwidth, about</div><div class="spec-val">120 GB/s</div></div>' +
       '<div class="spec-item"><div class="spec-label">Already training</div><div class="spec-val">LFM2 450M, LFM3 1.7B, Nanbeige 3B</div></div>' +
-      '<div class="spec-item"><div class="spec-label">Already mastered</div><div class="spec-val">LoRA SFT, tool calls, chain of thought</div></div>' +
+      '<div class="spec-item"><div class="spec-label">Already running — not mastered</div><div class="spec-val">LoRA SFT, tool calls, chain of thought</div></div>' +
     '</div>' +
     '<div class="prose">' +
       '<p>Three questions, and they are not the same question. <span class="term">DPO</span> asks which of two answers you would rather have written. <span class="term">GRPO</span> asks whether a program, not a teacher, can tell a better sample from a worse one. <span class="term">CPT</span> asks what it costs to make a small model less surprised by a library it has not read, without scraping away the skills you already paid for.</p>' +
@@ -1911,6 +2570,38 @@ function renderRoadmap() {
       success: "Pass rate on multi-step and parallel tool calls on BFCL beats base model by +8 points.",
       kill: "Model begins predicting hallucinated API returns without waiting for environment output.",
       preset: "e7"
+    },
+    {
+      id: "E8",
+      title: "Distillation Probe — 1 prompt, 3 teachers",
+      config: "Cloudflare + OpenRouter :free + NVIDIA NIM, 50 prompts, filter to verifier-pass, LFM2-350M FAST-PROBE 200 steps.",
+      success: "Usable rate >=50%, student win-rate +8 pts, length ratio 0.90-1.10.",
+      kill: "Usable rate <25% or length +30% — fix prompt/verifier before scaling.",
+      preset: "e1"
+    },
+    {
+      id: "E9",
+      title: "Eval AJ-Gonzalez Coder Adapter vs Base",
+      config: "Base LFM3-1.7B vs coder-lfm3-1.7b-k3.1-pro, 20 held-out code prompts, max-tokens 3000, enable_thinking as in card.",
+      success: "Code pass-rate +10 pts vs base, length ratio 0.90-1.10, no tool-call regression.",
+      kill: "Wins only by longer traces, or fails to answer within 1500 tokens.",
+      preset: "e1"
+    },
+    {
+      id: "E10",
+      title: "Overnight Queue — One Night, One Train",
+      config: "queue.yaml, 23:00-07:00, 1 SFT job, eval_gate.py must PASS to promote.",
+      success: "Morning report written, candidate promoted only if gates pass, STOP file works.",
+      kill: "Mac slept, disk full, or candidate promoted without gate.",
+      preset: "e1"
+    },
+    {
+      id: "E11",
+      title: "Proprietary 100-Row Pilot",
+      config: "10 seeds, 60 synthetic + 40 real corrections, PT-PT + EN, LFM2-350M FAST-PROBE.",
+      success: "Pilot beats base on 15-row frozen test, PII scrubbed, dataset card written.",
+      kill: "Pilot does not beat base — fix seeds, do not add more rows.",
+      preset: "e1"
     }
   ];
 
@@ -1928,7 +2619,7 @@ function renderRoadmap() {
 
   return '<article>' +
     '<div class="kicker">Runs</div>' +
-    '<h1 class="page-title">Seven experiments, and a log</h1>' +
+    '<h1 class="page-title">Eleven experiments, and a log</h1>' +
     '<p class="page-lede">Each run has a config that fits the memory page, a result that would count as success, and a reason to stop. Write the paragraph the same day. Memory lies when you reconstruct it a week later.</p>' +
     '<div style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1.5rem;">' +
       RUNS.map(r =>
@@ -2022,6 +2713,14 @@ function navigateTo(secId) {
   window.scrollTo(0, 0);
 }
 
+
+function renderDistill(){ const el=document.getElementById('tpl-distill'); return el ? el.innerHTML : 'Distill section missing'; }
+function renderLora(){ const el=document.getElementById('tpl-lora'); return el ? el.innerHTML : 'LoRA section missing'; }
+function renderDatasets(){ const el=document.getElementById('tpl-datasets'); return el ? el.innerHTML : 'Datasets section missing'; }
+function renderIdle(){ const el=document.getElementById('tpl-idle'); return el ? el.innerHTML : 'Idle section missing'; }
+function renderProprietary(){ const el=document.getElementById('tpl-proprietary'); return el ? el.innerHTML : 'Proprietary section missing'; }
+function renderForensics(){ const el=document.getElementById('tpl-forensics'); return el ? el.innerHTML : 'Forensics section missing'; }
+
 function renderCurrentSection() {
   const container = document.getElementById("content-container");
   switch (currentSection) {
@@ -2034,6 +2733,12 @@ function renderCurrentSection() {
     case "surgery": container.innerHTML = renderSurgery(); break;
     case "schemas": container.innerHTML = renderSchemas(); break;
     case "roadmap": container.innerHTML = renderRoadmap(); break;
+    case "distill": container.innerHTML = renderDistill(); break;
+    case "lora": container.innerHTML = renderLora(); break;
+    case "datasets": container.innerHTML = renderDatasets(); break;
+    case "idle": container.innerHTML = renderIdle(); break;
+    case "proprietary": container.innerHTML = renderProprietary(); break;
+    case "forensics": container.innerHTML = renderForensics(); break;
     default: container.innerHTML = renderDesk(); break;
   }
 }
@@ -2191,7 +2896,7 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   const hash = window.location.hash.replace("#", "");
-  if (["desk", "memory", "paradigms", "drift", "dpo", "grpo", "surgery", "schemas", "roadmap"].includes(hash)) {
+  if (["desk", "memory", "paradigms", "drift", "dpo", "grpo", "surgery", "schemas", "roadmap", "distill", "lora", "datasets", "idle", "proprietary", "forensics"].includes(hash)) {
     navigateTo(hash);
   } else {
     navigateTo("desk");
@@ -2206,5 +2911,5 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 </script>
-</body>
-</html>
+<script>(function(){var loc=location.href.replace(/#.*$/,"");var ATTR_NAMES=["data-product-id","data-productid","data-product_id","product-id","productid","product_id","data-source-entity-id","source-entity-id","source_entity_id","data-product","data-metadata","data-meta"];var DATASET_KEYS=["productId","productid","product_id","sourceEntityId","sourceentityid","source_entity_id","product","metadata","meta"];function readProductId(value){if(typeof value!=="string"||value.length===0)return null;if(/^[0-9]{6,}$/.test(value))return value;var match=value.match(/(?:product(?:_|-)?id|source(?:_|-)?entity(?:_|-)?id)["'=:\s]+([0-9]{6,})/i);return match?match[1]:null}function extractProductId(start){for(var node=start;node&&node!==document.body;node=node.parentElement){for(var i=0;i<ATTR_NAMES.length;i++){var attrValue=node.getAttribute&&node.getAttribute(ATTR_NAMES[i]);var attrProductId=readProductId(attrValue);if(attrProductId)return attrProductId}var dataset=node.dataset||null;if(dataset){for(var j=0;j<DATASET_KEYS.length;j++){var dataValue=dataset[DATASET_KEYS[j]];var dataProductId=readProductId(dataValue);if(dataProductId)return dataProductId}}}return null}function isInlineMediaSlotElement(node){return !!(node&&node.getAttribute&&node.getAttribute("data-clippy-inline-media-slot")!==null)}function findInlineMediaSlot(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(isInlineMediaSlotElement(node))return node}return null}function readInlineMediaUrl(node){if(!node)return null;return node.getAttribute&&((node.getAttribute("data-clippy-inline-media-url")||node.getAttribute("data-url")||node.getAttribute("data_url")))||node.href||null}function stripHash(url){return String(url).replace(/#.*$/,"")}function urlsMatch(a,b){if(!a||!b)return false;try{return stripHash(new URL(a,loc).href)===stripHash(new URL(b,loc).href)}catch(_){return stripHash(a)===stripHash(b)}}function isFirstPartyReelUrl(value){try{var url=new URL(value,loc);if(url.protocol!=="https:")return false;var host=url.hostname.toLowerCase();var supported=host==="instagram.com"||host.endsWith(".instagram.com")||host==="facebook.com"||host.endsWith(".facebook.com");return supported&&/\/reels?\//i.test(url.pathname)}catch(_){return false}}function isInlineMediaUrlClick(node,href){var slot=findInlineMediaSlot(node);if(!slot)return false;var slotUrl=readInlineMediaUrl(slot);if(slotUrl)return urlsMatch(href,slotUrl);return isFirstPartyReelUrl(href)}function findDataHref(start){for(var node=start;node&&node!==document.body;node=node.parentElement){if(node.getAttribute){var href=node.getAttribute("data-href")||node.getAttribute("data-url");if(href)return{href:href,node:node}}}return null}var nativeOpen=window.open;window.open=function(url){if(parent!==window&&typeof url==="string"&&/^https?:\/\//.test(url)){parent.postMessage({type:"ecto:usercontent-link-click",href:url},"*");return null}return nativeOpen?nativeOpen.apply(window,arguments):null};document.addEventListener("click",function(e){var target=e.target instanceof Element?e.target:null;if(!target)return;if(parent===window)return;var a=target.closest?target.closest("a[href]"):null;if(a&&a.href&&/^https?:\/\//.test(a.href)&&a.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(a,a.href))return;var productId=extractProductId(target)||extractProductId(a);if(productId){e.preventDefault();parent.postMessage({type:"ecto-artifact-link-click",productId:productId},"*");return}e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:a.href},"*");return}var dataHref=findDataHref(target);if(dataHref&&/^https?:\/\//.test(dataHref.href)&&dataHref.href.replace(/#.*$/,"")!==loc){if(isInlineMediaUrlClick(dataHref.node,dataHref.href))return;e.preventDefault();parent.postMessage({type:"ecto:usercontent-link-click",href:dataHref.href},"*")}},true)})();</script><script>(function(){var FOCUS_TYPE="ecto:artifact-focus-request";var CLOSE_TYPE="ecto:artifact-close-request";function focusArtifactDocument(){var body=document.body;if(!body)return;try{window.focus();}catch(e){}if(!body.hasAttribute("tabindex"))body.setAttribute("tabindex","-1");try{body.focus({preventScroll:true});}catch(e){try{body.focus();}catch(e2){}}}window.addEventListener("message",function(event){if(event.source!==window.parent)return;var data=event.data;if(!data||typeof data!=="object"||data.type!==FOCUS_TYPE)return;if(document.readyState==="loading"){document.addEventListener("DOMContentLoaded",focusArtifactDocument,{once:true});return;}focusArtifactDocument();});window.addEventListener("keydown",function(event){if(event.key!=="Escape")return;window.setTimeout(function(){if(event.defaultPrevented)return;window.parent.postMessage({type:CLOSE_TYPE},"*");},0);});})();</script>
+</body></html>

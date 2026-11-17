@@ -11,7 +11,7 @@ Selfhosted AI Operating/Orchestration System that underlies all of my work.
 | `Config/` | Rules, Runtime, Harness, Configurations | `AGENT.md`, `llama-swap.yaml` |
 | `Config/Openshell/` | Openshell Sandbox Configurations | `policy.yaml`, `DeepSeek-Harness/` |
 | `Contributions/` | Relevant Work outiside Github | `Heretic.zip`, `Nefilum-web/` |
-| `Docs/` | Pages, Playground and Notes | `index.html`, `Shell-DSH-Llama.html` |
+| `Docs/` | Pages, Playground and Writings | `InferenceX.html`, `Post-Training.html` |
 | `Finetune/` | MLX Toolkit for Finetunes | `Cargo.toml` ... |
 | `Skills/` | Reusable Agent capabilities | `academic`, `write` |
 | `Subagents/` | Custom AI Subagents | `therapy`, `recursive` |

@@ -1,6 +1,6 @@
 # yaml-language-server: $schema=https://raw.githubusercontent.com/mostlygeek/llama-swap/refs/heads/main/config-schema.json
 
-healthCheckTimeout: 100
+healthCheckTimeout: 120
 globalTTL: 1200
 logLevel: info
 logToStdout: proxy
@@ -14,11 +14,13 @@ macros:
   "root": "/Users/pedroamaral/models"
   "brain": "/Users/pedroamaral/Documents/AI-Brain"
   "image": "--image-min-tokens 1024"
-  "config": "--cache-ram 4048 --ctx-checkpoints 16 --ui-config-file ${brain}/llama-conf.json"
+  "config": "--cache-ram 512 --ctx-checkpoints 4 --ui-config-file ${brain}/llama-conf.json"
   "agent": "--tools all --ui-mcp-proxy --mcp-servers-config ${brain}/.mcp.json"
   "preset": "--jinja -ngl 99 --flash-attn on --reasoning-preserve -t 4 -tb 4 -b 2048 -ub 1024"
   "1-slot": "--parallel 1"
   "2-slot": "--parallel 2 --kv-unified"
+  "4-slot": "--parallel 4 --kv-unified"
+  "cache-q4": "--cache-type-k q4_0 --cache-type-v q4_0"
   "cache-q5": "--cache-type-k q5_1 --cache-type-v q5_1"
   "cache-q8": "--cache-type-k q8_0 --cache-type-v q5_1"
 
@@ -35,10 +37,10 @@ models:
     ttl: 0
     unloadTimeout: 35
 
-  ocr_cpm:
+  (ocr)cpm:
     name: "CPM OCR"  
     description: "MINI CPM DSpark"
-    aliases: ["OCR_CPM"]
+    aliases: ["(OCR)CPM"]
     capabilities:
       in: [text, image]
       out: [text]
@@ -53,16 +55,16 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} --special
       -m ${root}/OCR/miniCPM-ocr.gguf --reasoning off
       --mmproj ${root}/OCR/.mmproj-miniCPM-ocr.gguf
-      ${preset} ${cache-q8} -c 90000 --parallel 3
       --model-draft ${root}/OCR/.dspark-miniCPM-ocr.gguf
       --spec-type draft-dspark --spec-draft-n-max 15
+      ${preset} ${cache-q8} -c 90000 --parallel 3
     ttl: 1000
     unloadTimeout: 50
 
-  ocr_surya:
+  (ocr)surya:
     name: "Surya OCR"  
     description: "Surya OCR"
-    aliases: ["OCR_Surya"]
+    aliases: ["(OCR)Surya"]
     capabilities:
       in: [text, image]
       out: [text]
@@ -77,8 +79,7 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} --special
       -m ${root}/OCR/surya-ocr-2.5.gguf --reasoning off
       --mmproj ${root}/OCR/.mmproj-surya-ocr-2.5.gguf
-      ${preset} ${cache-q8} -c 98304 --parallel 4
-      --spec-type draft-dspark --spec-draft-n-max 15
+       ${preset} ${cache-q8} -c 98304 --parallel 4 --kv-unified
     ttl: 1000
     unloadTimeout: 50
 
@@ -99,33 +100,8 @@ models:
         reasoning_budget: 15000
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/lfm2.5-24b-a2b-Q5-heretic.gguf ${agent}
+      -m ${root}/lfm-2.5-24b-a2b-Q5-heretic.gguf ${agent}
       ${preset} ${cache-q5} -c 90000 ${1-slot}
-    ttl: 1000
-    unloadTimeout: 35
-
-  lfmvl:
-    name: "LFM 3 VL"
-    aliases: ["LFM 3 2B VL"]
-    description: "2B VL"
-    capabilities:
-      in: [text, image, video]
-      out: [text]
-      tools: true
-      context: 128000
-    filters:
-      setParams:
-        temperature: 0.1
-        top_k: 50
-        top_p: 1.0
-        min_p: 0.0
-        repeat_penalty: 1.1
-        reasoning_budget: 15000
-    cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/lfm3-vl-2b-heretic.gguf ${agent}
-      --mmproj ${root}/.mmproj-lfm3-vl-heretic.gguf ${image}
-      ${preset} ${cache-q5} -c 128000 ${1-slot}
     ttl: 1000
     unloadTimeout: 35
 
@@ -248,7 +224,7 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/qwen-3.6-35B-A3B-heretic-IQ3M.gguf ${agent}
       --mmproj ${root}/.mmproj-qwen-3.6-f16.gguf ${image}
-      ${preset} -c 60800 ${cache-q5} ${1-slot}
+      ${preset} -c 60800 --cache-type-k q8_0 --cache-type-v q8_0 ${1-slot}
     unloadTimeout: 70
 
   gemma4e:
@@ -273,7 +249,7 @@ models:
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/gemma-4-E4B-it-heretic.gguf ${agent}
       --mmproj ${root}/.mmproj-gemma-4-e4b.gguf ${image}
-      ${preset} -c 85800 ${cache-q5} ${1-slot}
+      ${preset} -c 85800 --cache-type-k f16 --cache-type-v f16 ${1-slot}
     unloadTimeout: 70
 
   gemma4a:
@@ -284,7 +260,7 @@ models:
       in: [text, image, audio, video]
       out: [text]
       tools: true
-      context: 60800
+      context: 49152
     filters:
       setParams:
         temperature: 0.6
@@ -295,10 +271,11 @@ models:
         presence_penalty: 0
         reasoning_budget: 12000
     cmd: |  
-      ${bin} --host 127.0.0.1 --port ${PORT} ${config}
+      ${bin} --host 127.0.0.1 --port ${PORT} --cache-ram 256
+      --ctx-checkpoints 4 --ui-config-file ${brain}/llama-conf.json
       -m ${root}/gemma-4-26B-A4B-it-heretic.Q4_K_S.gguf ${agent}
       --mmproj ${root}/.mmproj-gemma-4.gguf ${image}
-      ${preset} -c 60800 ${cache-q5} ${1-slot}
+      ${preset} -c 49152 ${cache-q4} ${1-slot}
     unloadTimeout: 70
 
   nanbeige:
@@ -325,7 +302,7 @@ models:
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/nanbeige-4.2-3B-ARA-heresy.gguf ${agent}
-      ${preset} -c 124000 ${cache-q8} ${1-slot}
+      ${preset} -c 124000 ${cache-q5} ${4-slot}
     unloadTimeout: 70
 
   xspark:
@@ -352,12 +329,12 @@ models:
     cmd: |  
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/spark-X2.6-4b-heretic.gguf ${agent}
-      ${preset} -c 90800 ${cache-q5} ${1-slot}
+      ${preset} -c 90800 --cache-type-k q8_0 --cache-type-v q8_0 ${4-slot}
     unloadTimeout: 70
 
   embgemma:
     name: "EmbeddingGemma 2"
-    description: "Local text embeddings for Hindsight; 768 dimensions"
+    description: "Local text embeddings 768 dimensions"
     cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT}
       -m "/Users/pedroamaral/Library/Application Support/DigUp/Models/embeddinggemma-2-Q8_0.gguf"
