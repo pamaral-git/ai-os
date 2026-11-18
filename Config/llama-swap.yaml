@@ -15,6 +15,7 @@ macros:
   "brain": "/Users/pedroamaral/Documents/AI-Brain"
   "image": "--image-min-tokens 1024"
   "config": "--cache-ram 512 --ctx-checkpoints 4 --ui-config-file ${brain}/llama-conf.json"
+  "chat": "--tools all --ui-mcp-proxy"
   "agent": "--tools all --ui-mcp-proxy --mcp-servers-config ${brain}/.mcp.json"
   "preset": "--jinja -ngl 99 --flash-attn on --reasoning-preserve -t 4 -tb 4 -b 2048 -ub 1024"
   "1-slot": "--parallel 1"
@@ -22,7 +23,7 @@ macros:
   "4-slot": "--parallel 4 --kv-unified"
   "cache-q4": "--cache-type-k q4_0 --cache-type-v q4_0"
   "cache-q5": "--cache-type-k q5_1 --cache-type-v q5_1"
-  "cache-q8": "--cache-type-k q8_0 --cache-type-v q5_1"
+  "cache-q8": "--cache-type-k q8_0 --cache-type-v q8_0"
 
 models:
 
@@ -38,7 +39,7 @@ models:
     unloadTimeout: 35
 
   (ocr)cpm:
-    name: "CPM OCR"  
+    name: "CPM OCR"
     description: "MINI CPM DSpark"
     aliases: ["(OCR)CPM"]
     capabilities:
@@ -51,18 +52,18 @@ models:
         temperature: 0.0
         top_k: 50
         repeat_penalty: 1.03
-    cmd: | 
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} --special
       -m ${root}/OCR/miniCPM-ocr.gguf --reasoning off
       --mmproj ${root}/OCR/.mmproj-miniCPM-ocr.gguf
       --model-draft ${root}/OCR/.dspark-miniCPM-ocr.gguf
       --spec-type draft-dspark --spec-draft-n-max 15
-      ${preset} ${cache-q8} -c 90000 --parallel 3
+      ${preset} ${cache-q8} -c 90000 --parallel 3 --kv-unified
     ttl: 1000
     unloadTimeout: 50
 
   (ocr)surya:
-    name: "Surya OCR"  
+    name: "Surya OCR"
     description: "Surya OCR"
     aliases: ["(OCR)Surya"]
     capabilities:
@@ -75,7 +76,7 @@ models:
         temperature: 0.0
         top_k: 50
         repeat_penalty: 1.03
-    cmd: | 
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} --special
       -m ${root}/OCR/surya-ocr-2.5.gguf --reasoning off
       --mmproj ${root}/OCR/.mmproj-surya-ocr-2.5.gguf
@@ -84,9 +85,9 @@ models:
     unloadTimeout: 50
 
   lfmMoE:
-    name: "LFM 2.5 MoE"
+    name: "LFM 2.5 MoE (Chat)"
     aliases: ["LFM 24B A2B"]
-    description: "A2B Text MoE Model"
+    description: "A2B Text MoE (Non-Agent)"
     capabilities:
       in: [text]
       out: [text]
@@ -98,9 +99,9 @@ models:
         top_k: 50
         repeat_penalty: 1.05
         reasoning_budget: 15000
-    cmd: |  
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/lfm-2.5-24b-a2b-Q5-heretic.gguf ${agent}
+      -m ${root}/lfm-2.5-24b-a2b-Q5-heretic.gguf ${chat}
       ${preset} ${cache-q5} -c 90000 ${1-slot}
     ttl: 1000
     unloadTimeout: 35
@@ -120,7 +121,7 @@ models:
         top_p: 0.95
         top_k: 20
         reasoning_budget: 20000
-    cmd: |  
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/ling-3-tiny-heretic.gguf ${agent}
       ${preset} ${cache-q5} -c 70500 ${2-slot}
@@ -144,7 +145,7 @@ models:
         repeat_penalty: 1.15
         reasoning_budget: 15000
         enable_thinking: True
-    cmd: |  
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/minicpm-vl-4.7-1b-heretic.gguf ${agent}
       --mmproj ${root}/.mmproj-minicpm-4.7-1b.gguf ${image}
@@ -170,18 +171,18 @@ models:
         repeat_penalty: 1.05
         reasoning_budget: 15000
         enable_thinking: True
-    cmd: |  
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/miniCPM5-2B-heretic.gguf ${agent} 
+      -m ${root}/miniCPM5-2B-heretic.gguf ${agent}
       ${preset} -c 70500 ${cache-q5} ${2-slot}
       --min-p 0.0 --repeat-penalty 1.05
     ttl: 900
     unloadTimeout: 30
 
   qwen4b:
-    name: "Qwen 4B"
+    name: "Qwen 4B (Chat)"
     aliases: ["Qwen 4B"]
-    description: "4B Dense Multimodal"
+    description: "4B Dense Multimodal (Non-Agent)"
     capabilities:
       in: [text, image, audio, video]
       out: [text]
@@ -194,9 +195,9 @@ models:
         min_p: 0.05
         repeat_penalty: 1.05
         reasoning_budget: 15000
-    cmd: |  
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
-      -m ${root}/qwen-3.5-4B-Uncensored-Q6K.gguf ${agent}
+      -m ${root}/qwen-3.5-4B-Uncensored-Q6K.gguf ${chat}
       --mmproj ${root}/.mmproj-qwen-4b.gguf ${image}
       ${preset} ${cache-q5} -c 70500 ${2-slot}
     ttl: 900
@@ -220,7 +221,7 @@ models:
         repeat_penalty: 1.0
         presence_penalty: 0
         reasoning_budget: 12000
-    cmd: |  
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/qwen-3.6-35B-A3B-heretic-IQ3M.gguf ${agent}
       --mmproj ${root}/.mmproj-qwen-3.6-f16.gguf ${image}
@@ -245,7 +246,7 @@ models:
         repeat_penalty: 1.0
         presence_penalty: 0
         reasoning_budget: 12000
-    cmd: |  
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/gemma-4-E4B-it-heretic.gguf ${agent}
       --mmproj ${root}/.mmproj-gemma-4-e4b.gguf ${image}
@@ -270,7 +271,7 @@ models:
         repeat_penalty: 1.0
         presence_penalty: 0
         reasoning_budget: 12000
-    cmd: |  
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} --cache-ram 256
       --ctx-checkpoints 4 --ui-config-file ${brain}/llama-conf.json
       -m ${root}/gemma-4-26B-A4B-it-heretic.Q4_K_S.gguf ${agent}
@@ -299,7 +300,7 @@ models:
         chat_template_kwargs:
           enable_thinking: true
           reasoning_effort: "low"
-    cmd: |  
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/nanbeige-4.2-3B-ARA-heresy.gguf ${agent}
       ${preset} -c 124000 ${cache-q5} ${4-slot}
@@ -326,7 +327,7 @@ models:
         chat_template_kwargs:
           enable_thinking: true
           reasoning_effort: "low"
-    cmd: |  
+    cmd: |
       ${bin} --host 127.0.0.1 --port ${PORT} ${config}
       -m ${root}/spark-X2.6-4b-heretic.gguf ${agent}
       ${preset} -c 90800 --cache-type-k q8_0 --cache-type-v q8_0 ${4-slot}
@@ -357,8 +358,12 @@ matrix:
     q4b: qwen4b
     x4b: xspark
     n3b: nanbeige
+    1vr: (ocr)surya
+    2vr: (ocr)cpm
 
   sets:
-    tiny: "(n3b | c2b) & (c1b) & emb & afm"
-    smol: "(q4b | x4b | n3b) & emb & afm"
-    moe: "(l1a | l2a | g4a | q3a | g4e)"
+    low: "emb & (1vr | 2vr) & afm"
+    tiny: "+low & c1b & (n3b | c2b)"
+    smol: "+low & (q4b | x4b | n3b)"
+    moe: "l1a | g4a | q3a | g4e"
+    chat: "+low & (l2a | q4b)"
