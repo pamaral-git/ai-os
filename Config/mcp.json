@@ -39,6 +39,11 @@
       "/Users/local-path/browser-mcp/node_modules/@browsermcp/mcp/dist/index.js"
     ]
   },
+  "Firecrawl-local": {
+			"type": "stdio",
+			"command": "/Users/pedroamaral/.cargo/bin/firecrawl-local",
+			"args": ["mcp"]
+		},
   "DuckDuckGo": {
     "type": "stdio",
     "command": "docker",
