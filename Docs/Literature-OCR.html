@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Literature OCR — Archival Poetry &amp; Prose Digitization</title>
+  <script src="https://cdn.tailwindcss.com/3.4.17"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --paper: #f7f4ee;
+      --card: #fdfbf7;
+      --raised: #efe9df;
+      --ink: #1f1b16;
+      --ink-2: #5e554a;
+      --muted: #7b7266;
+      --line: rgba(31, 27, 22, 0.09);
+      --accent: #b45309;
+      --accent-hover: #92400e;
+      --accent-soft: rgba(180, 83, 9, 0.08);
+      --code-bg: #1c1a18;
+      --code-ink: #efe9de;
+      --ok: #16a34a;
+      --ease: cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    html.dark {
+      --paper: #161513;
+      --card: #1c1a18;
+      --raised: #262421;
+      --ink: #efe9de;
+      --ink-2: #aaa398;
+      --muted: #8a847a;
+      --line: rgba(239, 233, 222, 0.09);
+      --accent: #f0a35e;
+      --accent-hover: #f5b87e;
+      --accent-soft: rgba(240, 163, 94, 0.12);
+      --code-bg: #12110f;
+      --code-ink: #efe9de;
+      --ok: #4cc38a;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background: var(--paper);
+      color: var(--ink);
+      font-family: "Inter", ui-sans-serif, system-ui, -apple-system, sans-serif;
+      font-size: 15px;
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 180ms var(--ease), color 180ms var(--ease);
+    }
+
+    .serif {
+      font-family: "Newsreader", Georgia, "Times New Roman", serif;
+    }
+
+    .mono {
+      font-family: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .tabular {
+      font-variant-numeric: tabular-nums;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+    }
+
+    .codebox {
+      background: var(--code-bg);
+      color: var(--code-ink);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .codebox pre {
+      margin: 0;
+      padding: 16px 20px;
+      overflow-x: auto;
+      font-size: 13px;
+      line-height: 1.65;
+      white-space: pre;
+    }
+
+    .btn {
+      border-radius: 8px;
+      font-weight: 500;
+      font-size: 14px;
+      height: 36px;
+      padding: 0 16px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      white-space: nowrap;
+      transition: background-color 150ms var(--ease), border-color 150ms var(--ease), color 150ms var(--ease), transform 120ms var(--ease);
+    }
+
+    .btn-lg {
+      height: 44px;
+      padding: 0 20px;
+    }
+
+    .btn-sm {
+      height: 32px;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    .btn:active {
+      transform: scale(0.98);
+    }
+
+    .btn:focus-visible,
+    .input:focus-visible,
+    select:focus-visible,
+    textarea:focus-visible,
+    a:focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .btn-primary {
+      background: var(--ink);
+      color: var(--paper);
+    }
+    .btn-primary:hover {
+      opacity: 0.9;
+    }
+
+    .btn-accent {
+      background: var(--accent);
+      color: #ffffff;
+    }
+    html.dark .btn-accent {
+      color: #161513;
+    }
+    .btn-accent:hover {
+      background: var(--accent-hover);
+    }
+
+    .btn-secondary {
+      background: var(--raised);
+      border-color: var(--line);
+      color: var(--ink);
+    }
+    .btn-secondary:hover {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .btn-ghost {
+      background: transparent;
+      border-color: var(--line);
+      color: var(--ink-2);
+    }
+    .btn-ghost:hover {
+      color: var(--ink);
+      background: var(--raised);
+    }
+
+    .input, select, textarea {
+      width: 100%;
+      background: var(--raised);
+      color: var(--ink);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      padding: 8px 12px;
+      font-size: 14px;
+      transition: border-color 150ms var(--ease), background-color 150ms var(--ease);
+    }
+
+    .input, select {
+      height: 36px;
+    }
+
+    textarea {
+      resize: vertical;
+      height: auto;
+    }
+
+    .input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      background: var(--card);
+    }
+
+    label.field-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ink-2);
+      display: block;
+    }
+
+    .preview-poem {
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 20px;
+    }
+    .preview-poem:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+    .preview-poem h2 {
+      font-family: "Newsreader", Georgia, serif;
+      font-size: 22px;
+      font-weight: 500;
+      margin: 0 0 16px;
+      color: var(--ink);
+    }
+    .preview-poem p {
+      line-height: 1.7;
+      margin: 0 0 16px;
+      font-family: "Newsreader", Georgia, serif;
+      font-size: 16.5px;
+      color: var(--ink);
+    }
+    .preview-poem p:last-child {
+      margin-bottom: 0;
+    }
+    .poem-line {
+      display: block;
+    }
+
+    .check-row {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      min-height: 44px;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--line);
+      cursor: pointer;
+    }
+    .check-row:last-of-type {
+      border-bottom: none;
+    }
+    .check-row input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--accent);
+      flex-shrink: 0;
+    }
+
+    .tab-active {
+      background: var(--card);
+      color: var(--ink);
+      border-color: var(--line);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    }
+
+    .tab-idle {
+      background: transparent;
+      color: var(--muted);
+      border-color: transparent;
+    }
+    .tab-idle:hover {
+      color: var(--ink);
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+    th, td {
+      text-align: left;
+      vertical-align: top;
+    }
+
+    section[id] {
+      scroll-margin-top: 72px;
+    }
+    div[id^="guide-"] {
+      scroll-margin-top: 84px;
+    }
+
+    @keyframes riseIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hero-enter {
+      animation: riseIn 360ms var(--ease) both;
+    }
+  </style>
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem("lit_ocr_theme");
+        var prefersDark = window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches;
+        if (saved === "dark" || (!saved && prefersDark)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {}
+    })();
+  </script>
+</head>
+<body>
+  <!-- Header -->
+  <header class="sticky top-0 z-40 h-16 border-b border-[var(--line)] bg-[var(--paper)]">
+    <div class="max-w-[1120px] mx-auto h-full px-6 flex items-center justify-between gap-4">
+      <a href="#overview" class="text-[17px] font-medium tracking-tight shrink-0 flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-[var(--accent)]" aria-hidden="true"></span>
+        <span>Literature OCR</span>
+      </a>
+
+      <nav class="hidden md:flex items-center gap-1 text-[14px] text-[var(--ink-2)]" aria-label="Main navigation">
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:text-[var(--ink)] hover:bg-[var(--raised)] transition-colors" href="#overview">Overview</a>
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:text-[var(--ink)] hover:bg-[var(--raised)] transition-colors" href="#pipeline">Pipeline</a>
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:text-[var(--ink)] hover:bg-[var(--raised)] transition-colors" href="#formatter">Formatter</a>
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:text-[var(--ink)] hover:bg-[var(--raised)] transition-colors" href="#prompt">Prompt</a>
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:text-[var(--ink)] hover:bg-[var(--raised)] transition-colors" href="#guide">Guide</a>
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:text-[var(--ink)] hover:bg-[var(--raised)] transition-colors" href="#prose">Prose</a>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <button id="theme-toggle" type="button" class="btn btn-ghost btn-sm !px-2" aria-label="Toggle color theme" title="Toggle theme">
+          <svg id="theme-icon-sun" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/><path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/></svg>
+          <svg id="theme-icon-moon" class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/></svg>
+        </button>
+
+        <button id="header-download-btn" type="button" class="btn btn-primary btn-sm hidden sm:inline-flex">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" x2="12" y1="15" y2="3"/></svg>
+          <span>Export .md</span>
+        </button>
+
+        <button id="mobile-menu-btn" type="button" class="btn btn-ghost btn-sm !px-2 md:hidden" aria-label="Toggle menu" aria-expanded="false">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><line x1="4" x2="20" y1="12" y2="12"/><line x1="4" x2="20" y1="6" y2="6"/><line x1="4" x2="20" y1="18" y2="18"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <div id="mobile-menu" class="hidden md:hidden border-b border-[var(--line)] bg-[var(--card)] px-6 py-3">
+      <nav class="flex flex-wrap gap-2 text-[14px] text-[var(--ink-2)]" aria-label="Mobile navigation">
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:bg-[var(--raised)]" href="#overview">Overview</a>
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:bg-[var(--raised)]" href="#pipeline">Pipeline</a>
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:bg-[var(--raised)]" href="#formatter">Formatter</a>
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:bg-[var(--raised)]" href="#prompt">Prompt</a>
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:bg-[var(--raised)]" href="#guide">Guide</a>
+        <a class="px-3 h-8 inline-flex items-center rounded-[8px] hover:bg-[var(--raised)]" href="#prose">Prose</a>
+      </nav>
+    </div>
+  </header>
+
+  <main>
+    <!-- Hero -->
+    <section id="overview" class="max-w-[1120px] mx-auto px-6 pt-12 pb-16 lg:pt-20 lg:pb-20 hero-enter">
+      <div class="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
+        <div class="lg:col-span-7">
+          <p class="text-[13px] font-medium text-[var(--accent)] mb-3">Archival poetry &amp; prose digitization</p>
+          <h1 class="serif text-[38px] sm:text-[52px] leading-[1.06] tracking-[-0.025em] font-normal text-[var(--ink)]">
+            Scan a poetry book. Keep every line break and indent.
+          </h1>
+          <p class="text-[17px] sm:text-[18px] leading-[1.6] text-[var(--ink-2)] mt-5 max-w-[36rem]">
+            One workflow from page photos or PDF to proofreadable Markdown, Calibre EPUBs, and chaptered audiobooks. Format raw OCR pages live in your browser below.
+          </p>
+          <div class="flex flex-wrap items-center gap-3 mt-8">
+            <a href="#formatter" class="btn btn-primary btn-lg">
+              <span>Open formatter</span>
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m12 5 7 7-7 7"/></svg>
+            </a>
+            <a href="#guide" class="btn btn-secondary btn-lg">Read the guide</a>
+          </div>
+          <p id="hero-toast" class="mt-3 text-[13px] text-[var(--accent)] min-h-[20px]" role="status" aria-live="polite"></p>
+        </div>
+
+        <!-- Product Moment: Typeset Specimen Preview -->
+        <div class="lg:col-span-5">
+          <div class="card p-6 border-l-2 border-l-[var(--accent)]">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-[var(--line)]">
+              <span class="mono text-[12px] text-[var(--muted)]">Specimen · Page 14</span>
+              <span class="mono text-[12px] text-[var(--accent)]">EPUB preview</span>
+            </div>
+            <div class="serif text-[16px] leading-[1.7] text-[var(--ink)]">
+              <p class="text-[20px] font-medium mb-3">The Silent Horizon</p>
+              <p class="mb-4">
+                <span class="block">The evening falls across the graying stone,</span>
+                <span class="block pl-4">The shadows lengthen as the wind cries out,</span>
+                <span class="block">And standing on the quiet crest alone,</span>
+                <span class="block pl-4">The traveler abandons every doubt.</span>
+              </p>
+              <p class="mb-0">
+                <span class="block">A single leaf deserts the frozen bough,</span>
+                <span class="block pl-8">To find its final rest upon the stream.</span>
+              </p>
+            </div>
+            <div class="mt-5 pt-3 border-t border-[var(--line)] flex items-center justify-between text-[12px] mono text-[var(--muted)]">
+              <span>2 stanzas · 6 lines</span>
+              <span>Trailing-space &lt;br&gt;</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Pipeline Stages -->
+    <section id="pipeline" class="max-w-[1120px] mx-auto px-6 py-12 lg:py-16 border-t border-[var(--line)]">
+      <p class="text-[13px] font-medium text-[var(--accent)]">Pipeline</p>
+      <h2 class="serif text-[28px] sm:text-[34px] leading-[1.15] font-normal mt-2 mb-8">Four stages, one careful handoff</h2>
+
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <article class="card p-5">
+          <span class="mono text-[12px] text-[var(--accent)]">01</span>
+          <h3 class="text-[16px] font-medium mt-2">Prepare pages</h3>
+          <p class="text-[14px] text-[var(--ink-2)] leading-relaxed mt-2">
+            Ingest photos, PDFs, or EPUBs. Natural sort, EXIF rotation fix, and <code class="mono text-[12px]">page_0001.png</code> naming.
+          </p>
+        </article>
+        <article class="card p-5">
+          <span class="mono text-[12px] text-[var(--accent)]">02</span>
+          <h3 class="text-[16px] font-medium mt-2">OCR with layout</h3>
+          <p class="text-[14px] text-[var(--ink-2)] leading-relaxed mt-2">
+            OpenAI-compatible Docker endpoint, GGUF, MLX, or RapidOCR. One page per request, cached and resumable.
+          </p>
+        </article>
+        <article class="card p-5">
+          <span class="mono text-[12px] text-[var(--accent)]">03</span>
+          <h3 class="text-[16px] font-medium mt-2">Build Markdown</h3>
+          <p class="text-[14px] text-[var(--ink-2)] leading-relaxed mt-2">
+            Trailing-space line breaks, <code class="mono text-[12px]">&amp;nbsp;</code> indents, escaped punctuation, and <code class="mono text-[12px]">#</code> titles.
+          </p>
+        </article>
+        <article class="card p-5">
+          <span class="mono text-[12px] text-[var(--accent)]">04</span>
+          <h3 class="text-[16px] font-medium mt-2">EPUB or audiobook</h3>
+          <p class="text-[14px] text-[var(--ink-2)] leading-relaxed mt-2">
+            Calibre compiles the EPUB with a TOC. Prose mode adds chapter detection, TTS, and <code class="mono text-[12px]">.m4b</code> output.
+          </p>
+        </article>
+      </div>
+
+      <div class="card p-6 mt-6">
+        <h3 class="text-[16px] font-medium mb-4">Design guarantees</h3>
+        <ul class="grid sm:grid-cols-2 gap-x-8 gap-y-3 text-[14px] text-[var(--ink-2)]">
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 shrink-0 text-[var(--accent)] mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>Indents survive via <code class="mono text-[12px] text-[var(--ink)]">&amp;nbsp;</code> instead of collapsing in Markdown</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 shrink-0 text-[var(--accent)] mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>Machine-readable <code class="mono text-[12px] text-[var(--ink)]"># Title</code> headings build the EPUB TOC</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 shrink-0 text-[var(--accent)] mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>Poetry is never re-flowed or de-hyphenated; prose mode still is</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 shrink-0 text-[var(--accent)] mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>Header/footer stripping checks page edges only so refrains stay intact</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 shrink-0 text-[var(--accent)] mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>Works with any OpenAI-compatible vision endpoint in Docker</span>
+          </li>
+          <li class="flex items-start gap-2.5">
+            <svg class="w-4 h-4 shrink-0 text-[var(--accent)] mt-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>
+            <span>5-page sample runs, <code class="mono text-[12px] text-[var(--ink)]">--resume</code> recovery, and editable JSON cache</span>
+          </li>
+        </ul>
+      </div>
+    </section>
+
+    <!-- Quick Start Commands -->
+    <section id="commands" class="max-w-[1120px] mx-auto px-6 py-12 lg:py-16 border-t border-[var(--line)]">
+      <p class="text-[13px] font-medium text-[var(--accent)]">Quick start</p>
+      <h2 class="serif text-[28px] sm:text-[34px] leading-[1.15] font-normal mt-2 mb-6">Run five pages first</h2>
+
+      <div class="codebox mb-6">
+        <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
+          <span class="mono text-[12px] text-white/60">Sample &amp; full run</span>
+          <button type="button" class="copy-code-btn btn btn-sm !h-7 !px-2.5 text-white/80 hover:text-white border-white/15 hover:bg-white/10">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+        <pre><code class="mono">pip install pymupdf pillow tqdm       # plus Calibre: sudo apt install calibre
+
+python book_pipeline.py ~/poetry_book/images \
+  --mode poetry --pages 1-5 \
+  --ocr openai --api-base http://localhost:11434/v1 --ocr-model qwen2.5vl:7b \
+  --title "My Poetry Book" --author "Some Poet" --output-dir ./mybook
+
+# looks right? run the whole book (finished pages are reused)
+python book_pipeline.py ~/poetry_book/images --mode poetry --resume \
+  --ocr openai --api-base http://localhost:11434/v1 --ocr-model qwen2.5vl:7b \
+  --title "My Poetry Book" --author "Some Poet" --output-dir ./mybook</code></pre>
+      </div>
+
+      <h3 class="text-[16px] font-medium mt-8 mb-3">Install dependencies</h3>
+      <div class="codebox">
+        <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
+          <span class="mono text-[12px] text-white/60">System &amp; Python packages</span>
+          <button type="button" class="copy-code-btn btn btn-sm !h-7 !px-2.5 text-white/80 hover:text-white border-white/15 hover:bg-white/10">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+        <pre><code class="mono"># Ubuntu/Debian: sudo apt install -y calibre poppler-utils ffmpeg
+# macOS: brew install calibre poppler ffmpeg
+pip install pymupdf pillow tqdm
+pip install rapidocr-onnxruntime     # only for --ocr onnx
+# pip install llama-cpp-python       # only for --ocr gguf
+# pip install mlx-vlm                # only for --ocr mlx (Apple Silicon)
+# pip install piper-tts pyttsx3      # only for prose mode audio</code></pre>
+      </div>
+      <p class="text-[13px] text-[var(--muted)] mt-3">Requires <code class="mono">ebook-convert</code> (Calibre) for poetry EPUBs and <code class="mono">ffmpeg</code> for prose audiobooks.</p>
+    </section>
+
+    <!-- Live Formatter -->
+    <section id="formatter" class="max-w-[1120px] mx-auto px-6 py-12 lg:py-16 border-t border-[var(--line)]">
+      <p class="text-[13px] font-medium text-[var(--accent)]">Live formatter</p>
+      <h2 class="serif text-[28px] sm:text-[34px] leading-[1.15] font-normal mt-2 mb-2">Format and inspect OCR output</h2>
+      <p class="text-[15px] text-[var(--ink-2)] max-w-[46rem]">
+        Paste raw OCR text or import a <code class="mono text-[13px]">.txt</code>/<code class="mono text-[13px]">.md</code> file. The formatter strips model fences, joins continuation pages, preserves indentation, and generates proofreadable Markdown.
+      </p>
+
+      <div class="grid lg:grid-cols-2 gap-6 mt-6">
+        <!-- Input Pane -->
+        <div class="card p-5 flex flex-col">
+          <label for="book-title" class="field-label">Book title</label>
+          <input id="book-title" type="text" class="input mt-2" value="My Poetry Book" />
+
+          <div class="flex flex-wrap gap-2 mt-3">
+            <button id="btn-load-sample" type="button" class="btn btn-ghost btn-sm">Load sample</button>
+            <button id="btn-clear-raw" type="button" class="btn btn-ghost btn-sm">Clear</button>
+            <label for="file-import" class="btn btn-ghost btn-sm cursor-pointer">
+              Import .txt / .md
+              <input id="file-import" type="file" accept=".txt,.md,.markdown,text/plain" class="hidden" />
+            </label>
+          </div>
+
+          <label for="raw-ocr" class="field-label mt-5">Raw OCR text <span class="text-[var(--muted)] font-normal">(split pages with <code class="mono text-[12px]">=== PAGE ===</code>)</span></label>
+          <textarea id="raw-ocr" class="input mono !text-[13px] leading-relaxed mt-2 flex-1 min-h-[320px]" rows="15" placeholder="# Poem Title
+First line,
+  indented line,
+
+Next stanza
+=== PAGE ===
+continuation page..."></textarea>
+
+          <fieldset class="border border-[var(--line)] rounded-[8px] p-4 mt-4">
+            <legend class="px-1.5 text-[12px] font-medium text-[var(--muted)]">Options</legend>
+            <div class="grid sm:grid-cols-2 gap-3 mt-1">
+              <div>
+                <label for="page-join" class="field-label">Page join</label>
+                <select id="page-join" class="input mt-1 !text-[13px]">
+                  <option value="stanza">stanza — blank line at break</option>
+                  <option value="line">line — continue stanza</option>
+                </select>
+              </div>
+              <div>
+                <label for="indent-scale" class="field-label">Indent scale (1–8)</label>
+                <input id="indent-scale" type="number" min="1" max="8" value="1" class="input mt-1 !text-[13px] tabular" />
+              </div>
+              <div>
+                <label for="min-indent" class="field-label">Ignore indents &lt; (0–8)</label>
+                <input id="min-indent" type="number" min="0" max="8" value="2" class="input mt-1 !text-[13px] tabular" />
+              </div>
+              <label class="flex items-center gap-2 pt-2 sm:pt-6 text-[13px] font-medium text-[var(--ink-2)] cursor-pointer">
+                <input id="keep-numbers" type="checkbox" class="w-4 h-4 accent-[#b45309]" />
+                <span>Keep digit-only lines</span>
+              </label>
+            </div>
+          </fieldset>
+        </div>
+
+        <!-- Output Pane -->
+        <div class="card p-5 flex flex-col">
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="inline-flex p-1 rounded-[8px] bg-[var(--raised)] border border-[var(--line)] gap-1" role="tablist" aria-label="Formatter output">
+              <button type="button" role="tab" data-tab="md" aria-selected="true" class="output-tab btn btn-sm tab-active">Markdown</button>
+              <button type="button" role="tab" data-tab="preview" aria-selected="false" class="output-tab btn btn-sm tab-idle">Preview</button>
+              <button type="button" role="tab" data-tab="qc" aria-selected="false" class="output-tab btn btn-sm tab-idle">QC (<span id="qc-count" class="tabular">0</span>)</button>
+            </div>
+
+            <div class="flex flex-wrap gap-2">
+              <button id="btn-copy-md" type="button" class="btn btn-accent btn-sm">Copy .md</button>
+              <button id="btn-download-md" type="button" class="btn btn-ghost btn-sm">Download .md</button>
+              <button id="btn-save-doc" type="button" class="btn btn-ghost btn-sm">Save</button>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center justify-between gap-2 mt-4">
+            <p id="formatter-stats" class="mono text-[12px] text-[var(--ink)]"></p>
+            <p id="formatter-status" class="text-[12px] text-[var(--muted)]" role="status" aria-live="polite">Ready — updates as you type</p>
+          </div>
+
+          <div class="border border-[var(--line)] rounded-[8px] mt-3 flex-1 min-h-[380px] max-h-[580px] overflow-auto bg-[var(--paper)]">
+            <pre id="panel-md" class="mono text-[13px] leading-relaxed p-4 whitespace-pre-wrap break-words m-0"></pre>
+            <div id="panel-preview" class="hidden p-6"></div>
+            <div id="panel-qc" class="hidden p-4"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Saved Documents -->
+      <div class="card p-5 mt-6">
+        <div class="flex items-center justify-between flex-wrap gap-2">
+          <div>
+            <h3 class="text-[16px] font-medium">Saved documents</h3>
+            <p class="text-[13px] text-[var(--muted)] mt-0.5">Stored in browser localStorage</p>
+          </div>
+          <button id="btn-refresh-docs" type="button" class="btn btn-ghost btn-sm">Refresh</button>
+        </div>
+        <div id="saved-docs-list" class="mt-3"></div>
+      </div>
+    </section>
+
+    <!-- System Prompt -->
+    <section id="prompt" class="max-w-[1120px] mx-auto px-6 py-12 lg:py-16 border-t border-[var(--line)]">
+      <p class="text-[13px] font-medium text-[var(--accent)]">System prompt</p>
+      <h2 class="serif text-[28px] sm:text-[34px] leading-[1.15] font-normal mt-2 mb-6">Copy the exact transcription prompt</h2>
+
+      <div class="card overflow-hidden">
+        <div class="flex flex-wrap gap-2 justify-between items-center px-4 py-3 border-b border-[var(--line)] bg-[var(--raised)]">
+          <span class="text-[13px] font-medium">Archival transcription prompt</span>
+          <div class="flex gap-2">
+            <button id="btn-copy-prompt" type="button" class="btn btn-ghost btn-sm bg-[var(--card)]">Copy</button>
+            <button id="btn-download-prompt" type="button" class="btn btn-ghost btn-sm bg-[var(--card)]">Download .txt</button>
+          </div>
+        </div>
+        <pre id="system-prompt-text" class="p-5 text-[13px] leading-relaxed whitespace-pre-wrap max-h-[420px] overflow-auto mono m-0"></pre>
+      </div>
+      <p class="text-[13px] text-[var(--muted)] mt-3">
+        Recommended settings: temperature 0, one page per request, images up to 2048 px on the long side. Models 7B and larger preserve indentation more reliably.
+      </p>
+    </section>
+
+    <!-- Guide -->
+    <section id="guide" class="max-w-[1120px] mx-auto px-6 py-12 lg:py-16 border-t border-[var(--line)]">
+      <p class="text-[13px] font-medium text-[var(--accent)]">Reference guide</p>
+      <h2 class="serif text-[28px] sm:text-[34px] leading-[1.15] font-normal mt-2 mb-6">Pipeline reference</h2>
+
+      <nav class="card p-4 mb-8" aria-label="Guide contents">
+        <p class="text-[12px] font-medium text-[var(--muted)] mb-2">Sections</p>
+        <div class="flex flex-wrap gap-x-5 gap-y-2 text-[14px] text-[var(--ink-2)]">
+          <a href="#guide-0" class="hover:text-[var(--ink)]">What you get</a>
+          <a href="#guide-1" class="hover:text-[var(--ink)]">What changed</a>
+          <a href="#guide-2" class="hover:text-[var(--ink)]">Run the pipeline</a>
+          <a href="#guide-3" class="hover:text-[var(--ink)]">Markdown format</a>
+          <a href="#guide-4" class="hover:text-[var(--ink)]">Markdown to EPUB</a>
+          <a href="#guide-5" class="hover:text-[var(--ink)]">QC checklist</a>
+          <a href="#guide-6" class="hover:text-[var(--ink)]">Troubleshooting</a>
+          <a href="#guide-7" class="hover:text-[var(--ink)]">Verification</a>
+        </div>
+      </nav>
+
+      <div class="space-y-12">
+        <div id="guide-0">
+          <h3 class="text-[18px] font-medium mb-2">What you get</h3>
+          <p class="text-[15px] text-[var(--ink-2)] leading-relaxed max-w-[46rem]">
+            One script converts page photos, PDFs, or EPUBs into proofreadable Markdown and EPUB (<code class="mono text-[13px] text-[var(--ink)]">--mode poetry</code>) or chapter text and audiobook (<code class="mono text-[13px] text-[var(--ink)]">--mode prose</code>), alongside the system prompt and QC report.
+          </p>
+        </div>
+
+        <div id="guide-1">
+          <h3 class="text-[18px] font-medium mb-3">1. What changed</h3>
+          <div class="overflow-x-auto card">
+            <table class="min-w-[580px] text-[14px]">
+              <thead>
+                <tr class="border-b border-[var(--line)] bg-[var(--raised)]">
+                  <th class="p-3 font-medium text-[var(--ink-2)]">Before</th>
+                  <th class="p-3 font-medium text-[var(--ink-2)]">Now</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--line)]">
+                <tr><td class="p-3 text-[var(--muted)]">Plain spaces for indentation</td><td class="p-3 font-medium"><code class="mono text-[13px]">&amp;nbsp;</code> indents</td></tr>
+                <tr><td class="p-3 text-[var(--muted)]">No machine-readable titles</td><td class="p-3 font-medium"><code class="mono text-[13px]"># Title</code> + EPUB TOC</td></tr>
+                <tr><td class="p-3 text-[var(--muted)]">Manual line-break advice</td><td class="p-3 font-medium">Script appends two trailing spaces</td></tr>
+                <tr><td class="p-3 text-[var(--muted)]">No page-break handling</td><td class="p-3 font-medium"><code class="mono text-[13px]">--page-join</code> + escaping + <code class="mono text-[13px]">review_report.txt</code></td></tr>
+                <tr><td class="p-3 text-[var(--muted)]">No Calibre flags documented</td><td class="p-3 font-medium">Exact Calibre flags included</td></tr>
+                <tr><td class="p-3 text-[var(--muted)]">v2 re-flowed poetry</td><td class="p-3 font-medium">Poetry never re-flows</td></tr>
+                <tr><td class="p-3 text-[var(--muted)]">No OpenAI-compatible backend</td><td class="p-3 font-medium"><code class="mono text-[13px]">--ocr openai</code></td></tr>
+                <tr><td class="p-3 text-[var(--muted)]">Deleted refrains (40% threshold)</td><td class="p-3 font-medium">Checks first/last 2 lines across 10+ pages only</td></tr>
+                <tr><td class="p-3 text-[var(--muted)]">ffmpeg used for PDFs</td><td class="p-3 font-medium">PyMuPDF for PDFs, ffmpeg only for audio</td></tr>
+                <tr><td class="p-3 text-[var(--muted)]">Qwen2-VL GGUF Llava failures</td><td class="p-3 font-medium"><code class="mono text-[13px]">--gguf-handler</code></td></tr>
+                <tr><td class="p-3 text-[var(--muted)]">No sample run or resume</td><td class="p-3 font-medium"><code class="mono text-[13px]">--pages 1-5</code>, <code class="mono text-[13px]">--resume</code>, editable cache</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="guide-2">
+          <h3 class="text-[18px] font-medium mb-2">2. Run the pipeline</h3>
+          <p class="text-[15px] text-[var(--ink-2)] leading-relaxed max-w-[48rem]">
+            <strong class="font-medium text-[var(--ink)]">Step A — Prepare images:</strong> natural sort, EXIF rotation fix, <code class="mono text-[13px]">pages/page_0001.png</code>, <code class="mono text-[13px]">source_map.json</code>.
+            <strong class="font-medium text-[var(--ink)]">Step B — 5-page sample:</strong> run the <a href="#commands" class="underline hover:text-[var(--accent)]">Quick start</a> command.
+            <strong class="font-medium text-[var(--ink)]">Step C — Whole book:</strong> run with <code class="mono text-[13px]">--resume</code>, then inspect <code class="mono text-[13px]">.md</code>, <code class="mono text-[13px]">review_report.txt</code>, and the EPUB.
+          </p>
+        </div>
+
+        <div id="guide-3">
+          <h3 class="text-[18px] font-medium mb-3">3. Markdown format</h3>
+          <div class="overflow-x-auto card mb-4">
+            <table class="min-w-[640px] text-[14px]">
+              <thead>
+                <tr class="border-b border-[var(--line)] bg-[var(--raised)]">
+                  <th class="p-3 font-medium text-[var(--ink-2)]">Feature</th>
+                  <th class="p-3 font-medium text-[var(--ink-2)]">Meaning</th>
+                  <th class="p-3 font-medium text-[var(--ink-2)]">Markdown</th>
+                  <th class="p-3 font-medium text-[var(--ink-2)]">Result</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--line)]">
+                <tr><td class="p-3 font-medium">Poem title</td><td class="p-3 text-[var(--muted)]">Centered/bold</td><td class="p-3 mono text-[13px]"># Title Name</td><td class="p-3">Heading + page break + TOC</td></tr>
+                <tr><td class="p-3 font-medium">Line break</td><td class="p-3 text-[var(--muted)]">End of printed line</td><td class="p-3 text-[13px]">Two trailing spaces</td><td class="p-3">Hard <code class="mono text-[13px]">&lt;br&gt;</code></td></tr>
+                <tr><td class="p-3 font-medium">Stanza break</td><td class="p-3 text-[var(--muted)]">Vertical gap</td><td class="p-3 text-[13px]">One empty line</td><td class="p-3">New paragraph</td></tr>
+                <tr><td class="p-3 font-medium">Indent</td><td class="p-3 text-[var(--muted)]">Indented / turnover</td><td class="p-3 text-[13px]"><code class="mono">&amp;nbsp;</code> relative to left edge</td><td class="p-3">Visible indent</td></tr>
+                <tr><td class="p-3 font-medium">Special chars</td><td class="p-3 text-[var(--muted)]"><code class="mono">*, _, &lt;, &amp;</code>, <code class="mono">1.</code>, <code class="mono">-</code></td><td class="p-3 text-[13px]">Escaped</td><td class="p-3">Printed verbatim</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="codebox mb-3">
+            <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
+              <span class="mono text-[12px] text-white/60">Markdown example</span>
+              <button type="button" class="copy-code-btn btn btn-sm !h-7 !px-2.5 text-white/80 hover:text-white border-white/15 hover:bg-white/10">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre><code class="mono"># The Silent Horizon
+
+The evening falls across the graying stone,  
+&amp;nbsp;&amp;nbsp;The shadows lengthen as the wind cries out,  
+And standing on the quiet crest alone,  
+&amp;nbsp;&amp;nbsp;The traveler abandons every doubt.
+
+A single leaf deserts the frozen bough,  
+&amp;nbsp;&amp;nbsp;&amp;nbsp;&amp;nbsp;To find its final rest upon the stream.</code></pre>
+          </div>
+          <p class="text-[13px] text-[var(--muted)] leading-relaxed">
+            Poems crossing a page without <code class="mono">#</code> are treated as continuations (default <code class="mono">--page-join stanza</code>; use <code class="mono">line</code> if a stanza splits mid-page) and flagged in <code class="mono">review_report.txt</code>. Digit-only first/last lines are stripped unless <code class="mono">--keep-page-numbers</code> is passed.
+          </p>
+        </div>
+
+        <div id="guide-4">
+          <h3 class="text-[18px] font-medium mb-3">4. Markdown to EPUB with Calibre</h3>
+          <div class="codebox mb-3">
+            <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
+              <span class="mono text-[12px] text-white/60">Calibre command</span>
+              <button type="button" class="copy-code-btn btn btn-sm !h-7 !px-2.5 text-white/80 hover:text-white border-white/15 hover:bg-white/10">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre><code class="mono">ebook-convert mybook/My_Poetry_Book.md mybook/My_Poetry_Book.epub \
+  --formatting-type markdown --input-encoding utf-8 \
+  --title "My Poetry Book" --authors "Some Poet" --language en \
+  --level1-toc "//h:h1" --page-breaks-before "//h:h1" --chapter-mark none \
+  --extra-css mybook/poetry.css --no-default-epub-cover</code></pre>
+          </div>
+          <p class="text-[13px] text-[var(--muted)]">
+            <code class="mono">--level1-toc "//h:h1"</code> builds the TOC from <code class="mono">#</code> titles, <code class="mono">--page-breaks-before</code> starts each poem on a fresh page, and <code class="mono">poetry.css</code> keeps stanzas together.
+          </p>
+        </div>
+
+        <div id="guide-5">
+          <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+            <h3 class="text-[18px] font-medium">5. QC checklist</h3>
+            <button id="btn-reset-checklist" type="button" class="btn btn-ghost btn-sm">Reset checklist</button>
+          </div>
+          <div class="card px-5">
+            <div id="qc-checklist-items"></div>
+            <div class="py-3 flex items-center justify-between gap-4 border-t border-[var(--line)]">
+              <p id="qc-checklist-count" class="mono text-[13px] font-medium text-[var(--ink)]">0 of 8 checked</p>
+              <div class="flex-1 max-w-[200px] h-1.5 rounded-full bg-[var(--raised)] overflow-hidden">
+                <div id="qc-checklist-bar" class="h-full bg-[var(--accent)] transition-[width] duration-200" style="width: 0%"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div id="guide-6">
+          <h3 class="text-[18px] font-medium mb-3">6. Troubleshooting</h3>
+          <div class="overflow-x-auto card">
+            <table class="min-w-[540px] text-[14px]">
+              <thead>
+                <tr class="border-b border-[var(--line)] bg-[var(--raised)]">
+                  <th class="p-3 font-medium text-[var(--ink-2)]">Problem</th>
+                  <th class="p-3 font-medium text-[var(--ink-2)]">Fix</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-[var(--line)]">
+                <tr><td class="p-3 font-medium">Lines merged</td><td class="p-3 text-[var(--ink-2)]">Inspect <code class="mono text-[13px]">.md</code> first, then rebuild with Calibre</td></tr>
+                <tr><td class="p-3 font-medium">Indentation missing</td><td class="p-3 text-[var(--ink-2)]">Use a larger vision model or raise <code class="mono text-[13px]">--indent-scale</code></td></tr>
+                <tr><td class="p-3 font-medium">Connection refused</td><td class="p-3 text-[var(--ink-2)]">Verify <code class="mono text-[13px]">--api-base</code> URL and port</td></tr>
+                <tr><td class="p-3 font-medium">Model adds preamble</td><td class="p-3 text-[var(--ink-2)]">Set temperature to 0 and use the exact system prompt</td></tr>
+                <tr><td class="p-3 font-medium"><code class="mono text-[13px]">ebook-convert</code> not found</td><td class="p-3 text-[var(--ink-2)]">Install Calibre or pass <code class="mono text-[13px]">--no-epub</code></td></tr>
+                <tr><td class="p-3 font-medium">Whole book re-OCR’d</td><td class="p-3 text-[var(--ink-2)]">Pass <code class="mono text-[13px]">--resume</code></td></tr>
+                <tr><td class="p-3 font-medium">Piper silence</td><td class="p-3 text-[var(--ink-2)]">Ensure <code class="mono text-[13px]">.onnx</code> and <code class="mono text-[13px]">.onnx.json</code> sit beside each other</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div id="guide-7">
+          <h3 class="text-[18px] font-medium mb-2">7. Verification notes</h3>
+          <p class="text-[14px] text-[var(--ink-2)] leading-relaxed max-w-[48rem]">
+            Tested against a mock OpenAI server for image intake, cache/resume, fence/<code class="mono text-[13px]">&lt;br&gt;</code> stripping, page-number removal, title parsing, page joining, <code class="mono text-[13px]">&amp;nbsp;</code> indents, escaping, QC report, ONNX geometry, prose cleanup, chapter detection, and sentence chunking. Run a 5-page sample first before processing a full book.
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Prose Mode -->
+    <section id="prose" class="max-w-[1120px] mx-auto px-6 py-12 lg:py-16 border-t border-[var(--line)]">
+      <p class="text-[13px] font-medium text-[var(--accent)]">Prose mode</p>
+      <h2 class="serif text-[28px] sm:text-[34px] leading-[1.15] font-normal mt-2 mb-6">Chapters &amp; audiobooks</h2>
+
+      <div class="codebox mb-6">
+        <div class="flex items-center justify-between px-4 py-2.5 border-b border-white/10">
+          <span class="mono text-[12px] text-white/60">Prose commands</span>
+          <button type="button" class="copy-code-btn btn btn-sm !h-7 !px-2.5 text-white/80 hover:text-white border-white/15 hover:bg-white/10">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span>Copy</span>
+          </button>
+        </div>
+        <pre><code class="mono">python book_pipeline.py book.epub --mode prose --ocr onnx --tts piper --piper-model en_US-lessac-medium.onnx --output-dir ./mybook
+# text and chapters only, quicker
+python book_pipeline.py book.pdf --mode prose --no-audio --resume --jobs 4</code></pre>
+      </div>
+
+      <ul class="list-disc pl-5 space-y-2 text-[14px] text-[var(--ink-2)] leading-relaxed max-w-[48rem]">
+        <li>EPUB/MOBI/AZW3 files convert to PDF via Calibre; chapters come from the PDF outline or heading detection (<code class="mono text-[13px]">Chapter One</code>, <code class="mono text-[13px]">CHAPTER 1:</code>, <code class="mono text-[13px]">Part I</code>, <code class="mono text-[13px]">Prologue</code>, <code class="mono text-[13px]">Appendix A</code>).</li>
+        <li>Applies de-hyphenation, ligature fixes, paragraph re-flow, and edge page-number/header removal.</li>
+        <li>Splits at ~850 characters on sentence boundaries for Piper or pyttsx3 TTS, then joins with <code class="mono text-[13px]">ffmpeg</code> into an <code class="mono text-[13px]">.m4b</code> audiobook with chapter marks.</li>
+      </ul>
+
+      <h3 class="text-[16px] font-medium mt-8 mb-3">Output layout</h3>
+      <pre class="card p-4 mono text-[13px] leading-relaxed overflow-x-auto m-0">mybook/
+  pages/page_0001.png ...
+  ocr_pages.poetry.json (or ocr_pages.prose.json)
+  My_Poetry_Book.md / .epub / review_report.txt
+  chapters_txt/ 01_Chapter_1_....txt, Full_Book.txt, manifest.json
+  chapters_audio/
+  My_Book_audiobook.m4b</pre>
+    </section>
+  </main>
+
+  <footer class="border-t border-[var(--line)]">
+    <div class="max-w-[1120px] mx-auto px-6 py-8 text-[13px] text-[var(--muted)] flex flex-wrap items-center justify-between gap-4">
+      <span>Literature OCR — Archival poetry &amp; prose digitization</span>
+      <span class="mono text-[12px]">Single-file HTML · Local browser storage</span>
+    </div>
+  </footer>
+
+  <script>
+    (function () {
+      const SAMPLE_OCR = `# The Silent Horizon
+The evening falls across the graying stone,
+  The shadows lengthen as the wind cries out,
+And standing on the quiet crest alone,
+  The traveler abandons every doubt.
+
+A single leaf deserts the frozen bough,
+    To find its final rest upon the stream.
+
+14
+=== PAGE ===
+Beneath the pale and unforgiving moon
+  The river keeps its own indifferent time,
+* nothing here is lost
+1. nor is it found
+
+# Number Two
+line a<br>
+line b`;
+
+      const SYSTEM_PROMPT = `You are a high-fidelity archival transcription engine. Your only task is to transcribe the poetry on ONE page image, preserving its layout exactly.
+
+Follow these rules with zero deviation:
+1. LINE BREAKS: Start a new line exactly where a printed line ends. Never merge two printed lines. Never split one printed line. If a long line wraps onto a deeper-indented turnover line, keep that turnover on its own line with its indentation.
+2. STANZA BREAKS: Output exactly one blank line wherever there is vertical space between stanzas. Never put blank lines inside a stanza.
+3. INDENTATION: Reproduce indentation with plain spaces, roughly one space per letter-width, measured from the leftmost line of the poem on this page. Lines flush with that left edge get zero leading spaces. Never use tabs.
+4. NO CORRECTIONS: Keep capitalization, spelling (including archaic, dialect and unconventional spellings), punctuation and hyphenation exactly as printed. Do not modernize, normalize or fix anything. Do not add punctuation that is not printed. Keep em-dashes, curly quotes and accented letters as printed.
+5. TITLES: If a poem title (or poem number) is printed on this page, output it on its own line as "# " followed by the title text, for example "# The Silent Horizon" or "# 12". If several poems begin on this page, give each its own "# " line, preceded by a blank line. If no title appears, the page continues a poem: start directly with the poem text.
+6. IGNORE: Running headers, running footers, page numbers and decorative ornaments. Keep epigraphs, dedications and section dividers such as "* * *" as printed.
+7. UNREADABLE TEXT: Write [illegible] for a word you cannot read. Never guess.
+8. OUTPUT: Only the transcription. No introduction, no explanation, no code fences, and no Markdown other than the "# " title lines. If the page contains no text, output nothing.`;
+
+      const CHECKLIST_ITEMS = [
+        "Line-by-line audit (report flags >100 chars)",
+        "Headers/footers gone",
+        "Thin marks , ' — survived, report flags | ~",
+        "Encoding accents/curly quotes",
+        "Continuation pages join right",
+        "Indentation proportional (--indent-scale, --min-indent)",
+        "[illegible] resolved by eye",
+        "TOC has every poem, none missing or duplicated"
+      ];
+
+      const STORAGE_KEY_DOCS = "lit_ocr_docs_v1";
+      const STORAGE_KEY_CHECKS = "lit_ocr_checks_v1";
+      let memoryDocs = [];
+
+      function escapeHtml(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#39;");
+      }
+
+      function escapeMd(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/\\/g, "\\\\")
+          .replace(/\*/g, "\\*")
+          .replace(/_/g, "\\_")
+          .replace(/`/g, "\\`");
+      }
+
+      function escapeLineStart(str) {
+        let out = str.replace(/^(\d+)([.)])/, "$1\\$2");
+        if (/^(# |>\s|- |\+ |==|--|~~~)/.test(out)) {
+          out = "\\" + out;
+        }
+        return out;
+      }
+
+      function cleanRaw(text) {
+        let t = String(text || "").replace(/\r\n/g, "\n").replace(/\r/g, "\n");
+        t = t.replace(/<think>[\s\S]*?<\/think>/gi, "");
+        t = t.replace(/^\s*```[a-zA-Z]*\s*\n?/, "");
+        t = t.replace(/\n?\s*```\s*$/, "");
+        t = t.replace(/\u00a0/g, " ").replace(/&nbsp;/gi, " ").replace(/\t/g, "    ");
+        t = t.replace(/ <br> (?=\n|$)/gi, "");
+        t = t.split("\n").map((line) => line.replace(/[ \t]+$/g, "")).join("\n");
+        t = t.replace(/\n{3,}/g, "\n\n").trim();
+        return t;
+      }
+
+      function splitPages(cleaned) {
+        const pageSep = /^[ \t]*={3,}[^\n]*PAGE[^\n]*={3,}[ \t]*$/im;
+        return cleaned.split(pageSep).map((p) => cleanRaw(p)).filter((p) => p.length > 0);
+      }
+
+      function stripPageNumbers(page, keepNumbers) {
+        if (keepNumbers) return page;
+        const lines = page.split("\n");
+        const numPattern = /^\s*[-–—]?\s*\d{1,4}\s*[-–—]?\s*$/;
+        let first = 0;
+        while (first < lines.length && lines[first].trim() === "") first++;
+        let last = lines.length - 1;
+        while (last >= 0 && lines[last].trim() === "") last--;
+        if (first <= last && numPattern.test(lines[first])) lines[first] = "";
+        if (last > first && numPattern.test(lines[last])) lines[last] = "";
+        return lines.join("\n").trim();
+      }
+
+      function parsePoems(pages, pageJoin) {
+        const poems = [];
+        let current = null;
+
+        function flush() {
+          if (!current) return;
+          const lines = [...current.lines];
+          while (lines.length && lines[0].trim() === "") lines.shift();
+          while (lines.length && lines[lines.length - 1].trim() === "") lines.pop();
+
+          const collapsed = [];
+          for (const line of lines) {
+            if (!(line.trim() === "" && collapsed.length && collapsed[collapsed.length - 1].trim() === "")) {
+              collapsed.push(line);
+            }
+          }
+
+          const stanzas = [];
+          let buf = [];
+          for (const line of collapsed) {
+            if (line.trim() === "") {
+              if (buf.length) {
+                stanzas.push(buf);
+                buf = [];
+              }
+            } else {
+              buf.push(line);
+            }
+          }
+          if (buf.length) stanzas.push(buf);
+          if (stanzas.length || current.title) {
+            poems.push({ title: current.title, stanzas });
+          }
+          current = null;
+        }
+
+        for (const page of pages) {
+          const lines = page.split("\n");
+          let i = 0;
+          while (i < lines.length) {
+            const line = lines[i];
+            if (line.startsWith("# ")) {
+              flush();
+              current = { title: line.slice(2).trim(), lines: [] };
+              i++;
+              while (i < lines.length && !lines[i].startsWith("# ")) {
+                current.lines.push(lines[i]);
+                i++;
+              }
+            } else {
+              if (!current) {
+                current = { title: null, lines: [] };
+              } else {
+                const prev = current.lines.length ? current.lines[current.lines.length - 1] : "";
+                if (pageJoin === "stanza" && prev.trim() !== "") {
+                  current.lines.push("");
+                }
+              }
+              while (i < lines.length && !lines[i].startsWith("# ")) {
+                current.lines.push(lines[i]);
+                i++;
+              }
+            }
+          }
+        }
+        flush();
+        return poems;
+      }
+
+      function buildMarkdown(poems, indentScale, minIndent) {
+        const out = [];
+        poems.forEach((poem, pIdx) => {
+          if (poem.title) {
+            out.push("# " + escapeMd(poem.title), "");
+          }
+          const nonEmpty = poem.stanzas.flat().filter((l) => l.trim() !== "");
+          const baseIndent = nonEmpty.length
+            ? Math.min(...nonEmpty.map((l) => (l.match(/^ */)?.[0].length || 0)))
+            : 0;
+
+          poem.stanzas.forEach((stanza, sIdx) => {
+            stanza.forEach((line, lIdx) => {
+              const spaces = line.match(/^ */)?.[0].length || 0;
+              let rel = Math.max(0, spaces - baseIndent);
+              if (rel < minIndent) rel = 0;
+              const escaped = escapeMd(line.trim());
+              const prefixed = rel ? "&nbsp;".repeat(rel * indentScale) + escaped : escapeLineStart(escaped);
+              out.push(prefixed + (lIdx < stanza.length - 1 ? "  " : ""));
+            });
+            if (sIdx < poem.stanzas.length - 1) out.push("");
+          });
+          if (pIdx < poems.length - 1) out.push("");
+        });
+        return out.join("\n");
+      }
+
+      function buildPreviewHtml(poems, indentScale, minIndent) {
+        if (!poems.length) {
+          return '<p class="text-[14px] text-[var(--muted)]">No output yet — paste OCR text or click Load sample</p>';
+        }
+        return poems.map((poem) => {
+          const nonEmpty = poem.stanzas.flat().filter((l) => l.trim() !== "");
+          const baseIndent = nonEmpty.length
+            ? Math.min(...nonEmpty.map((l) => (l.match(/^ */)?.[0].length || 0)))
+            : 0;
+          const titleHtml = poem.title ? `<h2>${escapeHtml(poem.title)}</h2>` : "";
+          const stanzasHtml = poem.stanzas.map((stanza) => {
+            const linesHtml = stanza.map((line) => {
+              const spaces = line.match(/^ */)?.[0].length || 0;
+              let rel = Math.max(0, spaces - baseIndent);
+              if (rel < minIndent) rel = 0;
+              const padEm = (rel * indentScale * 0.55).toFixed(2);
+              const styleAttr = rel > 0 ? ` style="padding-left:${padEm}em"` : "";
+              return `<span class="poem-line"${styleAttr}>${escapeHtml(line.trim())}</span>`;
+            }).join("");
+            return `<p>${linesHtml}</p>`;
+          }).join("");
+          return `<div class="preview-poem">${titleHtml}${stanzasHtml}</div>`;
+        }).join("");
+      }
+
+      function buildQcReport(pages) {
+        const warnings = [];
+        pages.forEach((page, idx) => {
+          const n = idx + 1;
+          if (!page.trim()) {
+            warnings.push(`Page ${n}: empty page`);
+          } else if (!page.trimStart().startsWith("# ") && n > 1) {
+            warnings.push(`Page ${n}: continuation page (no # Title, N > 1)`);
+          }
+          page.split("\n").forEach((line) => {
+            if (line.length > 100) {
+              warnings.push(`Page ${n}: line > 100 chars — lines may have been merged`);
+            }
+            if (/[|~¬□]/.test(line)) {
+              warnings.push(`Page ${n}: suspicious symbol in “${line.trim().slice(0, 60)}”`);
+            }
+            if (line.includes("[illegible]")) {
+              warnings.push(`Page ${n}: [illegible] flagged`);
+            }
+          });
+        });
+        return [...new Set(warnings)];
+      }
+
+      function sanitizeFilename(name) {
+        return String(name || "").trim().replace(/[^a-zA-Z0-9-_]+/g, "_").replace(/^_+|_+$/g, "") || "poetry";
+      }
+
+      function copyText(text, onDone) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(onDone, () => fallbackCopy(text, onDone));
+        } else {
+          fallbackCopy(text, onDone);
+        }
+      }
+
+      function fallbackCopy(text, onDone) {
+        const ta = document.createElement("textarea");
+        ta.value = text;
+        ta.style.position = "fixed";
+        ta.style.opacity = "0";
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); } catch (e) {}
+        document.body.removeChild(ta);
+        if (onDone) onDone();
+      }
+
+      function downloadFile(filename, content, mime) {
+        const blob = new Blob([content], { type: (mime || "text/markdown") + ";charset=utf-8" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => URL.revokeObjectURL(url), 800);
+      }
+
+      function loadDocsFromStorage() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY_DOCS);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              memoryDocs = parsed;
+              return parsed;
+            }
+          }
+        } catch (e) {}
+        return memoryDocs;
+      }
+
+      function saveDocsToStorage(docs) {
+        memoryDocs = docs;
+        try {
+          localStorage.setItem(STORAGE_KEY_DOCS, JSON.stringify(docs));
+        } catch (e) {}
+      }
+
+      const titleInput = document.getElementById("book-title");
+      const rawInput = document.getElementById("raw-ocr");
+      const pageJoinSelect = document.getElementById("page-join");
+      const indentScaleInput = document.getElementById("indent-scale");
+      const minIndentInput = document.getElementById("min-indent");
+      const keepNumbersCheckbox = document.getElementById("keep-numbers");
+
+      const panelMd = document.getElementById("panel-md");
+      const panelPreview = document.getElementById("panel-preview");
+      const panelQc = document.getElementById("panel-qc");
+      const qcCountEl = document.getElementById("qc-count");
+      const statsEl = document.getElementById("formatter-stats");
+      const statusEl = document.getElementById("formatter-status");
+      const savedDocsEl = document.getElementById("saved-docs-list");
+
+      let latestMarkdown = "";
+
+      function showStatus(msg) {
+        statusEl.textContent = msg;
+      }
+
+      function renderFormatter() {
+        const raw = rawInput.value;
+        const pageJoin = pageJoinSelect.value;
+        const indentScale = Math.max(1, Math.min(8, Number(indentScaleInput.value) || 1));
+        const minIndent = Math.max(0, Math.min(8, Number(minIndentInput.value) || 0));
+        const keepNumbers = keepNumbersCheckbox.checked;
+
+        const cleaned = cleanRaw(raw);
+        const rawPages = splitPages(cleaned);
+        const pages = rawPages.map((p) => stripPageNumbers(p, keepNumbers));
+        const poems = parsePoems(pages, pageJoin);
+
+        latestMarkdown = buildMarkdown(poems, indentScale, minIndent);
+        const previewHtml = buildPreviewHtml(poems, indentScale, minIndent);
+        const warnings = buildQcReport(pages);
+
+        const totalLines = poems.reduce((acc, p) => acc + p.stanzas.reduce((s, st) => s + st.length, 0), 0);
+        statsEl.textContent = `${pages.length} page(s), ${poems.length} poem(s), ${totalLines} line(s)`;
+        qcCountEl.textContent = String(warnings.length);
+
+        panelMd.textContent = latestMarkdown || "No output yet";
+        panelPreview.innerHTML = previewHtml;
+
+        if (warnings.length) {
+          panelQc.innerHTML = `<ul class="space-y-2 text-[14px]">${warnings
+            .map((w) => `<li class="border-l-2 border-[var(--accent)] pl-3 py-0.5">${escapeHtml(w)}</li>`)
+            .join("")}</ul>`;
+        } else {
+          panelQc.innerHTML = `<p class="text-[14px] font-medium" style="color:var(--ok)">No automatic warnings — verify with the manual QC checklist below</p>`;
+        }
+      }
+
+      function setTab(tab) {
+        document.querySelectorAll(".output-tab").forEach((btn) => {
+          const isTarget = btn.getAttribute("data-tab") === tab;
+          btn.setAttribute("aria-selected", isTarget ? "true" : "false");
+          btn.classList.toggle("tab-active", isTarget);
+          btn.classList.toggle("tab-idle", !isTarget);
+        });
+        panelMd.classList.toggle("hidden", tab !== "md");
+        panelPreview.classList.toggle("hidden", tab !== "preview");
+        panelQc.classList.toggle("hidden", tab !== "qc");
+      }
+
+      function renderSavedDocs() {
+        const docs = loadDocsFromStorage();
+        if (!docs.length) {
+          savedDocsEl.innerHTML = '<p class="text-[13px] text-[var(--muted)]">No saved documents yet</p>';
+          return;
+        }
+        savedDocsEl.innerHTML = `<ul class="divide-y divide-[var(--line)]">${docs
+          .map((doc) => {
+            const dateStr = new Date(doc.created_at).toLocaleString();
+            return `<li class="h-11 flex items-center justify-between gap-3">
+              <div class="min-w-0 flex items-baseline gap-3">
+                <p class="font-medium text-[14px] truncate">${escapeHtml(doc.title)}</p>
+                <p class="mono text-[12px] text-[var(--muted)] hidden sm:block">${escapeHtml(dateStr)}</p>
+              </div>
+              <div class="flex gap-2 shrink-0">
+                <button type="button" class="doc-load-btn btn btn-ghost btn-sm" data-id="${escapeHtml(doc.id)}">Load</button>
+                <button type="button" class="doc-del-btn btn btn-ghost btn-sm" data-id="${escapeHtml(doc.id)}">Delete</button>
+              </div>
+            </li>`;
+          })
+          .join("")}</ul>`;
+      }
+
+      function loadChecklistState() {
+        try {
+          const raw = localStorage.getItem(STORAGE_KEY_CHECKS);
+          if (raw) {
+            const arr = JSON.parse(raw);
+            if (Array.isArray(arr) && arr.length === CHECKLIST_ITEMS.length) return arr;
+          }
+        } catch (e) {}
+        return Array(CHECKLIST_ITEMS.length).fill(false);
+      }
+
+      function saveChecklistState(arr) {
+        try {
+          localStorage.setItem(STORAGE_KEY_CHECKS, JSON.stringify(arr));
+        } catch (e) {}
+      }
+
+      let checklistState = loadChecklistState();
+
+      function renderChecklist() {
+        const container = document.getElementById("qc-checklist-items");
+        const countEl = document.getElementById("qc-checklist-count");
+        const barEl = document.getElementById("qc-checklist-bar");
+
+        container.innerHTML = CHECKLIST_ITEMS.map((label, idx) => {
+          const checked = checklistState[idx];
+          return `<label class="check-row text-[14px]">
+            <input type="checkbox" data-check-idx="${idx}" ${checked ? "checked" : ""} />
+            <span class="${checked ? "line-through text-[var(--muted)]" : ""}">${escapeHtml(label)}</span>
+          </label>`;
+        }).join("");
+
+        const done = checklistState.filter(Boolean).length;
+        countEl.textContent = `${done} of ${CHECKLIST_ITEMS.length} checked`;
+        barEl.style.width = `${Math.round((done / CHECKLIST_ITEMS.length) * 100)}%`;
+      }
+
+      document.getElementById("qc-checklist-items").addEventListener("change", (e) => {
+        const input = e.target;
+        if (input && input.matches("input[data-check-idx]")) {
+          const idx = Number(input.getAttribute("data-check-idx"));
+          checklistState[idx] = input.checked;
+          saveChecklistState(checklistState);
+          renderChecklist();
+        }
+      });
+
+      document.getElementById("btn-reset-checklist").addEventListener("click", () => {
+        checklistState = Array(CHECKLIST_ITEMS.length).fill(false);
+        saveChecklistState(checklistState);
+        renderChecklist();
+      });
+
+      [titleInput, rawInput, pageJoinSelect, indentScaleInput, minIndentInput, keepNumbersCheckbox].forEach((el) => {
+        el.addEventListener("input", renderFormatter);
+        el.addEventListener("change", renderFormatter);
+      });
+
+      document.querySelectorAll(".output-tab").forEach((btn) => {
+        btn.addEventListener("click", () => setTab(btn.getAttribute("data-tab")));
+      });
+
+      document.getElementById("btn-load-sample").addEventListener("click", () => {
+        rawInput.value = SAMPLE_OCR;
+        titleInput.value = "My Poetry Book";
+        renderFormatter();
+        showStatus("Sample loaded");
+      });
+
+      document.getElementById("btn-clear-raw").addEventListener("click", () => {
+        rawInput.value = "";
+        renderFormatter();
+        showStatus("Cleared");
+      });
+
+      document.getElementById("file-import").addEventListener("change", (e) => {
+        const file = e.target.files && e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          rawInput.value = String(reader.result || "");
+          if (!titleInput.value.trim() || titleInput.value === "My Poetry Book") {
+            titleInput.value = file.name.replace(/\.[^.]+$/, "");
+          }
+          renderFormatter();
+          showStatus(`Imported ${file.name}`);
+        };
+        reader.readAsText(file);
+        e.target.value = "";
+      });
+
+      document.getElementById("btn-copy-md").addEventListener("click", () => {
+        copyText(latestMarkdown, () => showStatus("Markdown copied"));
+      });
+
+      document.getElementById("btn-download-md").addEventListener("click", () => {
+        downloadFile(`${sanitizeFilename(titleInput.value)}.md`, latestMarkdown, "text/markdown");
+        showStatus("Downloaded .md");
+      });
+
+      document.getElementById("header-download-btn").addEventListener("click", () => {
+        downloadFile(`${sanitizeFilename(titleInput.value)}.md`, latestMarkdown, "text/markdown");
+        showStatus("Downloaded .md");
+        document.getElementById("formatter").scrollIntoView({ behavior: "smooth" });
+      });
+
+      document.getElementById("btn-save-doc").addEventListener("click", () => {
+        const docs = loadDocsFromStorage();
+        const item = {
+          id: `doc-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          title: titleInput.value.trim() || "Untitled",
+          raw: rawInput.value,
+          pageJoin: pageJoinSelect.value,
+          indentScale: Number(indentScaleInput.value) || 1,
+          minIndent: Number(minIndentInput.value) || 2,
+          keepNumbers: keepNumbersCheckbox.checked,
+          created_at: new Date().toISOString()
+        };
+        docs.unshift(item);
+        saveDocsToStorage(docs);
+        renderSavedDocs();
+        showStatus(`Saved ${item.title}`);
+      });
+
+      document.getElementById("btn-refresh-docs").addEventListener("click", () => {
+        renderSavedDocs();
+        showStatus("Refreshed");
+      });
+
+      savedDocsEl.addEventListener("click", (e) => {
+        const loadBtn = e.target.closest(".doc-load-btn");
+        if (loadBtn) {
+          const id = loadBtn.getAttribute("data-id");
+          const doc = loadDocsFromStorage().find((d) => d.id === id);
+          if (doc) {
+            titleInput.value = doc.title;
+            rawInput.value = doc.raw;
+            pageJoinSelect.value = doc.pageJoin || "stanza";
+            indentScaleInput.value = String(doc.indentScale ?? 1);
+            minIndentInput.value = String(doc.minIndent ?? 2);
+            keepNumbersCheckbox.checked = !!doc.keepNumbers;
+            renderFormatter();
+            showStatus(`Loaded ${doc.title}`);
+            document.getElementById("formatter").scrollIntoView({ behavior: "smooth" });
+          }
+          return;
+        }
+        const delBtn = e.target.closest(".doc-del-btn");
+        if (delBtn) {
+          const id = delBtn.getAttribute("data-id");
+          const docs = loadDocsFromStorage().filter((d) => d.id !== id);
+          saveDocsToStorage(docs);
+          renderSavedDocs();
+          showStatus("Deleted");
+        }
+      });
+
+      document.getElementById("system-prompt-text").textContent = SYSTEM_PROMPT;
+
+      document.getElementById("btn-copy-prompt").addEventListener("click", (e) => {
+        const btn = e.currentTarget;
+        copyText(SYSTEM_PROMPT, () => {
+          btn.textContent = "Copied";
+          setTimeout(() => { btn.textContent = "Copy"; }, 1600);
+        });
+      });
+
+      document.getElementById("btn-download-prompt").addEventListener("click", () => {
+        downloadFile("literature-ocr-system-prompt.txt", SYSTEM_PROMPT, "text/plain");
+      });
+
+      document.querySelectorAll(".copy-code-btn").forEach((btn) => {
+        btn.addEventListener("click", () => {
+          const box = btn.closest(".codebox");
+          const code = box ? box.querySelector("pre code").textContent : "";
+          const labelSpan = btn.querySelector("span");
+          copyText(code, () => {
+            if (labelSpan) {
+              labelSpan.textContent = "Copied";
+              setTimeout(() => { labelSpan.textContent = "Copy"; }, 1600);
+            }
+          });
+        });
+      });
+
+      function syncThemeIcons() {
+        const isDark = document.documentElement.classList.contains("dark");
+        document.getElementById("theme-icon-sun").classList.toggle("hidden", !isDark);
+        document.getElementById("theme-icon-moon").classList.toggle("hidden", isDark);
+      }
+      syncThemeIcons();
+
+      document.getElementById("theme-toggle").addEventListener("click", () => {
+        const isDark = document.documentElement.classList.toggle("dark");
+        try { localStorage.setItem("lit_ocr_theme", isDark ? "dark" : "light"); } catch (e) {}
+        syncThemeIcons();
+      });
+
+      const mobileBtn = document.getElementById("mobile-menu-btn");
+      const mobileMenu = document.getElementById("mobile-menu");
+      mobileBtn.addEventListener("click", () => {
+        const open = !mobileMenu.classList.contains("hidden");
+        mobileMenu.classList.toggle("hidden", open);
+        mobileBtn.setAttribute("aria-expanded", open ? "false" : "true");
+      });
+      mobileMenu.querySelectorAll("a").forEach((a) => {
+        a.addEventListener("click", () => {
+          mobileMenu.classList.add("hidden");
+          mobileBtn.setAttribute("aria-expanded", "false");
+        });
+      });
+
+      rawInput.value = SAMPLE_OCR;
+      renderFormatter();
+      renderSavedDocs();
+      renderChecklist();
+    })();
+  </script>
+</body>
+</html>
