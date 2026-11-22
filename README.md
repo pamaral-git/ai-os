@@ -6,11 +6,10 @@ Selfhosted AI Operating/Orchestration System that underlies all of my work.
 
 ## Stack Map
 
-| Domain | Role in the stack | What lives there (examples) |
+| Domain | Role in the stack | Preview examples |
 | :--- | :--- | :--- |
 | `Config/` | Rules, Runtime, Harness, Configurations | `AGENT.md`, `llama-swap.yaml` |
 | `Config/Openshell/` | Openshell Sandbox Configurations | `policy.yaml`, `DeepSeek-Harness/` |
-| `Contributions/` | Relevant Work outiside Github | `Heretic.zip`, `Nefilum-web/` |
 | `Docs/` | Live Pages and Writings | `InferenceX.html`, `Post-Training.html` |
 | `Finetune/` | MLX Toolkit for Finetunes | `Cargo.toml` ... |
 | `Skills/` | Reusable Agent capabilities | `academic`, `write` |

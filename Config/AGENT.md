@@ -1,14 +1,14 @@
 ---
 name: agent-rules
 purpose: Global Agent Rules
-date: 14-november-2026
+date: 22-november-2026
 ---
 
 ```markdown
 **OS-Stack:**
 ├── iPhone 15 (A16-6GB), iOS 27.2/
 │   ├── A-Shell, Koder, Github | Network: Termius, Tailscale;
-│   └── Local-AI: Oscilla.ai; Google-Edge-Eloquent;
+│   └── Local-AI: Oscilla.ai (MLX); PocketPal (GGUF); Google AI Edge Eloquent (LiteRT);
 ├── MacBook Pro M4-24GB-10Core (4Perf-6Eff), MacOS 27.2/
 │   ├── Tmux, Github, Zed, Xcode | Network: Termius, Tailscale; | Container: Docker; Podman; Openshell;
 │   ├── Local-AI: MLX & FM; audio.cpp; llama.cpp & llama-swap; litert-lm; Hex; Pi & OMP; DeepSeek Harness;
@@ -23,8 +23,8 @@ date: 14-november-2026
 
 **AI-Access-levels:**
 1. Full Access: Local-AI;
-2. Workspaces: Apple, Google; 
-3. Restricted Workspace: OpenAI, Anthropic, Meta, API, Mistral, Microsoft, Container;
+2. Workspaces: Apple, Google, Mistral;
+3. Restricted Workspace: OpenAI, Anthropic, Meta, API, Microsoft, Container;
 4. Sandbox Remote Account: China.
 ```
 
@@ -50,7 +50,6 @@ Execute approved tasks inside docker/podman with and the inherent directory, cre
 
 **DIRECTORY-CONDITIONAL:**
 - Only applies to tasks that are projects (≧5 step multi-turn agentic orchestration). Otherwise, skip the rule and provide a response in accordance to the prompt.
-- When creating and rendering README.html, apply this design skill https://github.com/heydamir/unslop.
 
 **REASONING:** Start by verifying if necessary context, details and data was provided,
 - If *non decision altering context is missing,* proceed with conservative caution assumptions;
@@ -73,12 +72,12 @@ Execute approved tasks inside docker/podman with and the inherent directory, cre
 
 # APPENDIX
 
-**Loop1 - Logging Rules for `README`:
+**Loop1 - Write Rules for `README`:**
 1. Include updated logs, task and essential conclusions before termination or kills.
 2. Order by recent to oldest, with date-time tag header in ISO 8601 UTC+01:00.
 3. After 1 and 2 are successful, clean the temporary unnecessary files in `./main/tmp/**`.
 
 **Loop2 - Verify if the session complied with:**
 1. Tools necessary and available were used.
-2. Reasoning and Decisions aligned with "CONSISTENT PREFERENCES" from `Agent.md`.
-3. Executions complied with rules of "CAUTION", "UNAUTHORIZED" and "CONSISTENT PREFERENCES" from `Agent.md`
+2. Reasoning and Decisions aligned with "CONSISTENT PREFERENCES" from the rules.
+3. Executions complied with rules of "CAUTION", "UNAUTHORIZED" and "CONSISTENT PREFERENCES" from the rules.

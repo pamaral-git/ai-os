@@ -2,15 +2,16 @@
 set -u
 
 # =============================================================================
-# INTERACTIVE STACK AUDIT SCRIPT
+# INTERACTIVE AUDIT SCRIPT
 # Generates a comprehensive markdown report with configurable scan scope
 # =============================================================================
 
 SCRIPT_NAME=$(basename "$0")
-VERSION="2.0.0"
+VERSION="2.1.0"
 
 # Default values
 OUTPUT_DIR="$HOME/Documents"
+TOKENIZER="()"
 OUTPUT_FILE=""
 SCAN_DIRS=()
 SKIP_SECURITY=false
@@ -603,6 +604,7 @@ trap "rm -f \"$TMP_FILE\"" EXIT
 cp "$TMP_FILE" "$OUTPUT_FILE"
 
 REPORT_SIZE=$(stat -f%z "$OUTPUT_FILE" 2>/dev/null || stat -c%s "$OUTPUT_FILE" 2>/dev/null || echo "unknown")
+TOKENS=$(llama-tokenize -m "$TOKENIZER" -f "$OUTPUT_FILE" | wc -l || echo "unknown")
 REPORT_LINES=$(wc -l < "$OUTPUT_FILE" 2>/dev/null || echo "unknown")
 
 echo ""
@@ -610,6 +612,7 @@ echo "========================================="
 echo "  Audit report generated successfully!"
 echo "========================================="
 echo "  File: $OUTPUT_FILE"
+echo "  Tokens: $TOKENS"
 echo "  Size: $REPORT_SIZE bytes"
 echo "  Lines: $REPORT_LINES"
 echo "========================================="
