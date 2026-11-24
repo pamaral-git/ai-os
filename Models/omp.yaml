@@ -1,0 +1,209 @@
+modelRoles:
+  web: searxng
+  default: llama.cpp/inkling
+  coder: llama.cpp/qwen3a
+  memory: llama.cpp/cpm1bvl
+  vision: llama.cpp/gemma4e
+  task: "@default"
+  advisor: llama.cpp/qwen3a
+  judge: llama.cpp/ling
+symbolPreset: nerd
+composer:
+  shape: box
+  tokenRate: true
+theme:
+  dark: titanium
+  light: light
+setupVersion: 3
+display:
+  showTokenUsage: true
+  pinnedAgents: full
+  showTurnTime: true
+proseOnlyThinking: true
+steeringMode: one-at-a-time
+tools:
+  approvalMode: write
+  format: auto
+  xdev: false
+  approval:
+    bash: prompt
+    read: allow
+    eval: prompt
+    computer: prompt
+    mcp__filesystem__delete: deny
+error:
+  notify: "on"
+compaction:
+  enabled: true
+  asyncEnabled: false
+  midTurnEnabled: false
+  methodOrder:
+    - shake
+    - soft
+  thresholdPercent: 80
+  handoffSaveToDisk: true
+memory:
+  backend: "off"
+autolearn:
+  enabled: false
+checkpoint:
+  enabled: true
+security:
+  enabled: true
+plan:
+  enabled: true
+  defaultOnStartup: false
+  autosave: true
+task:
+  eager: default
+  enableEffort: true
+  maxConcurrency: 1
+  maxRecursionDepth: 0
+commands:
+  enableClaudeProject: false
+  enableOpencodeProject: false
+providers:
+  baseUrl: http://127.0.0.1:8080
+exa:
+  enabled: false
+searxng:
+  enabled: true
+  endpoint: http://searxng-engine:8080
+secrets:
+  enabled: true
+retry:
+  modelFallback: false
+  enabled: true
+  fallbackChains:
+    default:
+      - llama.cpp/gemma4e
+      - llama.cpp/qwen3a
+    coder:
+      - llama.cpp/qwen4b
+      - llama.cpp/gemma4a
+      - llama.cpp/cpm2b
+    memory:
+      - llama.cpp/gemma4e
+      - llama.cpp/cpm2b
+    vision:
+      - llama.cpp/cpm1bvl
+      - llama.cpp/qwen4b
+    task:
+      - llama.cpp/cpm2b
+      - llama.cpp/xspark
+    advisor:
+      - llama.cpp/gemma4a
+  maxRetries: 1
+find:
+  enabled: "on"
+computer:
+  enabled: false
+github:
+  enabled: true
+grep:
+  contextBefore: 1
+cycleOrder: []
+collab:
+  autoStart: control
+  displayName: Mac
+stt:
+  enabled: true
+  submitTrigger: never
+power:
+  sleepPrevention: idle
+marketplace:
+  autoUpdate: auto
+update:
+  channel: stable
+  auto: true
+spelling:
+  autocorrect: "off"
+  autocomplete: "off"
+snapcompact:
+  toolResults: false
+  shape: auto
+  systemPrompt: none
+bash:
+  allowCompoundCommands: true
+hindsight:
+  bankId: Global Memory
+  autoRecall: false
+  apiUrl: http://127.0.0.1:8878
+  apiToken: local
+skills:
+  enableSkillCommands: true
+statusLine:
+  preset: default
+disabledProviders:
+  - claude
+  - github
+  - codex
+  - gemini
+  - opencode
+  - claude-plugins
+emojiAutocomplete: false
+defaultThinkingLevel: auto
+prewalk:
+  enabled: false
+disabledExtensions:
+  - skill:academic-rigor
+  - skill:ask-matt
+  - skill:claude-handoff
+  - skill:codebase-design
+  - skill:compact
+  - skill:domain-modeling
+  - skill:git-guardrails-claude-code
+  - skill:grill-me
+  - skill:grill-with-docs
+  - skill:grilling
+  - skill:handoff
+  - skill:implement
+  - skill:implement-spec
+  - skill:improve-codebase-architecture
+  - skill:loop-me
+  - skill:migrate-to-shoehorn
+  - skill:prototype
+  - skill:read-aloud
+  - skill:redact
+  - skill:research
+  - skill:resolving-merge-conflicts
+  - skill:retro
+  - skill:scaffold-exercises
+  - skill:setup-matt-pocock-skills
+  - skill:i-have-adhd
+  - skill:writing-shape
+  - skill:writing-fragments
+  - skill:writing-for-agents
+  - skill:writing-beats
+  - skill:write
+  - skill:world-monitor
+  - skill:wizard
+  - skill:wayfinder
+  - skill:wallpaper-render
+  - skill:wait-what
+  - skill:upscale-wallpaper
+  - skill:triage
+  - skill:tough-love
+  - skill:to-tickets
+  - skill:to-spec
+  - skill:to-questionnaire
+  - skill:teach
+  - skill:tdd
+  - skill:spoken-poetry
+  - skill:situation-monitor
+  - skill:setup-ts-deep-modules
+  - skill:setup-pre-commit
+  - skill:seo
+  - skill:performance
+  - skill:core-web-vitals
+  - skill:accessibility
+  - extension-module:openwebui-bridge
+  - prompt:wallpaper
+  - skill:unslop
+  - skill:reverse-engineer-anything
+  - skill:sol-loop
+  - skill:leaving-pr-comments
+  - skill:how
+  - context-file:project:CLAUDE.md
+enabledProviders: []
+extendedContext: true

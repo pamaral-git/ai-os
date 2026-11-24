@@ -1,0 +1,1886 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MLX Fine-Tune &amp; Antidoom Dossier — Nov 2026</title>
+<style>
+  :root {
+    --bg-base: #111214;
+    --bg-surface: #17181c;
+    --bg-raised: #1e2026;
+    --bg-hover: #252830;
+    --bg-inset: #131418;
+    --border-hairline: rgba(236, 238, 242, 0.08);
+    --border-strong: rgba(236, 238, 242, 0.15);
+    --text-primary: #eef0f4;
+    --text-secondary: #a0a6b3;
+    --text-muted: #6c7380;
+    --accent: #d97736;
+    --accent-soft: rgba(217, 119, 54, 0.12);
+    --good: #3ca374;
+    --good-soft: rgba(60, 163, 116, 0.12);
+    --warn: #c7933b;
+    --warn-soft: rgba(199, 147, 59, 0.12);
+    --bad: #c95858;
+    --bad-soft: rgba(201, 88, 88, 0.12);
+    --series-1: #d97736;
+    --series-2: #5b8fd9;
+    --series-3: #3ca374;
+    --series-4: #9d7cd8;
+    --font-sans: "IBM Plex Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    --ease: cubic-bezier(0.2, 0, 0, 1);
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    background: var(--bg-base);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 14px;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+    scroll-behavior: smooth;
+  }
+
+  body {
+    margin: 0;
+    padding: 0;
+    background: var(--bg-base);
+    color: var(--text-primary);
+  }
+
+  .tabular {
+    font-variant-numeric: tabular-nums;
+    font-family: var(--font-mono);
+  }
+
+  /* App Shell */
+  .shell {
+    display: flex;
+    min-height: 100vh;
+    max-width: 1520px;
+    margin: 0 auto;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 248px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    padding: 24px 16px;
+    border-right: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    background: var(--bg-base);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 0 8px;
+  }
+
+  .brand-mark {
+    width: 24px;
+    height: 24px;
+    border-radius: 6px;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-strong);
+    display: grid;
+    place-items: center;
+    color: var(--accent);
+    flex-shrink: 0;
+  }
+
+  .brand-name {
+    font-size: 14px;
+    font-weight: 500;
+    color: var(--text-primary);
+    letter-spacing: -0.01em;
+  }
+
+  .brand-meta {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-family: var(--font-mono);
+  }
+
+  .nav-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .nav-label {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-muted);
+    padding: 0 8px;
+    margin-bottom: 4px;
+  }
+
+  .nav-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: 34px;
+    padding: 0 10px;
+    border-radius: 8px;
+    color: var(--text-secondary);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 400;
+    transition: background-color 150ms var(--ease), color 150ms var(--ease);
+  }
+
+  .nav-item:hover {
+    background: var(--bg-surface);
+    color: var(--text-primary);
+  }
+
+  .nav-item.active {
+    background: var(--bg-raised);
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px var(--border-hairline);
+  }
+
+  .nav-item svg {
+    width: 16px;
+    height: 16px;
+    color: var(--text-muted);
+    flex-shrink: 0;
+  }
+
+  .nav-item.active svg {
+    color: var(--accent);
+  }
+
+  .sidebar-host {
+    margin-top: auto;
+    padding: 12px;
+    border-radius: 10px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .host-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 12px;
+  }
+
+  .host-row span:first-child { color: var(--text-muted); }
+  .host-row span:last-child { color: var(--text-secondary); font-family: var(--font-mono); }
+
+  /* Main Content */
+  .main {
+    flex: 1;
+    min-width: 0;
+    padding: 32px 40px 64px;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+  }
+
+  .page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    gap: 24px;
+    padding-bottom: 24px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .page-title {
+    margin: 0;
+    font-size: 24px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  .page-subtitle {
+    margin: 6px 0 0;
+    font-size: 14px;
+    color: var(--text-secondary);
+    max-width: 68ch;
+  }
+
+  .header-meta {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-shrink: 0;
+  }
+
+  .meta-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 32px;
+    padding: 0 12px;
+    border-radius: 8px;
+    background: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-family: var(--font-mono);
+  }
+
+  .dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .dot-good { background: var(--good); }
+  .dot-warn { background: var(--warn); }
+  .dot-bad { background: var(--bad); }
+  .dot-accent { background: var(--accent); }
+
+  /* Section */
+  section {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    scroll-margin-top: 24px;
+  }
+
+  .section-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    gap: 16px;
+  }
+
+  .section-title {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    color: var(--text-primary);
+  }
+
+  .section-note {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  /* Stat Strip (varied rhythm: 4 compact figures above wide chart) */
+  .stat-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .stat-card {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+    border-radius: 12px;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+
+  .stat-val {
+    font-size: 28px;
+    font-weight: 500;
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+    color: var(--text-primary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-sub {
+    font-size: 12px;
+    color: var(--text-muted);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .stat-sub strong {
+    font-weight: 500;
+    color: var(--good);
+  }
+
+  .stat-sub strong.accent { color: var(--accent); }
+  .stat-sub strong.warn { color: var(--warn); }
+
+  /* Panels & Split Grids */
+  .panel {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+    border-radius: 14px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .split-2 {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 16px;
+  }
+
+  .split-equal {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  /* Hardware / Diagnostics Callout */
+  .diag-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .diag-item {
+    background: var(--bg-raised);
+    border: 1px solid var(--border-hairline);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .diag-item-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .diag-item-title {
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .diag-item p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.5;
+  }
+
+  code.inline {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    padding: 2px 6px;
+    border-radius: 5px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-hairline);
+    color: var(--text-primary);
+  }
+
+  /* Chart Container */
+  .chart-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .seg-group {
+    display: inline-flex;
+    padding: 4px;
+    border-radius: 10px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-hairline);
+    gap: 4px;
+  }
+
+  .seg-btn {
+    border: 0;
+    background: transparent;
+    color: var(--text-secondary);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    height: 28px;
+    padding: 0 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 150ms var(--ease), color 150ms var(--ease);
+  }
+
+  .seg-btn:hover { color: var(--text-primary); }
+  .seg-btn.active {
+    background: var(--bg-raised);
+    color: var(--text-primary);
+    box-shadow: inset 0 0 0 1px var(--border-strong);
+  }
+
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .legend-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+    user-select: none;
+    transition: opacity 150ms var(--ease);
+  }
+  .legend-item.muted { opacity: 0.35; }
+
+  .legend-swatch {
+    width: 12px;
+    height: 3px;
+    border-radius: 2px;
+  }
+
+  .chart-wrap {
+    position: relative;
+    width: 100%;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-hairline);
+    border-radius: 10px;
+    padding: 16px;
+  }
+
+  .chart-svg {
+    width: 100%;
+    height: auto;
+    display: block;
+    overflow: visible;
+  }
+
+  .chart-tooltip {
+    position: absolute;
+    pointer-events: none;
+    background: var(--bg-raised);
+    border: 1px solid var(--border-strong);
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--text-primary);
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    opacity: 0;
+    transition: opacity 120ms var(--ease);
+    z-index: 10;
+    white-space: nowrap;
+  }
+
+  /* Explanation Prose Blocks */
+  .explain-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .explain-card {
+    background: var(--bg-raised);
+    border: 1px solid var(--border-hairline);
+    border-radius: 10px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .explain-card h4 {
+    margin: 0;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-primary);
+  }
+
+  .explain-card p {
+    margin: 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    line-height: 1.55;
+  }
+
+  /* Throughput Bars */
+  .bar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .bar-row {
+    display: grid;
+    grid-template-columns: 220px 1fr 92px;
+    align-items: center;
+    gap: 16px;
+    font-size: 13px;
+  }
+
+  .bar-label {
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .bar-track {
+    height: 8px;
+    border-radius: 4px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-hairline);
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    background: var(--text-muted);
+  }
+  .bar-fill.lead { background: var(--accent); }
+
+  .bar-val {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Tables */
+  .table-wrap {
+    width: 100%;
+    overflow-x: auto;
+    border: 1px solid var(--border-hairline);
+    border-radius: 10px;
+    background: var(--bg-inset);
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: left;
+    font-size: 13px;
+  }
+
+  th {
+    padding: 12px 16px;
+    font-weight: 500;
+    font-size: 12px;
+    color: var(--text-muted);
+    background: var(--bg-surface);
+    border-bottom: 1px solid var(--border-hairline);
+    white-space: nowrap;
+  }
+
+  td {
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--border-hairline);
+    color: var(--text-secondary);
+    vertical-align: top;
+  }
+
+  tr:last-child td { border-bottom: 0; }
+
+  tbody tr:hover td {
+    background: rgba(236, 238, 242, 0.025);
+  }
+
+  td.primary {
+    color: var(--text-primary);
+    font-weight: 500;
+  }
+
+  td.num, th.num {
+    text-align: right;
+    font-family: var(--font-mono);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+  }
+
+  .status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 2px 8px;
+    border-radius: 6px;
+    font-size: 12px;
+    font-family: var(--font-mono);
+    white-space: nowrap;
+  }
+
+  .status-done { background: var(--good-soft); color: var(--good); }
+  .status-warn { background: var(--warn-soft); color: var(--warn); }
+  .status-bad  { background: var(--bad-soft);  color: var(--bad); }
+  .status-info { background: var(--accent-soft); color: var(--accent); }
+
+  /* Antidoom Math Formula Block */
+  .formula-box {
+    background: var(--bg-inset);
+    border: 1px solid var(--border-hairline);
+    border-radius: 10px;
+    padding: 16px 20px;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--text-primary);
+    overflow-x: auto;
+    line-height: 1.6;
+  }
+
+  .snippet-preview {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-secondary);
+    background: var(--bg-surface);
+    border: 1px solid var(--border-hairline);
+    border-radius: 6px;
+    padding: 4px 8px;
+    display: inline-block;
+    max-width: 340px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  /* Code / Config Drawer */
+  .code-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--border-hairline);
+  }
+
+  .copy-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    height: 30px;
+    padding: 0 12px;
+    border-radius: 8px;
+    border: 1px solid var(--border-strong);
+    background: var(--bg-raised);
+    color: var(--text-primary);
+    font-family: var(--font-sans);
+    font-size: 12px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 150ms var(--ease), border-color 150ms var(--ease);
+  }
+
+  .copy-btn:hover { background: var(--bg-hover); }
+  .copy-btn.copied { border-color: var(--good); color: var(--good); }
+
+  pre.code-block {
+    margin: 0;
+    padding: 16px;
+    border-radius: 10px;
+    background: var(--bg-inset);
+    border: 1px solid var(--border-hairline);
+    font-family: var(--font-mono);
+    font-size: 12px;
+    line-height: 1.55;
+    color: var(--text-secondary);
+    overflow-x: auto;
+    max-height: 460px;
+  }
+
+  .tab-panel { display: none; }
+  .tab-panel.active { display: flex; flex-direction: column; gap: 12px; }
+
+  /* Footer */
+  .footer {
+    margin-top: 16px;
+    padding-top: 20px;
+    border-top: 1px solid var(--border-hairline);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 12px;
+    color: var(--text-muted);
+  }
+
+  .footer a {
+    color: var(--text-secondary);
+    text-decoration: none;
+  }
+  .footer a:hover { color: var(--text-primary); }
+
+  @media (max-width: 1040px) {
+    .sidebar { display: none; }
+    .main { padding: 24px 20px 48px; }
+    .stat-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .split-2, .split-equal, .explain-grid { grid-template-columns: 1fr; }
+    .bar-row { grid-template-columns: 150px 1fr 76px; }
+  }
+
+  @media (max-width: 600px) {
+    .stat-grid { grid-template-columns: 1fr; }
+    .page-header { flex-direction: column; align-items: flex-start; }
+  }
+</style>
+</head>
+<body>
+
+<div class="shell">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">
+        <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 17l6-6-6-6M12 19h8"/>
+        </svg>
+      </div>
+      <div>
+        <div class="brand-name">MLX Fine-Tune Ledger</div>
+        <div class="brand-meta">Apple Silicon · 24 GB</div>
+      </div>
+    </div>
+
+    <div class="nav-group">
+      <div class="nav-label">Report sections</div>
+      <a class="nav-item active" href="#overview">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        Run overview
+      </a>
+      <a class="nav-item" href="#sft-curves">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 3 5-7"/></svg>
+        SFT loss &amp; statistics
+      </a>
+      <a class="nav-item" href="#adapters">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/></svg>
+        Adapter inventory
+      </a>
+      <a class="nav-item" href="#antidoom">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8"/><path d="M21 3v5h-5"/></svg>
+        Antidoom FTPO analysis
+      </a>
+      <a class="nav-item" href="#takeover">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>
+        Configs &amp; takeover
+      </a>
+    </div>
+
+    <div class="sidebar-host">
+      <div class="host-row"><span>Framework</span><span>mlx-lm 0.32.2</span></div>
+      <div class="host-row"><span>Metal runtime</span><span>mlx 0.32.4</span></div>
+      <div class="host-row"><span>Unified RAM</span><span>24 GB (10-core)</span></div>
+      <div class="host-row"><span>Models root</span><span>/Volumes/X-Drive</span></div>
+    </div>
+  </aside>
+
+  <!-- Main Column -->
+  <main class="main">
+    <header class="page-header">
+      <div>
+        <h1 class="page-title">LoRA Fine-Tuning &amp; Antidoom Run Dossier</h1>
+        <p class="page-subtitle">
+          Post-run telemetry, statistical loss analysis, Antidoom FTPO pair anatomy, and OpenShell evaluation handoff for local models under <code class="inline">/Volumes/X-Drive/models</code>.
+        </p>
+      </div>
+      <div class="header-meta">
+        <span class="meta-chip"><span class="dot dot-good"></span>6 new adapters saved</span>
+        <span class="meta-chip"><span class="dot dot-accent"></span>2026-11-19 → 2026-11-22</span>
+      </div>
+    </header>
+
+    <!-- 1. Overview -->
+    <section id="overview">
+      <div class="section-head">
+        <h2 class="section-title">Run overview</h2>
+        <span class="section-note">Totals across Batch 1 (SFT), Batch 2 (Antidoom FTPO), and pre-existing adapters on disk</span>
+      </div>
+
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-label">Completed new adapters</div>
+          <div class="stat-val tabular">6</div>
+          <div class="stat-sub"><strong>3 SFT</strong> + <strong>3 Antidoom FTPO</strong> (+4 prior)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Best SFT val loss reduction</div>
+          <div class="stat-val tabular">-55.0%</div>
+          <div class="stat-sub">nanb3-ccore-3js (<strong class="warn">0.702 → 0.316</strong> at step 400)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Peak SFT throughput</div>
+          <div class="stat-val tabular">1,027 tok/s</div>
+          <div class="stat-sub">lfm450-apple (<strong>818 avg tok/s</strong>, 230.4k tokens)</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Antidoom loops elicited</div>
+          <div class="stat-val tabular">8 pairs</div>
+          <div class="stat-sub"><strong>4</strong> lfm450 · <strong>2</strong> granite · <strong>2</strong> lfm3-2b · 0 lfm3-1.7b</div>
+        </div>
+      </div>
+
+      <div class="split-2">
+        <div class="panel">
+          <div class="section-head">
+            <h3 class="section-title" style="font-size: 15px;">Batch execution timeline</h3>
+            <span class="section-note">UTC timestamps from summary logs</span>
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Run</th>
+                  <th>Track</th>
+                  <th>Status</th>
+                  <th class="num">Duration</th>
+                  <th class="num">Artifact</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="primary">granite-4.0-h-apple</td>
+                  <td>Batch 1 · SFT</td>
+                  <td><span class="status-badge status-done"><span class="dot dot-good"></span>Done</span></td>
+                  <td class="num">9m 13s</td>
+                  <td class="num">7.2M</td>
+                </tr>
+                <tr>
+                  <td class="primary">granite-4.0-h-software-coding</td>
+                  <td>Batch 1 · SFT</td>
+                  <td><span class="status-badge status-done"><span class="dot dot-good"></span>Done</span></td>
+                  <td class="num">9m 23s</td>
+                  <td class="num">7.2M</td>
+                </tr>
+                <tr>
+                  <td class="primary">lfm450-apple</td>
+                  <td>Batch 1 · SFT</td>
+                  <td><span class="status-badge status-done"><span class="dot dot-good"></span>Done</span></td>
+                  <td class="num">5m 39s</td>
+                  <td class="num">11M</td>
+                </tr>
+                <tr>
+                  <td class="primary">nanb3-ccore-3js</td>
+                  <td>Batch 1 · SFT</td>
+                  <td><span class="status-badge status-warn"><span class="dot dot-warn"></span>Stopped @ 510</span></td>
+                  <td class="num">~85m</td>
+                  <td class="num">33M (ckpt 400)</td>
+                </tr>
+                <tr>
+                  <td class="primary">nanb3-agentic-finance</td>
+                  <td>Batch 1 · SFT</td>
+                  <td><span class="status-badge status-bad"><span class="dot dot-bad"></span>Cancelled</span></td>
+                  <td class="num">—</td>
+                  <td class="num">—</td>
+                </tr>
+                <tr>
+                  <td class="primary">granite-4.0-h-antidoom</td>
+                  <td>Batch 2 · FTPO</td>
+                  <td><span class="status-badge status-done"><span class="dot dot-good"></span>Done</span></td>
+                  <td class="num">15m 26s</td>
+                  <td class="num">14M</td>
+                </tr>
+                <tr>
+                  <td class="primary">lfm450-antidoom</td>
+                  <td>Batch 2 · FTPO</td>
+                  <td><span class="status-badge status-done"><span class="dot dot-good"></span>Done</span></td>
+                  <td class="num">16m 31s</td>
+                  <td class="num">23M</td>
+                </tr>
+                <tr>
+                  <td class="primary">lfm3-1.7b-antidoom</td>
+                  <td>Batch 2 · FTPO</td>
+                  <td><span class="status-badge status-warn"><span class="dot dot-warn"></span>0 pairs (skipped)</span></td>
+                  <td class="num">18m 18s</td>
+                  <td class="num">0 bytes</td>
+                </tr>
+                <tr>
+                  <td class="primary">lfm3-2b-antidoom</td>
+                  <td>Batch 2 · FTPO</td>
+                  <td><span class="status-badge status-done"><span class="dot dot-good"></span>Done</span></td>
+                  <td class="num">23m 36s</td>
+                  <td class="num">42M</td>
+                </tr>
+                <tr>
+                  <td class="primary">nanb3-antidoom</td>
+                  <td>Batch 2 · FTPO</td>
+                  <td><span class="status-badge status-bad"><span class="dot dot-bad"></span>Cancelled</span></td>
+                  <td class="num">—</td>
+                  <td class="num">—</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="panel">
+          <div class="section-head">
+            <h3 class="section-title" style="font-size: 15px;">Environment diagnostics &amp; fixes</h3>
+          </div>
+          <div class="diag-list">
+            <div class="diag-item">
+              <div class="diag-item-head">
+                <span class="diag-item-title">nanb3 Metal OOM resolved</span>
+                <span class="status-badge status-info">24 GB limit</span>
+              </div>
+              <p>Initial runs on <code class="inline">nanb3</code> (4.17B params) failed with <code class="inline">kIOGPUCommandBufferCallbackErrorOutOfMemory</code> at sequence length 2,048 and stalled on <code class="inline">trust_remote_code</code> prompt. Adding <code class="inline">--grad-checkpoint --max-seq-length 1024 --batch-size 1 --trust-remote-code</code> stabilized training at ~4.7 GB RSS.</p>
+            </div>
+            <div class="diag-item">
+              <div class="diag-item-head">
+                <span class="diag-item-title">LFM3 &amp; LFM3-VL text registration</span>
+                <span class="status-badge status-done">MLX native</span>
+              </div>
+              <p>Registered vendored <code class="inline">lfm3.py</code> for <code class="inline">lfm3-1.7b</code> and built <code class="inline">lfm3_vl.py</code> (stripping <code class="inline">vision_tower</code> and <code class="inline">multi_modal_projector</code> while preserving <code class="inline">tie_word_embeddings: true</code>) so <code class="inline">lfm3-2b</code> trains and serves cleanly in <code class="inline">mlx_lm</code>.</p>
+            </div>
+            <div class="diag-item">
+              <div class="diag-item-head">
+                <span class="diag-item-title">Excluded base models</span>
+                <span class="status-badge status-bad">Incompatible</span>
+              </div>
+              <p><code class="inline">open-elm</code> lacks tokenizer files in its directory and raises <code class="inline">OpenELMConfig.__post_init__() got an unexpected keyword argument 'use_cache'</code>. <code class="inline">MiniCPM-V-4.7-1B</code> (<code class="inline">minicpmv4_7</code>) is a VLM outside raw <code class="inline">mlx_lm.lora</code>.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. SFT Loss & Throughput -->
+    <section id="sft-curves">
+      <div class="section-head">
+        <h2 class="section-title">SFT loss &amp; throughput statistics</h2>
+        <span class="section-note">Exact metrics parsed from <code class="inline">mlx_lm.lora</code> logs</span>
+      </div>
+
+      <div class="panel">
+        <div class="chart-toolbar">
+          <div class="seg-group" id="chart-mode">
+            <button class="seg-btn active" data-mode="val">Validation loss</button>
+            <button class="seg-btn" data-mode="train">Training loss (every 10 iters)</button>
+            <button class="seg-btn" data-mode="tps">Throughput (tok/s)</button>
+          </div>
+          <div class="legend" id="chart-legend">
+            <span class="legend-item" data-series="granite-apple"><span class="legend-swatch" style="background:var(--series-1)"></span>granite-4.0-h-apple</span>
+            <span class="legend-item" data-series="granite-code"><span class="legend-swatch" style="background:var(--series-2)"></span>granite-4.0-h-software-coding</span>
+            <span class="legend-item" data-series="lfm450-apple"><span class="legend-swatch" style="background:var(--series-3)"></span>lfm450-apple</span>
+            <span class="legend-item" data-series="nanb3-ccore"><span class="legend-swatch" style="background:var(--series-4)"></span>nanb3-ccore-3js (stopped @ 510)</span>
+          </div>
+        </div>
+
+        <div class="chart-wrap">
+          <svg id="sft-chart" class="chart-svg" viewBox="0 0 960 340"></svg>
+          <div id="chart-tooltip" class="chart-tooltip"></div>
+        </div>
+
+        <div class="split-equal">
+          <div>
+            <div class="section-head" style="margin-bottom: 12px;">
+              <h4 style="margin:0; font-size: 13px; font-weight: 500;">Mean generation/training throughput</h4>
+              <span class="section-note" style="font-size: 12px;">Tokens per second</span>
+            </div>
+            <div class="bar-list">
+              <div class="bar-row">
+                <div class="bar-label">lfm450-apple</div>
+                <div class="bar-track"><div class="bar-fill lead" style="width: 100%"></div></div>
+                <div class="bar-val">818 tok/s</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">granite-4.0-h-apple</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 59.4%"></div></div>
+                <div class="bar-val">486 tok/s</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">granite-4.0-h-software-coding</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 57.1%"></div></div>
+                <div class="bar-val">467 tok/s</div>
+              </div>
+              <div class="bar-row">
+                <div class="bar-label">nanb3-ccore-3js (ckpt + 3B)</div>
+                <div class="bar-track"><div class="bar-fill" style="width: 6.2%"></div></div>
+                <div class="bar-val">51 tok/s</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Run</th>
+                  <th class="num">Val start</th>
+                  <th class="num">Val best / end</th>
+                  <th class="num">Delta</th>
+                  <th class="num">Trainable</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td class="primary">granite-4.0-h-apple</td>
+                  <td class="num">3.707</td>
+                  <td class="num">1.756 (@600)</td>
+                  <td class="num" style="color: var(--good);">-52.6%</td>
+                  <td class="num">0.554% (1.885M)</td>
+                </tr>
+                <tr>
+                  <td class="primary">granite-4.0-h-software-coding</td>
+                  <td class="num">0.899</td>
+                  <td class="num">0.574 (@400) / 0.595</td>
+                  <td class="num" style="color: var(--good);">-33.8%</td>
+                  <td class="num">0.554% (1.885M)</td>
+                </tr>
+                <tr>
+                  <td class="primary">lfm450-apple</td>
+                  <td class="num">3.040</td>
+                  <td class="num">1.695 (@600)</td>
+                  <td class="num" style="color: var(--good);">-44.2%</td>
+                  <td class="num">0.846% (2.998M)</td>
+                </tr>
+                <tr>
+                  <td class="primary">nanb3-ccore-3js</td>
+                  <td class="num">0.702</td>
+                  <td class="num">0.316 (@400)</td>
+                  <td class="num" style="color: var(--warn);">-55.0%</td>
+                  <td class="num">0.209% (8.716M)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="explain-grid">
+          <div class="explain-card">
+            <h4>Why Apple SFT drops steeply from ~3.0–3.7</h4>
+            <p>The <code class="inline">Apple</code> dataset (9,139 samples) introduces domain formatting and response phrasing unfamiliar to base weights, yielding high initial cross-entropy (3.707 on Granite, 3.040 on LFM2-450M). Both models converged smoothly through step 600 without validation overfitting (val loss still falling at step 600), indicating additional epochs could lower loss further.</p>
+          </div>
+          <div class="explain-card">
+            <h4>Why Software-coding plateaus near 0.57–0.60</h4>
+            <p>Granite-4.0-H-350M already had strong code priors (step 1 val loss 0.899). Validation loss reached its minimum at step 400 (<code class="inline">0.574</code>) and edged up slightly to <code class="inline">0.612</code> / <code class="inline">0.595</code> by step 600. For coding evals, <code class="inline">0000400_adapters.safetensors</code> is worth comparing against the final <code class="inline">adapters.safetensors</code>.</p>
+          </div>
+          <div class="explain-card">
+            <h4>Why nanb3 throughput is ~51 tok/s vs 818 tok/s</h4>
+            <p><code class="inline">nanb3</code> runs 4.17B effective unrolled parameters (<code class="inline">num_loops=2</code>, 22 layers) with <code class="inline">grad_checkpoint=true</code> (recomputing activations on backward pass) and <code class="inline">grad_accumulation_steps=4</code>. Despite running 16x slower, val loss halved from <code class="inline">0.702</code> to <code class="inline">0.316</code> by step 400; checkpoint 400 is usable as-is or resumable.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. Adapter Inventory -->
+    <section id="adapters">
+      <div class="section-head">
+        <h2 class="section-title">Adapter inventory</h2>
+        <span class="section-note">All 13 subdirectories under <code class="inline">/Volumes/X-Drive/models/LoRA/</code></span>
+      </div>
+
+      <div class="panel">
+        <div class="chart-toolbar">
+          <div class="seg-group" id="adapter-filter">
+            <button class="seg-btn active" data-filter="all">All (13)</button>
+            <button class="seg-btn" data-filter="new">This session (6)</button>
+            <button class="seg-btn" data-filter="antidoom">Antidoom FTPO (4)</button>
+            <button class="seg-btn" data-filter="sft">SFT (8)</button>
+            <button class="seg-btn" data-filter="incomplete">Partial / empty (3)</button>
+          </div>
+          <span class="section-note" style="font-size: 12px;">Click a filter to isolate runs</span>
+        </div>
+
+        <div class="table-wrap">
+          <table id="adapter-table">
+            <thead>
+              <tr>
+                <th>Adapter directory</th>
+                <th>Base model</th>
+                <th>Dataset / method</th>
+                <th>Status</th>
+                <th class="num">Iters / steps</th>
+                <th class="num">LR</th>
+                <th class="num">Rank / scale</th>
+                <th class="num">Weights</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr data-tags="new sft">
+                <td class="primary">granite-4.0-h-apple</td>
+                <td>granite-4.0-h</td>
+                <td>SFT · Apple (9,139)</td>
+                <td><span class="status-badge status-done"><span class="dot dot-good"></span>Complete</span></td>
+                <td class="num">600</td>
+                <td class="num">1.0e-5</td>
+                <td class="num">r8 / 20</td>
+                <td class="num">7.2M</td>
+              </tr>
+              <tr data-tags="new sft">
+                <td class="primary">granite-4.0-h-software-coding</td>
+                <td>granite-4.0-h</td>
+                <td>SFT · Software-coding (1,500)</td>
+                <td><span class="status-badge status-done"><span class="dot dot-good"></span>Complete</span></td>
+                <td class="num">600</td>
+                <td class="num">1.0e-5</td>
+                <td class="num">r8 / 20</td>
+                <td class="num">7.2M</td>
+              </tr>
+              <tr data-tags="new sft">
+                <td class="primary">lfm450-apple</td>
+                <td>lfm450</td>
+                <td>SFT · Apple (9,139)</td>
+                <td><span class="status-badge status-done"><span class="dot dot-good"></span>Complete</span></td>
+                <td class="num">600</td>
+                <td class="num">1.0e-5</td>
+                <td class="num">r8 / 20</td>
+                <td class="num">11M</td>
+              </tr>
+              <tr data-tags="new antidoom">
+                <td class="primary">granite-4.0-h-antidoom</td>
+                <td>granite-4.0-h</td>
+                <td>Antidoom FTPO · 2 pairs</td>
+                <td><span class="status-badge status-done"><span class="dot dot-good"></span>Complete</span></td>
+                <td class="num">4 opt steps</td>
+                <td class="num">1.5e-5</td>
+                <td class="num">r16 / 32</td>
+                <td class="num">14M</td>
+              </tr>
+              <tr data-tags="new antidoom">
+                <td class="primary">lfm450-antidoom</td>
+                <td>lfm450</td>
+                <td>Antidoom FTPO · 4 pairs</td>
+                <td><span class="status-badge status-done"><span class="dot dot-good"></span>Complete</span></td>
+                <td class="num">4 opt steps</td>
+                <td class="num">1.5e-5</td>
+                <td class="num">r16 / 32</td>
+                <td class="num">23M</td>
+              </tr>
+              <tr data-tags="new antidoom">
+                <td class="primary">lfm3-2b-antidoom</td>
+                <td>lfm3-2b</td>
+                <td>Antidoom FTPO · 2 pairs</td>
+                <td><span class="status-badge status-done"><span class="dot dot-good"></span>Complete</span></td>
+                <td class="num">4 opt steps</td>
+                <td class="num">1.0e-5</td>
+                <td class="num">r16 / 32</td>
+                <td class="num">42M</td>
+              </tr>
+              <tr data-tags="sft incomplete">
+                <td class="primary">nanb3-ccore-3js</td>
+                <td>nanb3</td>
+                <td>SFT · Ccore-3js-3d (6,957)</td>
+                <td><span class="status-badge status-warn"><span class="dot dot-warn"></span>Partial @ 400</span></td>
+                <td class="num">510 / 1300</td>
+                <td class="num">7.0e-6</td>
+                <td class="num">r8 / 20</td>
+                <td class="num">33M</td>
+              </tr>
+              <tr data-tags="antidoom incomplete">
+                <td class="primary">lfm3-1.7b-antidoom</td>
+                <td>lfm3-1.7b</td>
+                <td>Antidoom FTPO · 0 pairs</td>
+                <td><span class="status-badge status-warn"><span class="dot dot-warn"></span>No loops hit</span></td>
+                <td class="num">0</td>
+                <td class="num">1.2e-5</td>
+                <td class="num">r16 / 32</td>
+                <td class="num">—</td>
+              </tr>
+              <tr data-tags="sft">
+                <td class="primary">lfm450-SFT_agentic_reasoning</td>
+                <td>lfm450</td>
+                <td>SFT · Agentic-reasoning (Nov 8)</td>
+                <td><span class="status-badge status-done"><span class="dot dot-good"></span>Pre-existing</span></td>
+                <td class="num">600</td>
+                <td class="num">1.0e-5</td>
+                <td class="num">r8 / 20</td>
+                <td class="num">11M</td>
+              </tr>
+              <tr data-tags="sft">
+                <td class="primary">lfm450-SFT_liquid_Phone_tools</td>
+                <td>lfm450</td>
+                <td>SFT · Liquid-phone-tools (Nov 8)</td>
+                <td><span class="status-badge status-done"><span class="dot dot-good"></span>Pre-existing</span></td>
+                <td class="num">600</td>
+                <td class="num">1.0e-5</td>
+                <td class="num">r8 / 20</td>
+                <td class="num">11M</td>
+              </tr>
+              <tr data-tags="sft">
+                <td class="primary">lfm450-software-code</td>
+                <td>lfm450</td>
+                <td>SFT · Software-coding (Nov 8)</td>
+                <td><span class="status-badge status-done"><span class="dot dot-good"></span>Pre-existing</span></td>
+                <td class="num">900</td>
+                <td class="num">1.0e-5</td>
+                <td class="num">r8 / 20</td>
+                <td class="num">11M</td>
+              </tr>
+              <tr data-tags="sft">
+                <td class="primary">lfm3-1.7b-Software-coding</td>
+                <td>lfm3-1.7b</td>
+                <td>SFT · Software-coding (Nov 9)</td>
+                <td><span class="status-badge status-done"><span class="dot dot-good"></span>Pre-existing</span></td>
+                <td class="num">900</td>
+                <td class="num">1.0e-5</td>
+                <td class="num">r16 / 32</td>
+                <td class="num">21M</td>
+              </tr>
+              <tr data-tags="sft incomplete">
+                <td class="primary">lfm3-1.7b-codex-tooluse</td>
+                <td>lfm3-1.7b</td>
+                <td>SFT · Codex-tool-use (Nov 15)</td>
+                <td><span class="status-badge status-bad"><span class="dot dot-bad"></span>Config only</span></td>
+                <td class="num">0 / 1200</td>
+                <td class="num">1.0e-5</td>
+                <td class="num">r8 / 20</td>
+                <td class="num">—</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. Antidoom FTPO Analysis -->
+    <section id="antidoom">
+      <div class="section-head">
+        <h2 class="section-title">Antidoom FTPO analysis &amp; elicited loops</h2>
+        <span class="section-note">Native MLX port of <code class="inline">Liquid4All/antidoom</code> Final Token Preference Optimization</span>
+      </div>
+
+      <div class="panel">
+        <div class="formula-box">
+L_FTPO = E[ clip((eps - delta_tok)/eps, 0, 1) * softplus(eps - delta_tok) ] + 0.4 * MSE_tether(V \ T) + 0.05 * MSE_excess(|diff_T| - tau)
+        </div>
+
+        <div class="explain-grid">
+          <div class="explain-card">
+            <h4>How FTPO loss behaves statistically</h4>
+            <p>Unlike full-sequence SFT, FTPO isolates only the single token position where a repetition loop begins (<code class="inline">rejected_token_id</code>) and pushes its logit below plausible alternatives sampled at that step (<code class="inline">delta_tok = z_chosen - z_rejected</code>, margin <code class="inline">eps = 2.0</code>). The <code class="inline">0.4</code> MSE tether anchors all other ~128k–166k vocabulary logits to the frozen base model so capabilities outside the loop boundary stay untouched.</p>
+          </div>
+          <div class="explain-card">
+            <h4>Why async logprob deferral mattered</h4>
+            <p>Our initial Antidoom script ran <code class="inline">mx.argpartition</code> + <code class="inline">mx.eval</code> on every generated token to record top-20 logprobs, stalling MLX's Metal pipeline. Deferring logprob extraction in <code class="inline">antidoom_mlx_fast.py</code> to a single forward pass at <code class="inline">reject_idx</code> only when <code class="inline">find_inner_repetition</code> fires eliminated per-token sync stalls and enabled <code class="inline">1536</code>-token sampling.</p>
+          </div>
+          <div class="explain-card">
+            <h4>Interpreting low loop yield (2–4 pairs)</h4>
+            <p>With 15–22 minute caps per model on Apple Silicon, small and mid-size base models looped on ~1–5% of <code class="inline">antidoom-mix-v1.0</code> prompts at <code class="inline">temp=0.01</code>. Training ran 4 epochs over those 2–4 pairs (4 optimizer steps, initial <code class="inline">pref_loss</code> 3.05–4.91). Notice <code class="inline">mse_elem</code> stayed tiny (0.0000–0.1032), confirming minimal drift from base weights; larger sample pools (50–200 pairs) require longer generation passes or relaxed thresholds (<code class="inline">min_repeats=2</code>).</p>
+          </div>
+        </div>
+
+        <div class="section-head" style="margin-top: 4px;">
+          <h3 class="section-title" style="font-size: 15px;">All 8 elicited doom-loop pairs captured on disk</h3>
+          <span class="section-note">Stored in each adapter's <code class="inline">ftpo_pairs.jsonl</code></span>
+        </div>
+
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Model</th>
+                <th>Prompt source</th>
+                <th class="num">Prompt len</th>
+                <th class="num">Reject idx</th>
+                <th class="num">Period / repeats</th>
+                <th>Rejected → Chosen</th>
+                <th>Loop snippet</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="primary">granite-4.0-h</td>
+                <td>openbmb/UltraInteract_sft</td>
+                <td class="num">320</td>
+                <td class="num">15</td>
+                <td class="num">18 chars × 9</td>
+                <td><code class="inline">'e'</code> → <code class="inline">'&lt;|end_of_text|&gt;'</code></td>
+                <td><span class="snippet-preview">(e)(e)(e)(e)(e)(e)</span></td>
+              </tr>
+              <tr>
+                <td class="primary">granite-4.0-h</td>
+                <td>AutoIF-instruct-61k</td>
+                <td class="num">218</td>
+                <td class="num">138</td>
+                <td class="num">152 chars × 3</td>
+                <td><code class="inline">'B'</code> → <code class="inline">'G'</code></td>
+                <td><span class="snippet-preview">- **O** - **G** - **E** - **L** - **A** - **T** - **I** - **N** - **B**...</span></td>
+              </tr>
+              <tr>
+                <td class="primary">lfm450</td>
+                <td>openbmb/UltraInteract_sft</td>
+                <td class="num">746</td>
+                <td class="num">320</td>
+                <td class="num">126 chars × 3</td>
+                <td><code class="inline">'3'</code> → <code class="inline">'9'</code></td>
+                <td><span class="snippet-preview">9 = 34 \] This is still incorrect. Let's correct it...</span></td>
+              </tr>
+              <tr>
+                <td class="primary">lfm450</td>
+                <td>AutoIF-instruct-61k</td>
+                <td class="num">798</td>
+                <td class="num">743</td>
+                <td class="num">16 chars × 3</td>
+                <td><code class="inline">' new'</code> → <code class="inline">'new'</code></td>
+                <td><span class="snippet-preview">(whitespace / indentation repeat)</span></td>
+              </tr>
+              <tr>
+                <td class="primary">lfm450</td>
+                <td>meta-math/MetaMathQA</td>
+                <td class="num">375</td>
+                <td class="num">324</td>
+                <td class="num">20 chars × 4</td>
+                <td><code class="inline">'a'</code> → <code class="inline">'Step'</code></td>
+                <td><span class="snippet-preview">7^5 * 2/49 \n\n a + b = </span></td>
+              </tr>
+              <tr>
+                <td class="primary">lfm450</td>
+                <td>LiquidAI/ifstruct_generated</td>
+                <td class="num">1,141</td>
+                <td class="num">835</td>
+                <td class="num">695 chars × 3</td>
+                <td><code class="inline">' owner'</code> → <code class="inline">' tags'</code></td>
+                <td><span class="snippet-preview">name: QA Team \n steps: - id: 1 name: Test cases...</span></td>
+              </tr>
+              <tr>
+                <td class="primary">lfm3-2b</td>
+                <td>AutoIF-instruct-61k</td>
+                <td class="num">895</td>
+                <td class="num">833</td>
+                <td class="num">30 chars × 4</td>
+                <td><code class="inline">'F'</code> → <code class="inline">'FC'</code></td>
+                <td><span class="snippet-preview">rles goes down" -> "Father Cha</span></td>
+              </tr>
+              <tr>
+                <td class="primary">lfm3-2b</td>
+                <td>lmsys-arena-55k-sharegpt</td>
+                <td class="num">662</td>
+                <td class="num">524</td>
+                <td class="num">30 chars × 13</td>
+                <td><code class="inline">' a'</code> → <code class="inline">' tough', ' strong'</code></td>
+                <td><span class="snippet-preview">of being a "dog" in the sense</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </section>
+
+    <!-- 5. Configs & Takeover Playbook -->
+    <section id="takeover">
+      <div class="section-head">
+        <h2 class="section-title">Configurations &amp; takeover playbook</h2>
+        <span class="section-note">Ready-to-run OpenShell configs, adapter JSONs, and exact commands to evaluate or continue runs</span>
+      </div>
+
+      <div class="panel">
+        <div class="code-header">
+          <div class="seg-group" id="config-tabs">
+            <button class="seg-btn active" data-tab="tab-commands">Takeover &amp; eval commands</button>
+            <button class="seg-btn" data-tab="tab-llama">llama-config.yml</button>
+            <button class="seg-btn" data-tab="tab-sft-cfg">SFT adapter configs</button>
+            <button class="seg-btn" data-tab="tab-ftpo-cfg">Antidoom FTPO configs</button>
+          </div>
+          <button class="copy-btn" id="copy-active">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+            <span>Copy active</span>
+          </button>
+        </div>
+
+        <div class="tab-panel active" id="tab-commands">
+<pre class="code-block"># 1. Start OpenShell-safe llama-swap proxy on host port 9008 (run in terminal 1)
+LLAMA_CONFIG=/Volumes/X-Drive/models/eval-suite/llama-config.yml \
+  /Volumes/X-Drive/openshell/llama-swap-sandboxed.sh up
+
+# Or standalone without OpenShell container verification:
+llama-swap -config /Volumes/X-Drive/models/eval-suite/llama-config.yml -listen 127.0.0.1:9008
+
+# 2. Run comparative evals (OctoCodingBench, mHumanEval-PT, amalia_exams, DigUp, Antidoom loop check)
+# Inside OpenShell sandbox (gateway 192.168.127.254:9008 per ~/.config/openshell/llm-shell/policy.yaml):
+OPENAI_BASE_URL=http://192.168.127.254:9008/v1 \
+  /Volumes/X-Drive/openshell/llama-swap-sandboxed.sh run \
+  python3 /Volumes/X-Drive/models/eval-suite/run_evals.py --limit 25
+
+# Or from host directly:
+python3 /Volumes/X-Drive/models/eval-suite/run_evals.py \
+  --base-url http://127.0.0.1:9008/v1 \
+  --models granite-4.0-h-base granite-4.0-h-apple granite-4.0-h-antidoom \
+           lfm450-base lfm450-apple lfm450-antidoom lfm3-2b-base lfm3-2b-antidoom \
+  --limit 25
+
+# 3. Retry lfm3-1.7b-antidoom with relaxed loop threshold + longer generation window:
+python3 -u /Users/pedroamaral/.gemini/antigravity/brain/d694bbdf-053e-48e1-92fc-a3ebd97246f0/scratch/antidoom_mlx_fast.py \
+  --model /Volumes/X-Drive/models/lfm3-1.7b \
+  --adapter-dir /Volumes/X-Drive/models/LoRA/lfm3-1.7b-antidoom \
+  --max-prompts 400 --target-pairs 32 --max-prompt-tokens 768 --max-new-tokens 2048 \
+  --max-seq-length 2048 --max-gen-minutes 45 --max-steps 150 --grad-accum 4 \
+  --learning-rate 1.2e-5 --min-repeats 2 --min-total-repeated 24 --min-pairs 2
+
+# 4. Expand Antidoom pair pool for granite-4.0-h / lfm450 (remove adapters.safetensors first so it appends to ftpo_pairs.jsonl):
+# mv /Volumes/X-Drive/models/LoRA/lfm450-antidoom/adapters.safetensors /Volumes/X-Drive/models/LoRA/lfm450-antidoom/adapters.4steps.bak
+python3 -u /Users/pedroamaral/.gemini/antigravity/brain/d694bbdf-053e-48e1-92fc-a3ebd97246f0/scratch/antidoom_mlx_fast.py \
+  --model /Volumes/X-Drive/models/lfm450 \
+  --adapter-dir /Volumes/X-Drive/models/LoRA/lfm450-antidoom \
+  --max-prompts 500 --target-pairs 40 --max-new-tokens 2048 --max-gen-minutes 45 \
+  --min-repeats 3 --min-total-repeated 30 --max-steps 150 --grad-accum 4
+
+# 5. Optional: Resume nanb3-ccore-3js from checkpoint 400 (if you want the full 1300 iters later):
+mlx_lm.lora \
+  --model /Volumes/X-Drive/models/nanb3 \
+  --data /Users/pedroamaral/Documents/Datasets/SFT/Ccore-3js-3d \
+  --adapter-path /Volumes/X-Drive/models/LoRA/nanb3-ccore-3js \
+  --resume-adapter-file /Volumes/X-Drive/models/LoRA/nanb3-ccore-3js/0000400_adapters.safetensors \
+  --train --mask-prompt --iters 1300 --batch-size 1 --grad-accumulation-steps 4 \
+  --learning-rate 7e-6 --grad-checkpoint --max-seq-length 1024 --trust-remote-code \
+  --steps-per-eval 200 --save-every 100 --steps-per-report 10</pre>
+        </div>
+
+        <div class="tab-panel" id="tab-llama">
+<pre class="code-block"># Path: /Volumes/X-Drive/models/eval-suite/llama-config.yml
+healthCheckTimeout: 120
+globalTTL: 600
+logLevel: info
+logToStdout: proxy
+captureBuffer: 0
+startPort: 11080
+sendLoadingState: true
+includeAliasesInList: false
+
+macros:
+  "srv": "python3 /Volumes/X-Drive/models/eval-suite/serve_mlx.py"
+  "mroot": "/Volumes/X-Drive/models"
+  "aroot": "/Volumes/X-Drive/models/LoRA"
+  "flags": "--host 127.0.0.1 --port ${PORT} --trust-remote-code"
+
+models:
+  granite-4.0-h-base:
+    name: "Granite 4.0 H 350M (Base)"
+    cmd: "${srv} --model ${mroot}/granite-4.0-h ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm450-base:
+    name: "LFM2 450M (Base)"
+    cmd: "${srv} --model ${mroot}/lfm450 ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm3-1.7b-base:
+    name: "LFM3 1.7B (Base)"
+    cmd: "${srv} --model ${mroot}/lfm3-1.7b ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm3-2b-base:
+    name: "LFM3 2B (Base)"
+    cmd: "${srv} --model ${mroot}/lfm3-2b ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  granite-4.0-h-apple:
+    name: "Granite 4.0 H 350M (Apple SFT)"
+    cmd: "${srv} --model ${mroot}/granite-4.0-h --adapter-path ${aroot}/granite-4.0-h-apple ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  granite-4.0-h-software-coding:
+    name: "Granite 4.0 H 350M (Software Coding SFT)"
+    cmd: "${srv} --model ${mroot}/granite-4.0-h --adapter-path ${aroot}/granite-4.0-h-software-coding ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm450-apple:
+    name: "LFM2 450M (Apple SFT)"
+    cmd: "${srv} --model ${mroot}/lfm450 --adapter-path ${aroot}/lfm450-apple ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm450-agentic-reasoning:
+    name: "LFM2 450M (Agentic Reasoning SFT)"
+    cmd: "${srv} --model ${mroot}/lfm450 --adapter-path ${aroot}/lfm450-SFT_agentic_reasoning ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm450-phone-tools:
+    name: "LFM2 450M (Liquid Phone Tools SFT)"
+    cmd: "${srv} --model ${mroot}/lfm450 --adapter-path ${aroot}/lfm450-SFT_liquid_Phone_tools ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm450-software-code:
+    name: "LFM2 450M (Software Code SFT)"
+    cmd: "${srv} --model ${mroot}/lfm450 --adapter-path ${aroot}/lfm450-software-code ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm3-1.7b-software-coding:
+    name: "LFM3 1.7B (Software Coding SFT)"
+    cmd: "${srv} --model ${mroot}/lfm3-1.7b --adapter-path ${aroot}/lfm3-1.7b-Software-coding ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  granite-4.0-h-antidoom:
+    name: "Granite 4.0 H 350M (Antidoom FTPO)"
+    cmd: "${srv} --model ${mroot}/granite-4.0-h --adapter-path ${aroot}/granite-4.0-h-antidoom ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm450-antidoom:
+    name: "LFM2 450M (Antidoom FTPO)"
+    cmd: "${srv} --model ${mroot}/lfm450 --adapter-path ${aroot}/lfm450-antidoom ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm3-1.7b-antidoom:
+    name: "LFM3 1.7B (Antidoom FTPO)"
+    cmd: "${srv} --model ${mroot}/lfm3-1.7b --adapter-path ${aroot}/lfm3-1.7b-antidoom ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30
+
+  lfm3-2b-antidoom:
+    name: "LFM3 2B (Antidoom FTPO)"
+    cmd: "${srv} --model ${mroot}/lfm3-2b --adapter-path ${aroot}/lfm3-2b-antidoom ${flags}"
+    checkEndpoint: /v1/models
+    ttl: 600
+    unloadTimeout: 30</pre>
+        </div>
+
+        <div class="tab-panel" id="tab-sft-cfg">
+<pre class="code-block">// granite-4.0-h-apple &amp; granite-4.0-h-software-coding (both 600 iters, completed)
+{
+  "model": "/Volumes/X-Drive/models/granite-4.0-h",
+  "fine_tune_type": "lora",
+  "batch_size": 2,
+  "grad_accumulation_steps": 2,
+  "grad_checkpoint": false,
+  "iters": 600,
+  "learning_rate": 1e-05,
+  "lora_parameters": { "rank": 8, "dropout": 0.0, "scale": 20.0 },
+  "num_layers": 16,
+  "mask_prompt": true,
+  "max_seq_length": 2048,
+  "optimizer": "adam"
+}
+
+// lfm450-apple (600 iters, completed)
+{
+  "model": "/Volumes/X-Drive/models/lfm450",
+  "fine_tune_type": "lora",
+  "batch_size": 2,
+  "grad_accumulation_steps": 1,
+  "grad_checkpoint": false,
+  "iters": 600,
+  "learning_rate": 1e-05,
+  "lora_parameters": { "rank": 8, "dropout": 0.0, "scale": 20.0 },
+  "num_layers": 16,
+  "mask_prompt": true,
+  "max_seq_length": 2048,
+  "optimizer": "adam"
+}
+
+// nanb3-ccore-3js (stopped at iter 510, checkpoint 400 saved)
+{
+  "model": "/Volumes/X-Drive/models/nanb3",
+  "data": "/Users/pedroamaral/Documents/Datasets/SFT/Ccore-3js-3d",
+  "fine_tune_type": "lora",
+  "batch_size": 1,
+  "grad_accumulation_steps": 4,
+  "grad_checkpoint": true,
+  "iters": 1300,
+  "learning_rate": 7e-06,
+  "lora_parameters": { "rank": 8, "dropout": 0.0, "scale": 20.0 },
+  "num_layers": 16,
+  "mask_prompt": true,
+  "max_seq_length": 1024,
+  "trust_remote_code": true
+}</pre>
+        </div>
+
+        <div class="tab-panel" id="tab-ftpo-cfg">
+<pre class="code-block">// granite-4.0-h-antidoom
+{
+  "adapter_path": "/Volumes/X-Drive/models/LoRA/granite-4.0-h-antidoom",
+  "model": "/Volumes/X-Drive/models/granite-4.0-h",
+  "method": "antidoom-ftpo-mlx",
+  "num_layers": 16,
+  "lora_parameters": { "rank": 16, "dropout": 0.0, "scale": 32.0 },
+  "learning_rate": 1.5e-05,
+  "grad_accumulation_steps": 2,
+  "grad_checkpoint": false,
+  "max_seq_length": 2048,
+  "train_examples": 2,
+  "optimizer_steps": 4
+}
+
+// lfm450-antidoom
+{
+  "adapter_path": "/Volumes/X-Drive/models/LoRA/lfm450-antidoom",
+  "model": "/Volumes/X-Drive/models/lfm450",
+  "method": "antidoom-ftpo-mlx",
+  "num_layers": 16,
+  "lora_parameters": { "rank": 16, "dropout": 0.0, "scale": 32.0 },
+  "learning_rate": 1.5e-05,
+  "grad_accumulation_steps": 4,
+  "grad_checkpoint": false,
+  "max_seq_length": 2048,
+  "train_examples": 4,
+  "optimizer_steps": 4
+}
+
+// lfm3-2b-antidoom
+{
+  "adapter_path": "/Volumes/X-Drive/models/LoRA/lfm3-2b-antidoom",
+  "model": "/Volumes/X-Drive/models/lfm3-2b",
+  "method": "antidoom-ftpo-mlx",
+  "num_layers": 16,
+  "lora_parameters": { "rank": 16, "dropout": 0.0, "scale": 32.0 },
+  "learning_rate": 1e-05,
+  "grad_accumulation_steps": 2,
+  "grad_checkpoint": true,
+  "max_seq_length": 1536,
+  "train_examples": 2,
+  "optimizer_steps": 4
+}</pre>
+        </div>
+      </div>
+    </section>
+
+    <footer class="footer">
+      <span>Generated from verified logs and adapter manifests under <code class="inline">/Volumes/X-Drive/models/LoRA</code></span>
+      <span>UI crafted with <a href="https://heydamir.design/unslop" target="_blank" rel="noopener">unslop</a> by @heydamir · CC BY 4.0</span>
+    </footer>
+  </main>
+</div>
+
+<script>
+(function () {
+  // Exact parsed datasets from mlx_lm.lora logs
+  const SERIES = [
+    {
+      id: "granite-apple",
+      label: "granite-4.0-h-apple",
+      color: "var(--series-1)",
+      val: [[1,3.707],[100,2.248],[200,2.225],[300,1.981],[400,2.016],[500,1.793],[600,1.756]],
+      train: [[10,4.064,212],[20,2.747,392],[30,3.051,474],[40,2.326,476],[50,2.374,414],[60,2.233,523],[70,2.526,457],[80,2.065,574],[90,2.158,508],[100,1.931,463],[110,2.024,547],[120,1.935,463],[130,2.204,507],[140,2.160,465],[150,2.278,444],[160,1.989,471],[170,1.900,461],[180,1.916,493],[190,2.072,495],[200,2.207,487],[210,2.154,521],[220,1.812,584],[230,1.778,548],[240,2.219,476],[250,2.064,432],[260,1.569,468],[270,2.068,469],[280,1.897,503],[290,2.298,541],[300,2.419,485],[310,1.814,477],[320,1.558,424],[330,1.946,480],[340,1.641,578],[350,2.186,513],[360,2.325,443],[370,2.014,535],[380,2.346,488],[390,2.320,531],[400,1.975,500],[410,2.157,452],[420,2.130,491],[430,1.725,491],[440,1.515,577],[450,1.954,573],[460,2.021,506],[470,1.855,573],[480,1.926,456],[490,1.757,517],[500,1.935,496],[510,2.135,541],[520,1.714,461],[530,1.849,587],[540,2.122,465],[550,1.756,330],[560,1.734,333],[570,2.135,338],[580,2.152,329],[590,1.849,340],[600,1.971,373]]
+    },
+    {
+      id: "granite-code",
+      label: "granite-4.0-h-software-coding",
+      color: "var(--series-2)",
+      val: [[1,0.899],[100,0.653],[200,0.591],[300,0.608],[400,0.574],[500,0.612],[600,0.595]],
+      train: [[10,0.753,419],[20,0.577,425],[30,0.617,440],[40,0.644,440],[50,0.539,386],[60,0.568,448],[70,0.550,462],[80,0.499,445],[90,0.519,424],[100,0.563,462],[110,0.545,506],[120,0.512,519],[130,0.613,447],[140,0.553,542],[150,0.456,526],[160,0.553,459],[170,0.477,452],[180,0.545,487],[190,0.626,449],[200,0.523,555],[210,0.522,419],[220,0.556,460],[230,0.563,503],[240,0.567,484],[250,0.578,483],[260,0.470,519],[270,0.554,406],[280,0.448,503],[290,0.553,415],[300,0.542,474],[310,0.492,481],[320,0.548,462],[330,0.546,407],[340,0.512,507],[350,0.513,497],[360,0.530,435],[370,0.545,426],[380,0.494,495],[390,0.518,438],[400,0.497,470],[410,0.490,474],[420,0.474,405],[430,0.706,418],[440,0.499,432],[450,0.553,506],[460,0.488,482],[470,0.525,504],[480,0.485,516],[490,0.475,476],[500,0.577,470],[510,0.489,474],[520,0.475,512],[530,0.456,523],[540,0.529,481],[550,0.536,452],[560,0.495,491],[570,0.553,485],[580,0.527,476],[590,0.482,475],[600,0.475,481]]
+    },
+    {
+      id: "lfm450-apple",
+      label: "lfm450-apple",
+      color: "var(--series-3)",
+      val: [[1,3.040],[100,2.115],[200,2.130],[300,1.943],[400,1.958],[500,1.722],[600,1.695]],
+      train: [[10,3.511,721],[20,2.988,728],[30,3.125,799],[40,2.398,823],[50,2.240,767],[60,2.330,833],[70,2.724,740],[80,2.107,924],[90,2.334,805],[100,2.005,717],[110,2.033,886],[120,2.072,748],[130,2.312,784],[140,2.221,795],[150,2.220,762],[160,2.295,762],[170,1.937,744],[180,2.136,787],[190,2.021,787],[200,2.265,792],[210,2.345,828],[220,1.759,933],[230,1.732,896],[240,2.350,748],[250,2.139,744],[260,1.588,788],[270,2.235,758],[280,1.973,796],[290,2.394,881],[300,2.430,803],[310,1.831,796],[320,1.710,767],[330,2.035,830],[340,1.733,950],[350,2.201,855],[360,2.255,910],[370,2.049,897],[380,2.385,758],[390,2.252,874],[400,1.956,874],[410,2.225,751],[420,2.105,750],[430,1.743,761],[440,1.578,841],[450,1.837,954],[460,2.034,800],[470,1.998,965],[480,1.916,772],[490,1.808,840],[500,1.920,860],[510,2.100,880],[520,1.891,720],[530,1.951,1027],[540,2.248,903],[550,1.811,733],[560,1.746,742],[570,2.258,784],[580,2.242,775],[590,2.000,696],[600,2.012,859]]
+    },
+    {
+      id: "nanb3-ccore",
+      label: "nanb3-ccore-3js",
+      color: "var(--series-4)",
+      val: [[1,0.702],[200,0.362],[400,0.316]],
+      train: [[10,3.490,58],[20,3.512,58],[30,2.947,57],[40,2.827,57],[50,1.294,58],[60,1.983,57],[70,2.224,56],[80,2.058,56],[90,1.048,58],[100,1.254,51],[110,1.678,51],[120,1.679,51],[130,0.873,53],[140,1.129,52],[150,1.732,49],[160,1.812,49],[170,1.796,48],[180,1.343,49],[190,1.282,51],[200,1.822,45],[210,1.532,47],[220,1.395,48],[230,1.238,49],[240,1.249,48],[250,1.261,49],[260,1.317,48],[270,1.612,47],[280,1.414,51],[290,1.743,56],[300,0.884,51],[310,2.085,45],[320,0.787,50],[330,1.298,50],[340,1.197,50],[350,0.994,51],[360,1.184,48],[370,0.591,51],[380,1.124,50],[390,1.101,47],[400,1.389,46],[410,0.836,47],[420,0.868,47],[430,1.111,46],[440,1.591,46],[450,1.217,45],[460,1.362,53],[470,0.814,59],[480,0.544,55],[490,1.117,52],[500,0.831,55],[510,1.665,51]]
+    }
+  ];
+
+  let mode = "val";
+  const hidden = new Set();
+  const svg = document.getElementById("sft-chart");
+  const tooltip = document.getElementById("chart-tooltip");
+  const wrap = svg.parentElement;
+
+  function renderChart() {
+    const W = 960, H = 340;
+    const pad = { top: 20, right: 24, bottom: 38, left: 56 };
+    const pw = W - pad.left - pad.right;
+    const ph = H - pad.top - pad.bottom;
+
+    const visible = SERIES.filter(s => !hidden.has(s.id));
+    let xMax = 600;
+    let yMin = 0, yMax = 4.2;
+
+    if (mode === "tps") {
+      yMax = 1100;
+    } else if (mode === "train") {
+      yMax = 4.4;
+    } else {
+      yMax = 4.0;
+    }
+
+    const xScale = x => pad.left + (x / xMax) * pw;
+    const yScale = y => pad.top + ph - ((y - yMin) / (yMax - yMin)) * ph;
+
+    let html = "";
+    const yTicks = mode === "tps" ? [0, 250, 500, 750, 1000] : [0, 1, 2, 3, 4];
+    yTicks.forEach(t => {
+      const y = yScale(t);
+      html += `<line x1="${pad.left}" y1="${y}" x2="${W - pad.right}" y2="${y}" stroke="rgba(236,238,242,0.07)" stroke-dasharray="3 3"/>`;
+      html += `<text x="${pad.left - 10}" y="${y + 4}" text-anchor="end" fill="#6c7380" font-size="11" font-family="IBM Plex Mono, monospace">${t}</text>`;
+    });
+
+    [0, 100, 200, 300, 400, 500, 600].forEach(x => {
+      const xp = xScale(x);
+      html += `<line x1="${xp}" y1="${pad.top}" x2="${xp}" y2="${H - pad.bottom}" stroke="rgba(236,238,242,0.04)"/>`;
+      html += `<text x="${xp}" y="${H - 12}" text-anchor="middle" fill="#6c7380" font-size="11" font-family="IBM Plex Mono, monospace">iter ${x}</text>`;
+    });
+
+    const allPoints = [];
+
+    visible.forEach(s => {
+      const pts = mode === "val"
+        ? s.val.map(p => ({ x: p[0], y: p[1] }))
+        : mode === "train"
+          ? s.train.map(p => ({ x: p[0], y: p[1] }))
+          : s.train.map(p => ({ x: p[0], y: p[2] }));
+
+      if (!pts.length) return;
+      const d = pts.map((p, idx) => `${idx === 0 ? "M" : "L"}${xScale(p.x).toFixed(1)},${yScale(p.y).toFixed(1)}`).join(" ");
+      html += `<path d="${d}" fill="none" stroke="${s.color}" stroke-width="${mode === 'val' ? 2.2 : 1.7}" stroke-linejoin="round" stroke-linecap="round"/>`;
+
+      if (mode === "val") {
+        pts.forEach(p => {
+          html += `<circle cx="${xScale(p.x).toFixed(1)}" cy="${yScale(p.y).toFixed(1)}" r="3.5" fill="#131418" stroke="${s.color}" stroke-width="2"/>`;
+        });
+      }
+      pts.forEach(p => allPoints.push({ series: s.label, color: s.color, x: p.x, y: p.y, px: xScale(p.x), py: yScale(p.y) }));
+    });
+
+    html += `<rect id="chart-hitbox" x="${pad.left}" y="${pad.top}" width="${pw}" height="${ph}" fill="transparent"/>`;
+    html += `<line id="hover-line" x1="0" y1="${pad.top}" x2="0" y2="${H - pad.bottom}" stroke="rgba(236,238,242,0.22)" stroke-width="1" opacity="0"/>`;
+    svg.innerHTML = html;
+
+    const hitbox = document.getElementById("chart-hitbox");
+    const hoverLine = document.getElementById("hover-line");
+
+    hitbox.addEventListener("mousemove", e => {
+      const rect = svg.getBoundingClientRect();
+      const sx = ((e.clientX - rect.left) / rect.width) * W;
+      const sy = ((e.clientY - rect.top) / rect.height) * H;
+      let best = null, bestDist = Infinity;
+      for (const pt of allPoints) {
+        const dist = Math.hypot(pt.px - sx, pt.py - sy);
+        if (dist < bestDist) { bestDist = dist; best = pt; }
+      }
+      if (!best || bestDist > 60) {
+        tooltip.style.opacity = "0";
+        hoverLine.setAttribute("opacity", "0");
+        return;
+      }
+      hoverLine.setAttribute("x1", best.px);
+      hoverLine.setAttribute("x2", best.px);
+      hoverLine.setAttribute("opacity", "1");
+
+      const unit = mode === "tps" ? " tok/s" : mode === "val" ? " val" : " loss";
+      const valStr = mode === "tps" ? Math.round(best.y) : best.y.toFixed(3);
+      tooltip.innerHTML = `<div style="color:${best.color};margin-bottom:2px;">${best.series}</div><div>iter ${best.x} · ${valStr}${unit}</div>`;
+
+      const wrapRect = wrap.getBoundingClientRect();
+      const left = Math.min(e.clientX - wrapRect.left + 12, wrapRect.width - 210);
+      const top = Math.max(8, e.clientY - wrapRect.top - 48);
+      tooltip.style.left = left + "px";
+      tooltip.style.top = top + "px";
+      tooltip.style.opacity = "1";
+    });
+
+    hitbox.addEventListener("mouseleave", () => {
+      tooltip.style.opacity = "0";
+      hoverLine.setAttribute("opacity", "0");
+    });
+  }
+
+  document.querySelectorAll("#chart-mode .seg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#chart-mode .seg-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      mode = btn.dataset.mode;
+      renderChart();
+    });
+  });
+
+  document.querySelectorAll("#chart-legend .legend-item").forEach(item => {
+    item.addEventListener("click", () => {
+      const id = item.dataset.series;
+      if (hidden.has(id)) { hidden.delete(id); item.classList.remove("muted"); }
+      else { hidden.add(id); item.classList.add("muted"); }
+      renderChart();
+    });
+  });
+
+  renderChart();
+
+  // Adapter Filter
+  document.querySelectorAll("#adapter-filter .seg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#adapter-filter .seg-btn").forEach(b => b.classList.remove("active"));
+      btn.classList.add("active");
+      const f = btn.dataset.filter;
+      document.querySelectorAll("#adapter-table tbody tr").forEach(row => {
+        const tags = (row.dataset.tags || "").split(" ");
+        row.style.display = (f === "all" || tags.includes(f)) ? "" : "none";
+      });
+    });
+  });
+
+  // Config Tabs + Copy
+  document.querySelectorAll("#config-tabs .seg-btn").forEach(btn => {
+    btn.addEventListener("click", () => {
+      document.querySelectorAll("#config-tabs .seg-btn").forEach(b => b.classList.remove("active"));
+      document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+      btn.classList.add("active");
+      document.getElementById(btn.dataset.tab).classList.add("active");
+    });
+  });
+
+  const copyBtn = document.getElementById("copy-active");
+  copyBtn.addEventListener("click", () => {
+    const activePre = document.querySelector(".tab-panel.active pre");
+    if (!activePre) return;
+    navigator.clipboard.writeText(activePre.textContent).then(() => {
+      copyBtn.classList.add("copied");
+      copyBtn.querySelector("span").textContent = "Copied";
+      setTimeout(() => {
+        copyBtn.classList.remove("copied");
+        copyBtn.querySelector("span").textContent = "Copy active";
+      }, 1500);
+    });
+  });
+
+  // Active nav highlight on scroll
+  const navLinks = Array.from(document.querySelectorAll(".nav-item"));
+  const sections = navLinks.map(a => document.querySelector(a.getAttribute("href"))).filter(Boolean);
+  window.addEventListener("scroll", () => {
+    let cur = sections[0];
+    for (const s of sections) {
+      if (s.getBoundingClientRect().top <= 140) cur = s;
+    }
+    navLinks.forEach(a => a.classList.toggle("active", cur && a.getAttribute("href") === "#" + cur.id));
+  }, { passive: true });
+})();
+</script>
+</body>
+</html>

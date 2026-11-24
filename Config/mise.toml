@@ -20,6 +20,7 @@ agent-browser = "latest"
 rust = "latest"
 bottom = "latest"
 oxker = "latest"
+herdr = "latest"
 
 [settings]
 auto_update = true

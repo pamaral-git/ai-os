@@ -6,8 +6,9 @@ Selfhosted AI Operating/Orchestration System that underlies all of my work.
 
 ## Stack Map
 
-| Domain | Role in the stack | Preview examples |
-| :--- | :--- | :--- |
+| Domain | Role in the stack |
+| :--- | :--- | 
+| `Agents/` | Global Agent Customisations 
 | `Config/` | Rules, Runtime, Harness, Configurations | `AGENT.md`, `llama-swap.yaml` |
 | `Config/Openshell/` | Openshell Sandbox Configurations | `policy.yaml`, `DeepSeek-Harness/` |
 | `Docs/` | Live Pages and Writings | `InferenceX.html`, `Post-Training.html` |

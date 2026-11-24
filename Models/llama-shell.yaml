@@ -1,0 +1,395 @@
+# yaml-language-server: $schema=https://raw.githubusercontent.com/mostlygeek/llama-swap/refs/heads/main/config-schema.json
+
+healthCheckTimeout: 120
+globalTTL: 1200
+logLevel: info
+logToStdout: proxy
+captureBuffer: 0
+startPort: 10001
+sendLoadingState: true
+includeAliasesInList: false
+
+macros:
+  "root": "/Users/pedroamaral/models"
+  "conf": "/Users/pedroamaral/Documents/AI-Brain"
+  "bin": "llama-server --ui-config-file ${conf}/llama-conf.json"
+  "mmproj": "--image-min-tokens 1024 --mmproj ${root}"
+  "tool": "--tools all --agent --ui-mcp-proxy --ui-mcp-proxy-allow-private-urls"
+  "stdio": "--mcp-servers-config ${conf}/.mcp.json"
+  "reason": "--flash-attn on --reasoning-preserve"
+  "set": "--jinja -ngl 99 -t 4 -tb 4 -b 2048 --ctx-checkpoints 4"
+  "1-ram": "-ub 1024 --cache-ram 512"
+  "2-ram": "-ub 128 --cache-ram 256"
+  "1-slot": "--parallel 1"
+  "2-slot": "--parallel 2 --kv-unified"
+  "4-slot": "--parallel 4 --kv-unified"
+  "cache-q4": "--cache-type-k q4_0 --cache-type-v q4_0"
+  "cache-q5": "--cache-type-k q5_1 --cache-type-v q5_1"
+  "cache-q8": "--cache-type-k q8_0 --cache-type-v q8_0"
+
+models:
+
+  apple:
+    name: "Apple Intelligence"
+    description: "Apple Foundation Model"
+    aliases: ["AFM"]
+    useModelName: "system"
+    cmd: /usr/bin/fm serve --host 127.0.0.1 --port ${PORT}
+    proxy: http://127.0.0.1:${PORT}
+    checkEndpoint: /health
+    ttl: 0
+    unloadTimeout: 35
+
+  (ocr)cpm:
+    name: "CPM OCR"
+    description: "MINI CPM DSpark"
+    aliases: ["(OCR)CPM"]
+    capabilities:
+      in: [text, image]
+      out: [text]
+      tools: false
+      context: 90000
+    filters:
+      setParams:
+        temperature: 0.0
+        top_k: 50
+        repeat_penalty: 1.03
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} --special
+      -m ${root}/OCR/miniCPM-ocr.gguf -rea off
+      ${mmproj}/OCR/.mmproj-miniCPM-ocr.gguf
+      --model-draft ${root}/OCR/.dspark-miniCPM-ocr.gguf
+      --spec-type draft-dspark --spec-draft-n-max 15
+      ${set} ${cache-q8} -c 90000 ${4-slot}
+    ttl: 1000
+    unloadTimeout: 50
+
+  (ocr)surya:
+    name: "Surya OCR"
+    description: "Surya OCR"
+    aliases: ["(OCR)Surya"]
+    capabilities:
+      in: [text, image]
+      out: [text]
+      tools: false
+      context: 98304
+    filters:
+      setParams:
+        temperature: 0.0
+        top_k: 50
+        repeat_penalty: 1.03
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} --special
+      -m ${root}/OCR/surya-ocr-2.5.gguf -rea off
+      ${mmproj}/OCR/.mmproj-surya-ocr-2.5.gguf
+       ${set} ${cache-q8} -c 98304 ${4-slot}
+    ttl: 1000
+    unloadTimeout: 50
+
+  lfmMoE:
+    name: "LFM 2.5 MoE"
+    aliases: ["LFM 24B A2B"]
+    description: "A2B Text MoE"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 95000
+    filters:
+      setParams:
+        temperature: 0.1
+        top_k: 50
+        repeat_penalty: 1.05
+        reasoning_budget: 15000
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} ${reason}
+      -m ${root}/lfm-2.5-24b-a2b-Q5-heretic.gguf ${tool}
+      ${set} ${cache-q5} -c 90000 ${1-slot} ${1-ram}
+    ttl: 1000
+    unloadTimeout: 35
+
+  ling:
+    name: "Ling A1B"
+    aliases: ["Ling 8B A1B"]
+    description: "8B MoE A1B Text Model"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 70500
+    filters:
+      setParams:
+        temperature: 0.7
+        top_p: 0.95
+        top_k: 20
+        reasoning_budget: 20000
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} ${reason}
+      -m ${root}/ling-3-tiny-heretic.gguf ${tool}
+      ${set} ${cache-q5} -c 70500 ${2-slot} ${1-ram}
+    ttl: 1000
+    unloadTimeout: 35
+
+  cpm1bvl:
+    name: "MiniCPM-VL 1B"
+    aliases: ["MiniCPM VL"]
+    description: "1B Multimodal"
+    capabilities:
+      in: [text, image]
+      out: [text]
+      context: 95500
+      tools: true
+    filters:
+      setParams:
+        temperature: 0.60
+        top_p: 0.95
+        min_p: 0.0
+        repeat_penalty: 1.15
+        reasoning_budget: 15000
+        enable_thinking: True
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} ${reason}
+      -m ${root}/minicpm-vl-4.7-1b-heretic.gguf ${tool}
+      ${mmproj}/.mmproj-minicpm-4.7-1b.gguf ${set} ${cache-q8}
+      ${2-slot} -c 95500 --min-p 0.0 --repeat-penalty 1.15
+    ttl: 900
+    unloadTimeout: 30
+
+  cpm2b:
+    name: "MiniCPM5 2B"
+    aliases: ["MiniCPM5 2B"]
+    description: "2B Text Model"
+    capabilities:
+      in: [text]
+      out: [text]
+      context: 70500
+      tools: true
+    filters:
+      setParams:
+        temperature: 0.60
+        top_p: 0.95
+        min_p: 0.0
+        repeat_penalty: 1.05
+        reasoning_budget: 15000
+        enable_thinking: True
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} ${reason}
+      -m ${root}/miniCPM5-2B-heretic.gguf ${tool}
+      ${set} -c 70500 ${cache-q8} ${2-slot}
+      --min-p 0.0 --repeat-penalty 1.05
+    ttl: 900
+    unloadTimeout: 30
+
+  qwen4b:
+    name: "Qwen 4B"
+    aliases: ["Qwen 4B"]
+    description: "4B Dense Multimodal"
+    capabilities:
+      in: [text, image, audio, video]
+      out: [text]
+      context: 70500
+      tools: true
+    filters:
+      setParams:
+        temperature: 0.6
+        top_p: 0.95
+        min_p: 0.05
+        repeat_penalty: 1.05
+        reasoning_budget: 15000
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} ${reason}
+      -m ${root}/qwen-3.5-4B-Uncensored-Q6K.gguf ${tool}
+      ${mmproj}/.mmproj-qwen-4b.gguf ${set} 
+      ${2-slot} ${1-ram} -c 70500 ${cache-q5}
+    ttl: 900
+    unloadTimeout: 30
+
+  qwen3a:
+    name: "Qwen A3B"
+    aliases: ["Qwen 35B A3B"]
+    description: "35B MoE A3B Multimodal"
+    capabilities:
+      in: [text, image, audio, video]
+      out: [text]
+      tools: true
+      context: 60800
+    filters:
+      setParams:
+        temperature: 0.6
+        top_p: 0.95
+        top_k: 20
+        min_p: 0.0
+        repeat_penalty: 1.0
+        presence_penalty: 0
+        reasoning_budget: 12000
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} ${reason}
+      -m ${root}/qwen-3.6-35B-A3B-heretic-IQ3M.gguf ${tool}
+      ${mmproj}/.mmproj-qwen-3.6-f16.gguf ${1-ram}
+      ${set} -c 60800 ${cache-q8} ${1-slot}
+    unloadTimeout: 70
+
+  gemma4e:
+    name: "Gemma E4B"
+    aliases: ["Gemma E4B"]
+    description: "Gemma 8B E4B"
+    capabilities:
+      in: [text, image, video]
+      out: [text]
+      tools: true
+      context: 85800
+    filters:
+      setParams:
+        temperature: 0.6
+        top_p: 0.95
+        top_k: 64
+        min_p: 0.0
+        repeat_penalty: 1.0
+        presence_penalty: 0
+        reasoning_budget: 12000
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} ${reason}
+      -m ${root}/gemma-4-E4B-it-heretic.gguf ${tool}
+      ${mmproj}/.mmproj-gemma-4-e4b.gguf ${1-ram}
+      ${set} -c 85800 ${cache-q8} ${1-slot}
+    unloadTimeout: 70
+
+  gemma4a:
+    name: "Gemma A4B"
+    aliases: ["Gemma 25B A4B"]
+    description: "Gemma 4 25B A4B"
+    capabilities:
+      in: [text, image, audio, video]
+      out: [text]
+      tools: true
+      context: 49152
+    filters:
+      setParams:
+        temperature: 0.6
+        top_p: 0.95
+        top_k: 20
+        min_p: 0.0
+        repeat_penalty: 1.0
+        presence_penalty: 0
+        reasoning_budget: 12000
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} -ub 512 --cache-ram 256
+      -m ${root}/gemma-4-26B-A4B-it-heretic.Q4_K_S.gguf
+      ${mmproj}/.mmproj-gemma-4.gguf ${tool} 
+      ${set} -c 49152 ${cache-q4} ${1-slot}
+    unloadTimeout: 70
+
+  inkling:
+    name: "Inkling A3B"
+    aliases: ["Inkling 2 Mini 26B A3B"]
+    description: "26B MoE A3B Multimodal Looped"
+    capabilities:
+      in: [text, image]
+      out: [text]
+      tools: true
+      context: 32000
+    filters:
+      setParams:
+        temperature: 0.6
+        top_p: 0.95
+        top_k: 20
+        min_p: 0.0
+        repeat_penalty: 1.0
+        presence_penalty: 0
+        reasoning_budget: 11000
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} ${set}
+      -m ${root}/Inkling-2-Mini-IQ4XS.gguf ${tool}
+      ${mmproj}/.mmproj-Inkling-2-Mini-Q8_0.gguf
+      -c 32000 ${cache-q8} ${1-slot} ${reason} ${2-ram}
+    unloadTimeout: 70
+
+  nanbeige:
+    name: "Nanbeige"
+    aliases: ["Nanbeige"]
+    description: "Nanbeige 3B Dense"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 124000
+    filters:
+      setParams:
+        temperature: 0.6
+        top_p: 0.90
+        top_k: 40
+        min_p: 0.05
+        repeat_penalty: 1.0
+        presence_penalty: 0.15
+        reasoning_budget: 1536
+        chat_template_kwargs:
+          enable_thinking: true
+          reasoning_effort: "low"
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} ${reason}
+      -m ${root}/nanbeige-4.2-3B-ARA-heresy.gguf ${tool}
+      ${set} ${1-ram} -c 124000 ${cache-q4} ${4-slot} ${stdio}
+    unloadTimeout: 70
+
+  xspark:
+    name: "Spark 2.6 4B"
+    aliases: ["Spark"]
+    description: "Spark 4B Dense"
+    capabilities:
+      in: [text]
+      out: [text]
+      tools: true
+      context: 90800
+    filters:
+      setParams:
+        temperature: 0.7
+        top_p: 0.90
+        top_k: 40
+        min_p: 0.05
+        repeat_penalty: 1.0
+        presence_penalty: 0.15
+        reasoning_budget: 1536
+        chat_template_kwargs:
+          enable_thinking: true
+          reasoning_effort: "low"
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT} ${reason}
+      -m ${root}/spark-X2.6-4b-heretic.gguf ${tool} ${stdio}
+      ${set} -c 90800 ${cache-q8} ${1-ram} ${4-slot}
+    unloadTimeout: 70
+
+  embgemma:
+    name: "EmbeddingGemma 2"
+    description: "Text embeddings 768 dimensions"
+    cmd: |
+      ${bin} --host 127.0.0.1 --port ${PORT}
+      -m "/Users/pedroamaral/Library/Application Support/DigUp/Models/embeddinggemma-2-Q8_0.gguf"
+      --embedding --pooling mean -ngl 99 --flash-attn on
+      -c 8192 -b 8192 -ub 8192 --parallel 1 -t 4 -tb 4 --no-webui
+    ttl: 0
+    unloadTimeout: 20
+
+matrix:
+  vars:
+    l1a: ling
+    l2a: lfmMoE
+    ink: inkling
+    g4e: gemma4e
+    g4a: gemma4a
+    q3a: qwen3a
+    afm: apple
+    emb: embgemma
+    c1b: cpm1bvl
+    c2b: cpm2b
+    q4b: qwen4b
+    x4b: xspark
+    n3b: nanbeige
+    1vr: (ocr)surya
+    2vr: (ocr)cpm
+
+  sets:
+    low: "emb & (1vr | 2vr) & afm"
+    tiny: "+low & c1b & (n3b | c2b)"
+    smol: "+low & (q4b | x4b | n3b)"
+    moe: "ink | l1a | g4a | q3a | g4e"
+    chat: "+low & (l2a | q4b)"
