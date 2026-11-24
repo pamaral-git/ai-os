@@ -1,22 +1,30 @@
-# [AI Operating System](https://pamaral-git.github.io/ai-os/)
+# [AI Orchestration System](https://pamaral-git.github.io/ai-os/Docs/index.html)
 
 Selfhosted AI Operating/Orchestration System that underlies all of my work.
 
-**Hardware**: `MacBook Pro M4-24GB RAM` | **Software**: `iOS; MacOS; Openshell; llama.cpp; Oh My Pi; Docker; Podman`
+**💾 AI-STACK:**
+> **Doubtful where to start → [Get Overview](https://pamaral-git.github.io/ai-os/Docs/index.html)**
 
-## Stack Map
+|  | Specs |
+| :-- | :-- |
+| Hardware | MacBook Pro M4 24GB-RAM |
+| Software | MacOS/iOS, Docker, Podman |
+| Inference | llama.cpp, MLX, LiteRT, ONNX |
+| Harness | Oh My Pi & DSH in Openshell |
 
-| Domain | Role in the stack |
-| :--- | :--- | 
-| `Agents/` | Global Agent Customisations 
-| `Config/` | Rules, Runtime, Harness, Configurations | `AGENT.md`, `llama-swap.yaml` |
-| `Config/Openshell/` | Openshell Sandbox Configurations | `policy.yaml`, `DeepSeek-Harness/` |
-| `Docs/` | Live Pages and Writings | `InferenceX.html`, `Post-Training.html` |
-| `Finetune/` | MLX Toolkit for Finetunes | `Cargo.toml` ... |
-| `Skills/` | Reusable Agent capabilities | `academic`, `write` |
-| `Subagents/` | Custom AI Subagents | `therapy`, `recursive` |
-| `Tools/` | Services and Tools | `compose.yaml`, `./Snippets` |
-| `Prompts/` | System and Task Text prompts | `poetry`, `steelman` |
-| `Loops/` | Agentic Running Loops | `rewrite`, `verify` |
-| `Scripts/` | Terminal Execution Scripts | `stack-audit.sh`, `nvidia-nim.py` |
 
+**🔍 AI-OS PREVIEW:**
+> **AI-OS Builds → [Fusion](https://pamaral-git.github.io/fusion/) ◦ [Heretically (fork)](https://github.com/pamaral-git/heretically)**
+
+|  | Purpose |
+| :--- | :--- |
+| `Docs` | Interactive Web Pages |
+| `Agents` | Global AI Customisations |
+| `Config` | System Configurations |
+| `Docker` | Container Env. Services |
+| `Loops` | Loops for AI Agents |
+| `Models` | Local AI Models |
+| `Prompts` | Prompts for Basic AI |
+| `Scripts` | Execution Command Scripts |
+| `Skills` | Skills for AI Customisation |
+| `Subagents` | Subagents Individual Toolkits |
